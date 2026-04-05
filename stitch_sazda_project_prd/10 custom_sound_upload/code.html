@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "error-container": "#ffdad6",
+              "primary": "#003527",
+              "on-tertiary-fixed": "#281903",
+              "error": "#ba1a1a",
+              "surface": "#fbfbe2",
+              "on-background": "#1b1d0e",
+              "on-surface-variant": "#404944",
+              "surface-variant": "#e4e4cc",
+              "surface-container-low": "#f5f5dc",
+              "on-secondary-container": "#745c00",
+              "primary-container": "#064e3b",
+              "secondary-container": "#fed65b",
+              "background": "#fbfbe2",
+              "secondary": "#735c00",
+              "on-secondary": "#ffffff",
+              "outline-variant": "#bfc9c3",
+              "on-primary-container": "#80bea6",
+              "surface-container-highest": "#e4e4cc",
+              "surface-container-high": "#eaead1",
+              "surface-container-lowest": "#ffffff"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+      }
+      .glass-effect {
+        backdrop-filter: blur(24px);
+        -webkit-backdrop-filter: blur(24px);
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-background min-h-screen pb-32">
+<!-- Top Navigation Anchor -->
+<header class="fixed top-0 w-full z-50 bg-[#f5f5dc] dark:bg-[#064e3b] flex justify-between items-center px-6 py-4">
+<div class="flex items-center gap-3">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#e4e4cc] transition-colors duration-300">
+<span class="material-symbols-outlined text-primary dark:text-secondary-container" data-icon="menu">menu</span>
+</button>
+<h1 class="text-primary dark:text-secondary-container font-headline font-black tracking-tighter text-2xl">Sazda</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary-container overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up portrait of a serene man with a short beard in soft natural lighting, professional and peaceful atmosphere" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAIQ1HiahqSXg_KCXVMlRjNHjWsrBYp-1WkiQKL33w1r46IJHgpWl-JoO_M81qzEhyU93lX8WWAen-uqfSk4yhHo_S6yRtyGF1qSmIywwGTl1Vqp9JSUotygnxDgxTc0VFL1uuqggeTV4XVJvslzxx4ToWWNfwSI-echDlMHDMuXBAPs26lxBJAX0fobpi6hn3Ycg59sRAwsB6rTv1RdrN00Qr8bAtroakSPcLJfjQFPDJddKpVrgNk-QK_B1JSxjaeaqdaHClvv2M"/>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto">
+<!-- Hero Header -->
+<div class="mb-10">
+<h2 class="font-headline font-bold text-4xl text-primary tracking-tight mb-2">Upload Custom Sound</h2>
+<p class="text-on-surface-variant font-medium">Personalize your spiritual atmosphere with unique audio.</p>
+</div>
+<!-- Upload Area (Large Action) -->
+<section class="mb-12">
+<div class="relative group cursor-pointer">
+<div class="absolute inset-0 bg-primary-container rounded-xl opacity-5 blur-xl group-hover:opacity-10 transition-opacity"></div>
+<label class="relative block bg-surface-container-lowest border-2 border-dashed border-outline-variant rounded-xl p-12 text-center transition-all duration-300 hover:border-primary-container hover:bg-surface-container-low cursor-pointer" for="file-upload">
+<input accept="audio/*" class="hidden" id="file-upload" type="file"/>
+<div class="flex flex-col items-center">
+<div class="w-20 h-20 bg-primary-container text-on-primary rounded-full flex items-center justify-center mb-6 shadow-[0_12px_40px_rgba(6,78,59,0.15)]">
+<span class="material-symbols-outlined text-4xl" data-icon="cloud_upload">cloud_upload</span>
+</div>
+<h3 class="text-xl font-bold text-primary mb-2">Select Audio File</h3>
+<p class="text-on-surface-variant text-sm max-w-xs mx-auto">Click to browse or drag and drop your audio files here</p>
+</div>
+</label>
+</div>
+<!-- Help Note Component -->
+<div class="mt-6 flex items-start gap-3 p-4 bg-surface-container-high rounded-lg">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="info">info</span>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+<span class="font-bold text-primary block mb-0.5">Note</span>
+                    Sound should be short and clear. Recommended formats: MP3, WAV, or M4A (Max 5MB).
+                </p>
+</div>
+</section>
+<!-- Managed Files Section (Bento-ish List) -->
+<section>
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline font-bold text-xl text-primary">Your Library</h3>
+<span class="text-xs font-bold uppercase tracking-widest text-primary opacity-50">1 File Uploaded</span>
+</div>
+<div class="space-y-4">
+<!-- Single File Item -->
+<div class="bg-surface-container-lowest p-6 rounded-lg flex items-center justify-between group hover:shadow-lg transition-shadow duration-300">
+<div class="flex items-center gap-5">
+<div class="w-12 h-12 bg-secondary-container rounded-full flex items-center justify-center text-primary">
+<span class="material-symbols-outlined" data-icon="music_note" style="font-variation-settings: 'FILL' 1;">music_note</span>
+</div>
+<div>
+<p class="font-bold text-primary text-lg leading-tight">My_Adhan.mp3</p>
+<p class="text-sm text-on-surface-variant font-medium">Uploaded 2 days ago • 1.2 MB</p>
+</div>
+</div>
+<div class="flex gap-2">
+<button class="p-3 rounded-full text-primary hover:bg-surface-container-low transition-colors" title="Replace">
+<span class="material-symbols-outlined" data-icon="sync">sync</span>
+</button>
+<button class="p-3 rounded-full text-error hover:bg-error-container transition-colors" title="Remove">
+<span class="material-symbols-outlined" data-icon="delete">delete</span>
+</button>
+</div>
+</div>
+<!-- Empty State Suggestion (Asymmetric Design Element) -->
+<div class="bg-primary/5 rounded-lg p-8 flex flex-col items-center justify-center text-center opacity-60 border border-primary/10">
+<div class="mb-4 text-primary">
+<span class="material-symbols-outlined text-3xl" data-icon="library_music">library_music</span>
+</div>
+<p class="text-sm font-medium italic">Record your own voice for a truly personal sanctuary experience</p>
+</div>
+</div>
+</section>
+<!-- Aesthetic Decoration -->
+<div class="mt-16 opacity-10 flex justify-center pointer-events-none">
+<div class="w-32 h-1 bg-primary rounded-full blur-xl"></div>
+</div>
+</main>
+<!-- Bottom Navigation Shell -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-[#fbfbe2]/80 backdrop-blur-xl shadow-[0_-12px_40px_rgba(6,78,59,0.06)] rounded-t-[3rem]">
+<button class="flex flex-col items-center justify-center text-[#064e3b] opacity-70 hover:opacity-100 transition-all duration-300">
+<span class="material-symbols-outlined mb-1" data-icon="settings_remote">settings_remote</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest">Prayers</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-[#064e3b] text-[#fbfbe2] rounded-full px-5 py-2 scale-105 transition-all duration-300">
+<span class="material-symbols-outlined mb-1" data-icon="notifications_active" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest">Settings</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#064e3b] opacity-70 hover:opacity-100 transition-all duration-300">
+<span class="material-symbols-outlined mb-1" data-icon="explore">explore</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest">Qibla</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#064e3b] opacity-70 hover:opacity-100 transition-all duration-300">
+<span class="material-symbols-outlined mb-1" data-icon="group">group</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest">Community</span>
+</button>
+</nav>
+</body></html>

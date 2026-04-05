@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sazda - Inheritance Calculator</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbfbe2",
+                        "on-tertiary-fixed-variant": "#574329",
+                        "inverse-on-surface": "#f2f2d9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#2b6954",
+                        "tertiary-container": "#554127",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dbdcc3",
+                        "error-container": "#ffdad6",
+                        "surface": "#fbfbe2",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#80bea6",
+                        "primary-fixed": "#b0f0d6",
+                        "surface-container": "#efefd7",
+                        "tertiary-fixed-dim": "#dfc29f",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#95d3ba",
+                        "on-surface": "#1b1d0e",
+                        "outline": "#707974",
+                        "tertiary-fixed": "#fcdeba",
+                        "on-secondary-fixed-variant": "#574500",
+                        "outline-variant": "#bfc9c3",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e4e4cc",
+                        "secondary": "#735c00",
+                        "on-tertiary-container": "#c9ae8c",
+                        "surface-container-high": "#eaead1",
+                        "on-primary-fixed": "#002117",
+                        "background": "#fbfbe2",
+                        "secondary-fixed-dim": "#e9c349",
+                        "inverse-primary": "#95d3ba",
+                        "surface-container-low": "#f5f5dc",
+                        "on-secondary-fixed": "#241a00",
+                        "inverse-surface": "#303221",
+                        "on-primary-fixed-variant": "#0b513d",
+                        "on-secondary-container": "#745c00",
+                        "secondary-fixed": "#ffe088",
+                        "tertiary": "#3d2b13",
+                        "on-background": "#1b1d0e",
+                        "primary": "#003527",
+                        "primary-container": "#064e3b",
+                        "surface-variant": "#e4e4cc",
+                        "on-surface-variant": "#404944",
+                        "on-tertiary-fixed": "#281903",
+                        "secondary-container": "#fed65b"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>.material-symbols-outlined {
+    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24
+    }
+.islamic-pattern {
+    background-image: url(https://lh3.googleusercontent.com/aida-public/AB6AXuAt7_84hKGflxwx6qYv7WY_0BWTM3lQEgTzpmJf8mAVt4QYqQe2HCmjV3KDfzGYQ_2Z72oyTk-ZX6PBRsT4cu1kRoBi2Xg4LHhZwxmEdIE_8yI6Tge2mGuN-ywoe16VzsUe_arsDKkfv0FS32_sJEBdiGw5kcVJafhgyuLBzZscVx9OgI5UyZQmTgNicnEXEUx8t9W2-WqP35ig2EMIhGdJIuKTA5Q3B2_XWPcl3tf67WSBnHlUjvDiAH5COQDIQVTBJL_tXDr4akM);
+    opacity: 0.05
+    }</style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 backdrop-blur-2xl">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#003527]">menu</span>
+<h1 class="font-['Manrope'] font-black italic text-lg tracking-tight text-[#003527]">Sazda</h1>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary-container/20 flex items-center justify-center overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="User profile circular avatar photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAmO5v87vwdtLPkAyC6BEzU_mBNrqoGx4p7d9xKUC3_oNRUr5RC6quavt13-C2YF16TcaTuP-7RDTbKUmCN9hh2Vu5E_nDVem8fvyEzM3581IFW-HczixcjOkMS0IKlcnshQDxicf-DHZw1y7SbC9ezUclatnZfLlimWI53ZYUZxQCNoyJORjORqkFQYzK0Vy-acY3cQsaIWvJVOA9EHWA3JnfPi6FmOGaoWgIN2jSnPcZwhsuaHcOJr8u7iO2otwh36p-7vMsrL2k"/>
+</div>
+</header>
+<main class="pt-20 px-6 max-w-2xl mx-auto space-y-8">
+<!-- Hero Header -->
+<section class="relative overflow-hidden rounded-xl bg-gradient-to-br from-primary to-primary-container p-8 text-on-primary">
+<div class="absolute inset-0 islamic-pattern"></div>
+<div class="relative z-10 space-y-2">
+<h2 class="font-headline text-3xl font-bold tracking-tight">Inheritance Calculator</h2>
+<p class="text-on-primary/70 text-sm max-w-[80%]">Calculate asset distribution accurately based on Sharia principles and Fara'id laws.</p>
+</div>
+</section>
+<!-- Input Section -->
+<section class="space-y-6">
+<div class="bg-surface-container-low p-6 rounded-xl space-y-4">
+<label class="block font-headline font-bold text-primary text-sm uppercase tracking-wider">Total Inheritance Amount</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-secondary text-xl">$</span>
+<input class="w-full pl-10 pr-4 py-4 bg-surface-container-lowest border-none rounded-lg focus:ring-2 focus:ring-primary/20 text-xl font-bold text-primary" placeholder="0.00" type="number"/>
+</div>
+</div>
+<!-- Family Grid -->
+<div class="space-y-4">
+<h3 class="font-headline font-bold text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">family_history</span>
+                    Immediate Family Members
+                </h3>
+<div class="grid grid-cols-2 gap-4">
+<!-- Member Card -->
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center gap-3 border-b-4 border-transparent hover:border-secondary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-3xl text-primary">woman_2</span>
+<span class="font-semibold text-sm">Wife</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center">-</button>
+<span class="font-bold">1</span>
+<button class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">+</button>
+</div>
+</div>
+<!-- Member Card -->
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center gap-3 opacity-50 grayscale cursor-not-allowed">
+<span class="material-symbols-outlined text-3xl text-primary">man_2</span>
+<span class="font-semibold text-sm">Husband</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center">-</button>
+<span class="font-bold">0</span>
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center">+</button>
+</div>
+</div>
+<!-- Member Card -->
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center gap-3 border-b-4 border-transparent hover:border-secondary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-3xl text-primary">child_care</span>
+<span class="font-semibold text-sm">Children</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center">-</button>
+<span class="font-bold">3</span>
+<button class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">+</button>
+</div>
+</div>
+<!-- Member Card -->
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center gap-3 border-b-4 border-transparent hover:border-secondary transition-all cursor-pointer">
+<span class="material-symbols-outlined text-3xl text-primary">elderly</span>
+<span class="font-semibold text-sm">Parents</span>
+<div class="flex items-center gap-3">
+<button class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center">-</button>
+<span class="font-bold">2</span>
+<button class="w-8 h-8 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container">+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Visual Breakdown Section -->
+<section class="bg-surface-container-lowest p-8 rounded-xl shadow-[0_-12px_40px_rgba(6,78,59,0.04)] space-y-8">
+<div class="flex justify-between items-end">
+<h3 class="font-headline font-bold text-2xl text-primary">Distribution Result</h3>
+<span class="text-xs font-bold text-secondary uppercase tracking-tighter">Live Calculation</span>
+</div>
+<div class="flex flex-col md:flex-row items-center gap-8">
+<!-- Simple Representative Chart -->
+<div class="relative w-48 h-48 flex-shrink-0">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 36 36">
+<circle class="stroke-surface-container-highest" cx="18" cy="18" fill="none" r="16" stroke-width="4"></circle>
+<!-- Wife 1/8 -->
+<circle class="stroke-secondary" cx="18" cy="18" fill="none" r="16" stroke-dasharray="12.5 100" stroke-width="4"></circle>
+<!-- Children -->
+<circle class="stroke-primary" cx="18" cy="18" fill="none" r="16" stroke-dasharray="60 100" stroke-dashoffset="-12.5" stroke-width="4"></circle>
+<!-- Parents -->
+<circle class="stroke-primary-container" cx="18" cy="18" fill="none" r="16" stroke-dasharray="27.5 100" stroke-dashoffset="-72.5" stroke-width="4"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-xs text-outline font-semibold uppercase">Total</span>
+<span class="text-lg font-bold text-primary">100%</span>
+</div>
+</div>
+<!-- List Detail -->
+<div class="flex-grow space-y-4 w-full">
+<div class="flex justify-between items-center p-3 bg-surface rounded-lg">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-secondary"></div>
+<span class="font-medium text-sm">Wife (1/8)</span>
+</div>
+<span class="font-bold text-primary">$12,500</span>
+</div>
+<div class="flex justify-between items-center p-3 bg-surface rounded-lg">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="font-medium text-sm">Children (Residue)</span>
+</div>
+<span class="font-bold text-primary">$60,000</span>
+</div>
+<div class="flex justify-between items-center p-3 bg-surface rounded-lg">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-primary-container"></div>
+<span class="font-medium text-sm">Parents (1/6 Each)</span>
+</div>
+<span class="font-bold text-primary">$27,500</span>
+</div>
+</div>
+</div>
+<div class="pt-4 border-t border-outline-variant/20 flex flex-col gap-4">
+<div class="flex items-start gap-2 text-outline text-xs italic">
+<span class="material-symbols-outlined text-[14px]">info</span>
+<p>Logic Based on Sharia: This calculation is based on the standard Fara'id system. Complex cases involving siblings or varying schools of thought may require consultation with an Alim.</p>
+</div>
+<button class="w-full py-4 bg-secondary-container text-on-secondary-container rounded-full font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined">picture_as_pdf</span>
+                    Export PDF Statement
+                </button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end pb-6 px-4 bg-[#fbfbe2]/90 backdrop-blur-3xl shadow-[0_-12px_40px_rgba(6,78,59,0.06)] rounded-t-[3rem]">
+<div class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Home</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Quran</span>
+</div>
+<div class="flex flex-col items-center justify-center bg-[#064e3b] text-[#fbfbe2] rounded-full w-14 h-14 -mt-4 shadow-lg scale-110 transition-all duration-300">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[8px] font-bold uppercase tracking-[0.15em] mt-0.5">Tools</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Community</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Profile</span>
+</div>
+</nav>
+</body></html>

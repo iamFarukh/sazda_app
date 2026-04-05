@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-low": "#f5f5dc",
+              "surface-container": "#efefd7",
+              "surface-bright": "#fbfbe2",
+              "surface": "#fbfbe2",
+              "on-secondary-fixed": "#241a00",
+              "on-secondary-container": "#745c00",
+              "on-primary": "#ffffff",
+              "background": "#fbfbe2",
+              "tertiary-fixed-dim": "#dfc29f",
+              "primary-fixed-dim": "#95d3ba",
+              "outline": "#707974",
+              "on-primary-fixed": "#002117",
+              "secondary-fixed-dim": "#e9c349",
+              "on-secondary-fixed-variant": "#574500",
+              "tertiary-container": "#554127",
+              "on-primary-fixed-variant": "#0b513d",
+              "tertiary": "#3d2b13",
+              "primary": "#003527",
+              "inverse-primary": "#95d3ba",
+              "on-tertiary-fixed": "#281903",
+              "surface-container-highest": "#e4e4cc",
+              "secondary-container": "#fed65b",
+              "outline-variant": "#bfc9c3",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "tertiary-fixed": "#fcdeba",
+              "surface-container-high": "#eaead1",
+              "on-primary-container": "#80bea6",
+              "inverse-surface": "#303221",
+              "secondary": "#735c00",
+              "on-background": "#1b1d0e",
+              "secondary-fixed": "#ffe088",
+              "primary-fixed": "#b0f0d6",
+              "on-error": "#ffffff",
+              "on-tertiary": "#ffffff",
+              "on-tertiary-fixed-variant": "#574329",
+              "surface-variant": "#e4e4cc",
+              "on-error-container": "#93000a",
+              "surface-container-lowest": "#ffffff",
+              "on-surface": "#1b1d0e",
+              "error-container": "#ffdad6",
+              "on-surface-variant": "#404944",
+              "surface-dim": "#dbdcc3",
+              "primary-container": "#064e3b",
+              "on-tertiary-container": "#c9ae8c",
+              "inverse-on-surface": "#f2f2d9",
+              "surface-tint": "#2b6954"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .sacred-gradient {
+            background: linear-gradient(135deg, #003527 0%, #064e3b 100%);
+        }
+        .soft-glow {
+            box-shadow: 0 -12px 40px rgba(6, 78, 59, 0.06);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased min-h-screen flex flex-col overflow-hidden">
+<!-- Top App Bar (Suppressed on Onboarding as per "The Destination Rule") -->
+<main class="flex-1 flex flex-col items-center justify-center px-8 relative">
+<!-- Decorative Background Element (Asymmetrical) -->
+<div class="absolute -top-20 -right-20 w-80 h-80 bg-surface-container-highest rounded-full opacity-40 blur-3xl"></div>
+<div class="absolute bottom-1/4 -left-10 w-64 h-64 bg-secondary-container rounded-full opacity-20 blur-2xl"></div>
+<!-- Illustration Section (Bento Inspired Layout) -->
+<div class="w-full max-w-md mb-12 relative">
+<div class="grid grid-cols-6 grid-rows-6 gap-4 h-80">
+<!-- Main Feature Card: Compass -->
+<div class="col-span-4 row-span-4 bg-surface-container-lowest rounded-xl flex items-center justify-center relative overflow-hidden shadow-sm">
+<div class="absolute inset-0 opacity-5" data-alt="Subtle geometric Islamic pattern texture" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDljFygMiHu4RMjH-tKQ4T2eZCt-x_0WXCRkjudq-0PYWiPK_LMjXvYH2hJfHPOWrwIS2o-BMhzXtwEWgXF38jzvnpefBp2kk_T_Lcf_o5IHEnjO4Run3mOWsE7Md17ggYCzf12WlcO5N7poEVcyk_Jj000Ehk6DmJemDGsGcLoR_TavpuFzZHmvl4JyyJU7VKYdrJ25oLoRIKa3CcKm4JWZwdbbwt2TK-F-xrzO6S9iq_rNwaHUUxD6Qkh2Kfv4ngP7arnu8HkgGQ');"></div>
+<div class="relative flex flex-col items-center">
+<span class="material-symbols-outlined text-8xl text-primary" style="font-variation-settings: 'wght' 200;">explore</span>
+<div class="mt-2 w-16 h-1 bg-secondary rounded-full"></div>
+</div>
+</div>
+<!-- Secondary Feature: Zakat -->
+<div class="col-span-2 row-span-3 bg-primary-container rounded-xl flex flex-col items-center justify-center p-4">
+<span class="material-symbols-outlined text-surface text-4xl mb-2">payments</span>
+<div class="h-1 w-8 bg-on-primary-container/30 rounded-full"></div>
+</div>
+<!-- Community Feature: Dua Wall -->
+<div class="col-span-2 row-span-3 bg-secondary-container rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container text-4xl" style="font-variation-settings: 'FILL' 1;">favorite</span>
+</div>
+<!-- Small Grid Accents -->
+<div class="col-span-2 row-span-2 bg-surface-container-highest rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-primary/40 text-2xl">diversity_3</span>
+</div>
+<div class="col-span-2 row-span-2 border border-outline-variant/20 rounded-xl flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary text-2xl">calculate</span>
+</div>
+</div>
+</div>
+<!-- Content Section -->
+<div class="w-full max-w-md text-center">
+<h1 class="font-headline text-4xl font-extrabold tracking-tight text-primary mb-6">
+                Spiritual Tools
+            </h1>
+<p class="text-on-surface-variant text-lg leading-relaxed mb-10 px-4">
+                Access Qibla finder, Zakat calculator, and share your journey on the Dua Wall.
+            </p>
+</div>
+<!-- Progress Indicators (Navigation Dots) -->
+<div class="flex gap-3 mb-12">
+<div class="w-2 h-2 rounded-full bg-surface-container-highest"></div>
+<div class="w-2 h-2 rounded-full bg-surface-container-highest"></div>
+<div class="w-8 h-2 rounded-full bg-primary"></div>
+</div>
+<!-- Action Button -->
+<div class="w-full max-w-xs px-4 pb-12">
+<button class="w-full sacred-gradient text-surface font-semibold py-5 rounded-full shadow-lg hover:opacity-90 transition-opacity duration-300 flex items-center justify-center gap-2 group">
+<span class="font-label">Get Started</span>
+<span class="material-symbols-outlined text-xl group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+</main>
+<!-- Bottom Navigation Suppressed for Onboarding Flow -->
+</body></html>

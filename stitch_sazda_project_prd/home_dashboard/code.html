@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sazda - Digital Sanctuary</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbfbe2",
+                        "on-tertiary-fixed-variant": "#574329",
+                        "inverse-on-surface": "#f2f2d9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#2b6954",
+                        "tertiary-container": "#554127",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dbdcc3",
+                        "error-container": "#ffdad6",
+                        "surface": "#fbfbe2",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#80bea6",
+                        "primary-fixed": "#b0f0d6",
+                        "surface-container": "#efefd7",
+                        "tertiary-fixed-dim": "#dfc29f",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#95d3ba",
+                        "on-surface": "#1b1d0e",
+                        "outline": "#707974",
+                        "tertiary-fixed": "#fcdeba",
+                        "on-secondary-fixed-variant": "#574500",
+                        "outline-variant": "#bfc9c3",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e4e4cc",
+                        "secondary": "#735c00",
+                        "on-tertiary-container": "#c9ae8c",
+                        "surface-container-high": "#eaead1",
+                        "on-primary-fixed": "#002117",
+                        "background": "#fbfbe2",
+                        "secondary-fixed-dim": "#e9c349",
+                        "inverse-primary": "#95d3ba",
+                        "surface-container-low": "#f5f5dc",
+                        "on-secondary-fixed": "#241a00",
+                        "inverse-surface": "#303221",
+                        "on-primary-fixed-variant": "#0b513d",
+                        "on-secondary-container": "#745c00",
+                        "secondary-fixed": "#ffe088",
+                        "tertiary": "#3d2b13",
+                        "on-background": "#1b1d0e",
+                        "primary": "#003527",
+                        "primary-container": "#064e3b",
+                        "surface-variant": "#e4e4cc",
+                        "on-surface-variant": "#404944",
+                        "on-tertiary-fixed": "#281903",
+                        "secondary-container": "#fed65b"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            background-color: #fbfbe2;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l2.5 12.5L45 15l-12.5 2.5L30 30l-2.5-12.5L15 15l12.5-2.5z' fill='%23064e3b' fill-opacity='0.02' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-nav {
+            backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface antialiased min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 dark:bg-emerald-950/80 backdrop-blur-2xl">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#003527] dark:text-[#fed65b] cursor-pointer">menu</span>
+<span class="font-['Manrope'] font-black italic text-lg tracking-tight text-[#003527] dark:text-[#fed65b]">Sazda</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest overflow-hidden border-2 border-secondary-container">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="Ahmed's profile portrait" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu1LMXcq3JLWU-Bx-MUJw29qeurzLbs3zqu3R2pK_1cP22QpUfzVnzlS4B8a0yqHQV7TD8bql4O3yReDnMPv_HHyY3oXMjRIDtLM8WBFbuvPL_Ooh9-zHDT6uamVALN3q1ZINwZ-bP7H4pcwOuFZb30vPEYl25KxXMEymqmo5iC4ZRGB6pZXpTqfPH_XukhqlA5zm93FzI_DLrkSA8dF8_ccFc4FNoVDmFNXVWIw1LoIjjLPGImsHsce4HMw-LCrYua9P3bJ5bIRU"/>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto space-y-10">
+<!-- Greeting Section -->
+<section class="space-y-1">
+<h2 class="font-headline font-bold text-3xl tracking-tight text-primary">Assalamu Alaikum, Ahmed</h2>
+<p class="text-on-surface-variant font-medium opacity-70">Welcome back to your sanctuary.</p>
+</section>
+<!-- Main Prayer Feature -->
+<section class="relative group">
+<div class="absolute -inset-1 bg-secondary-container blur-2xl opacity-10 rounded-xl"></div>
+<div class="relative bg-primary bg-gradient-to-br from-primary to-primary-container p-8 rounded-xl shadow-[0_12px_40px_rgba(6,78,59,0.15)] text-on-primary flex flex-col items-center text-center">
+<span class="font-label uppercase tracking-[0.2em] text-[10px] text-on-primary-container mb-4">Current Prayer</span>
+<div class="flex items-baseline gap-2 mb-2">
+<h1 class="font-headline font-extrabold text-5xl">Dhuhr</h1>
+<span class="text-secondary-container font-headline font-bold text-2xl">12:30 PM</span>
+</div>
+<div class="mt-6 flex items-center gap-3 bg-white/5 px-6 py-3 rounded-full backdrop-blur-md">
+<span class="material-symbols-outlined text-secondary-container" style="font-variation-settings: 'FILL' 1;">schedule</span>
+<span class="font-body font-semibold text-sm">Time to Asr: <span class="text-secondary-container">3h 15m</span></span>
+</div>
+</div>
+</section>
+<!-- Quick Actions Bento Grid -->
+<section class="grid grid-cols-4 gap-4">
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-16 h-16 bg-surface-container-low rounded-lg flex items-center justify-center group-hover:bg-secondary-container transition-all duration-300">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="menu_book">menu_book</span>
+</div>
+<span class="font-label text-[11px] font-bold text-primary uppercase tracking-wider">Quran</span>
+</div>
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-16 h-16 bg-surface-container-low rounded-lg flex items-center justify-center group-hover:bg-secondary-container transition-all duration-300">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="explore">explore</span>
+</div>
+<span class="font-label text-[11px] font-bold text-primary uppercase tracking-wider">Qibla</span>
+</div>
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-16 h-16 bg-surface-container-low rounded-lg flex items-center justify-center group-hover:bg-secondary-container transition-all duration-300">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="counter_3">counter_3</span>
+</div>
+<span class="font-label text-[11px] font-bold text-primary uppercase tracking-wider">Tasbeeh</span>
+</div>
+<div class="flex flex-col items-center gap-2 group cursor-pointer">
+<div class="w-16 h-16 bg-surface-container-low rounded-lg flex items-center justify-center group-hover:bg-secondary-container transition-all duration-300">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="volunteer_activism">volunteer_activism</span>
+</div>
+<span class="font-label text-[11px] font-bold text-primary uppercase tracking-wider">Zakat</span>
+</div>
+</section>
+<!-- Daily Verse Editorial Card -->
+<section class="bg-surface-container-lowest p-10 rounded-xl border border-outline-variant/10 text-center relative overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 bg-secondary-container/10 blur-[60px] rounded-full -mr-16 -mt-16"></div>
+<span class="material-symbols-outlined text-secondary-container text-4xl mb-6 block" style="font-variation-settings: 'FILL' 1;">format_quote</span>
+<p class="text-2xl font-bold text-primary mb-6 leading-relaxed px-4" dir="rtl">فَإِنَّ مَعَ الْعُسْرِ يُسْرًا</p>
+<p class="font-body text-on-surface-variant italic leading-relaxed text-sm">
+                "For indeed, with hardship [will be] ease."
+            </p>
+<div class="mt-6 font-label text-[10px] text-secondary tracking-widest uppercase font-bold">Surah Ash-Sharh 94:5</div>
+</section>
+<!-- Mood Check Section -->
+<section class="space-y-6">
+<h3 class="font-headline font-bold text-xl text-primary text-center">How are you feeling today?</h3>
+<div class="flex justify-between items-center bg-surface-container px-6 py-6 rounded-lg">
+<div class="flex flex-col items-center gap-3">
+<button class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-secondary hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">sentiment_satisfied</span>
+</button>
+<span class="text-[10px] font-bold text-primary uppercase tracking-tighter">Grateful</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<button class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-primary/40 hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined">sentiment_dissatisfied</span>
+</button>
+<span class="text-[10px] font-bold text-primary/40 uppercase tracking-tighter">Anxious</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<button class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-primary/40 hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined">self_improvement</span>
+</button>
+<span class="text-[10px] font-bold text-primary/40 uppercase tracking-tighter">Calm</span>
+</div>
+<div class="flex flex-col items-center gap-3">
+<button class="w-12 h-12 rounded-full bg-white flex items-center justify-center shadow-sm text-primary/40 hover:bg-secondary-container transition-colors">
+<span class="material-symbols-outlined">menu_book</span>
+</button>
+<span class="text-[10px] font-bold text-primary/40 uppercase tracking-tighter">Seeking</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end pb-6 px-4 bg-[#fbfbe2]/90 dark:bg-emerald-950/90 backdrop-blur-3xl rounded-t-[3rem] shadow-[0_-12px_40px_rgba(6,78,59,0.06)]">
+<!-- Home (Active) -->
+<a class="flex flex-col items-center justify-center bg-[#064e3b] dark:bg-[#fed65b] text-[#fbfbe2] dark:text-[#003527] rounded-full w-14 h-14 -mt-4 shadow-lg scale-110 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[8px] font-bold uppercase tracking-widest mt-0.5">Home</span>
+</a>
+<!-- Quran -->
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Quran</span>
+</a>
+<!-- Tools -->
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Tools</span>
+</a>
+<!-- Community -->
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Community</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Profile</span>
+</a>
+</nav>
+</body></html>

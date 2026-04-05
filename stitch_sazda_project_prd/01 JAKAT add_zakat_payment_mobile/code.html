@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sazda - Zakat Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-error-container": "#93000a",
+                        "inverse-surface": "#303221",
+                        "inverse-on-surface": "#f2f2d9",
+                        "surface-container": "#efefd7",
+                        "surface-dim": "#dbdcc3",
+                        "surface-bright": "#fbfbe2",
+                        "inverse-primary": "#95d3ba",
+                        "secondary": "#735c00",
+                        "error": "#ba1a1a",
+                        "primary-container": "#064e3b",
+                        "on-secondary-container": "#745c00",
+                        "on-primary-fixed": "#002117",
+                        "on-error": "#ffffff",
+                        "surface-container-high": "#eaead1",
+                        "surface-container-lowest": "#ffffff",
+                        "outline": "#707974",
+                        "on-secondary": "#ffffff",
+                        "on-primary-fixed-variant": "#0b513d",
+                        "secondary-fixed-dim": "#e9c349",
+                        "error-container": "#ffdad6",
+                        "primary": "#003527",
+                        "on-secondary-fixed-variant": "#574500",
+                        "background": "#fbfbe2",
+                        "tertiary-fixed-dim": "#dfc29f",
+                        "outline-variant": "#bfc9c3",
+                        "on-tertiary-fixed-variant": "#574329",
+                        "on-tertiary-container": "#c9ae8c",
+                        "on-secondary-fixed": "#241a00",
+                        "primary-fixed-dim": "#95d3ba",
+                        "on-surface": "#1b1d0e",
+                        "surface": "#fbfbe2",
+                        "on-primary-container": "#80bea6",
+                        "tertiary-container": "#554127",
+                        "surface-variant": "#e4e4cc",
+                        "on-surface-variant": "#404944",
+                        "surface-container-highest": "#e4e4cc",
+                        "secondary-container": "#fed65b",
+                        "on-tertiary-fixed": "#281903",
+                        "surface-tint": "#2b6954",
+                        "on-primary": "#ffffff",
+                        "on-background": "#1b1d0e",
+                        "primary-fixed": "#b0f0d6",
+                        "tertiary-fixed": "#fcdeba",
+                        "surface-container-low": "#f5f5dc",
+                        "on-tertiary": "#ffffff",
+                        "secondary-fixed": "#ffe088",
+                        "tertiary": "#3d2b13"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        h1, h2, h3 {
+            font-family: 'Manrope', sans-serif;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fbfbe2]/80 dark:bg-[#003527]/80 backdrop-blur-xl flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity text-[#003527] dark:text-[#fbfbe2]">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="font-['Manrope'] tracking-tight font-bold text-lg text-[#003527] dark:text-[#fbfbe2]">Zakat Management</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary-container/10">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="close-up portrait of a serene man with a neat beard looking forward against a soft neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0fST8lcyZMZgGMHIFXroqijhmgrQ-y0QGXHlL43zVHxVJBQwhhaB_ND_cyIPDYcz5ANjKBzzG1bXLsti5XRMsD6_KOvnkxVBoJth_OsMc4xsDqvBLRMxlaE4TOG9TFQUeMS8bYeqvAeVosOeRbyrYQrLyr79DLuh8iBqczeiBmGI00o50TdlkNQ1f5ouIMy3xWJBJwMVTNnSReWbtvG1jppJmHd0hghzRe0ho2hks52K7z6y-UBjixiINYx5CYIFBQUwlFkxSeW4"/>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-24 pb-32 px-6 max-w-lg mx-auto">
+<!-- Spiritual Header -->
+<section class="mb-10 text-center">
+<span class="text-secondary font-semibold tracking-widest text-[10px] uppercase mb-2 block">Sacred Obligation</span>
+<h2 class="text-4xl font-extrabold text-primary tracking-tight">Record Payment</h2>
+<p class="text-on-surface-variant/70 mt-3 text-sm leading-relaxed max-w-[280px] mx-auto">
+                "Take from their wealth a charity by which you purify them and cause them increase."
+            </p>
+</section>
+<!-- Amount Input Focus -->
+<section class="mb-10 relative">
+<div class="bg-surface-container-lowest rounded-xl p-8 text-center shadow-[0_12px_40px_rgba(6,78,59,0.04)]">
+<label class="text-[10px] font-bold uppercase tracking-widest text-primary/40 block mb-4">Amount to Distribute</label>
+<div class="flex items-baseline justify-center gap-2">
+<span class="text-2xl font-bold text-primary/30">$</span>
+<input autofocus="" class="w-full text-5xl font-extrabold text-primary bg-transparent border-none focus:ring-0 text-center placeholder:text-surface-variant p-0 m-0" placeholder="0.00" type="number"/>
+</div>
+</div>
+<!-- Glassy background bloom -->
+<div class="absolute -z-10 top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/5 blur-3xl rounded-full"></div>
+</section>
+<!-- Category Selector: Bento Style -->
+<section class="mb-10">
+<h3 class="text-xs font-bold uppercase tracking-widest text-primary/60 mb-5 ml-2">Select Category</h3>
+<div class="grid grid-cols-2 gap-4">
+<!-- Masjid -->
+<button class="group bg-surface-container-low hover:bg-primary transition-all duration-500 rounded-lg p-5 flex flex-col items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest group-hover:bg-primary-container/50 flex items-center justify-center text-primary group-hover:text-secondary-container transition-colors">
+<span class="material-symbols-outlined">mosque</span>
+</div>
+<span class="font-bold text-primary group-hover:text-surface text-sm">Masjid</span>
+</button>
+<!-- Poor -->
+<button class="group bg-primary rounded-lg p-5 flex flex-col items-start gap-4 shadow-lg">
+<div class="w-10 h-10 rounded-full bg-primary-container/50 flex items-center justify-center text-secondary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">volunteer_activism</span>
+</div>
+<span class="font-bold text-surface text-sm">Poor</span>
+</button>
+<!-- Relative -->
+<button class="group bg-surface-container-low hover:bg-primary transition-all duration-500 rounded-lg p-5 flex flex-col items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest group-hover:bg-primary-container/50 flex items-center justify-center text-primary group-hover:text-secondary-container transition-colors">
+<span class="material-symbols-outlined">family_restroom</span>
+</div>
+<span class="font-bold text-primary group-hover:text-surface text-sm">Relative</span>
+</button>
+<!-- Other -->
+<button class="group bg-surface-container-low hover:bg-primary transition-all duration-500 rounded-lg p-5 flex flex-col items-start gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest group-hover:bg-primary-container/50 flex items-center justify-center text-primary group-hover:text-secondary-container transition-colors">
+<span class="material-symbols-outlined">more_horiz</span>
+</div>
+<span class="font-bold text-primary group-hover:text-surface text-sm">Other</span>
+</button>
+</div>
+</section>
+<!-- Transaction Details -->
+<section class="space-y-6">
+<!-- Date Selector -->
+<div>
+<label class="text-xs font-bold uppercase tracking-widest text-primary/60 mb-3 ml-2 block">Date</label>
+<div class="flex items-center gap-3 bg-surface-container-low rounded-md px-4 py-4">
+<span class="material-symbols-outlined text-primary/50">calendar_today</span>
+<input class="bg-transparent border-none focus:ring-0 p-0 text-sm font-semibold text-primary w-full" type="text" value="Today, 24 Oct 2023"/>
+</div>
+</div>
+<!-- Note Field -->
+<div>
+<label class="text-xs font-bold uppercase tracking-widest text-primary/60 mb-3 ml-2 block">Note (Optional)</label>
+<div class="bg-surface-container-low rounded-md px-4 py-4">
+<textarea class="bg-transparent border-none focus:ring-0 p-0 text-sm font-medium text-primary w-full resize-none placeholder:text-primary/20" placeholder="Purpose of this zakat payment..." rows="2"></textarea>
+</div>
+</div>
+</section>
+<!-- Large Save Button -->
+<div class="mt-12">
+<button class="w-full bg-primary-container text-surface-bright py-6 rounded-full font-headline font-bold text-lg shadow-[0_20px_50px_rgba(0,53,39,0.2)] hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-3">
+<span class="material-symbols-outlined text-secondary-container">verified</span>
+                Save Payment
+            </button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-6 left-0 right-0 z-50 flex justify-around items-center px-4 py-2 mx-auto max-w-md bg-[#fbfbe2]/80 dark:bg-[#003527]/80 backdrop-blur-2xl rounded-full shadow-[0_12px_40px_rgba(6,78,59,0.06)]">
+<button class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#e4e4cc]/50 px-4 hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">mosque</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Sanctuary</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-[#064e3b] dark:bg-[#fed65b] text-[#fbfbe2] dark:text-[#003527] rounded-full w-14 h-14 transition-all duration-500 scale-110">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">calculate</span>
+<span class="hidden">Calculators</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#e4e4cc]/50 px-4 hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">receipt_long</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">History</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#e4e4cc]/50 px-4 hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Profile</span>
+</button>
+</nav>
+</body></html>

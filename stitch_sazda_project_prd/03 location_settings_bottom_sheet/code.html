@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sazda - Location Management</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Plus+Jakarta+Sans:wght@200..800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-high": "#eaead1",
+                        "surface-container-low": "#f5f5dc",
+                        "surface-variant": "#e4e4cc",
+                        "primary-fixed-dim": "#95d3ba",
+                        "outline-variant": "#bfc9c3",
+                        "surface-tint": "#2b6954",
+                        "surface-container-highest": "#e4e4cc",
+                        "surface-bright": "#fbfbe2",
+                        "on-primary-fixed-variant": "#0b513d",
+                        "surface": "#fbfbe2",
+                        "primary-fixed": "#b0f0d6",
+                        "primary-container": "#064e3b",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1b1d0e",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#ffe088",
+                        "inverse-primary": "#95d3ba",
+                        "on-secondary-fixed-variant": "#574500",
+                        "error": "#ba1a1a",
+                        "on-primary-container": "#80bea6",
+                        "tertiary": "#3d2b13",
+                        "tertiary-container": "#554127",
+                        "on-tertiary-container": "#c9ae8c",
+                        "on-secondary-container": "#745c00",
+                        "on-primary-fixed": "#002117",
+                        "tertiary-fixed-dim": "#dfc29f",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#404944",
+                        "on-error": "#ffffff",
+                        "secondary-container": "#fed65b",
+                        "on-secondary": "#ffffff",
+                        "outline": "#707974",
+                        "secondary-fixed-dim": "#e9c349",
+                        "inverse-on-surface": "#f2f2d9",
+                        "surface-container": "#efefd7",
+                        "inverse-surface": "#303221",
+                        "primary": "#003527",
+                        "on-surface": "#1b1d0e",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "tertiary-fixed": "#fcdeba",
+                        "on-tertiary-fixed-variant": "#574329",
+                        "on-secondary-fixed": "#241a00",
+                        "secondary": "#735c00",
+                        "on-tertiary-fixed": "#281903",
+                        "background": "#fbfbe2",
+                        "surface-dim": "#dbdcc3"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #fbfbe2;
+        }
+        .editorial-title {
+            font-family: 'Manrope', sans-serif;
+            letter-spacing: -0.02em;
+        }
+        .bottom-sheet-mask {
+            background: linear-gradient(to top, rgba(0, 53, 39, 0.05), transparent);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen overflow-hidden">
+<!-- Mock Content Canvas (Underlay) -->
+<header class="fixed top-0 left-0 w-full z-10">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto bg-[#fbfbe2] dark:bg-[#1a1a1a]">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-[#003527]" data-icon="location_on">location_on</span>
+<h1 class="editorial-title text-xl font-bold text-[#003527] dark:text-[#f5f5dc]">London, UK</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border-2 border-primary/10">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close up portrait of a friendly man with a warm smile, soft studio lighting, high-end professional photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC01Fd0zpDNbUr73WH_AAkpgRnM7iAaPCPj9bEL8inXmjs511vUy6kA_q6FGSitJUEGxfONMDcV_vqTgdi-y_JxrWWVFLPfPbz3WOx7SzEz8AnQ1K9vJgIkn6W2xhhx8gr0ZCtuvE8MsagoCilATGjZQyqDvgEWnMrd_djLMLJ6OUomsN6A8PmE4BQRpaeTtLe_d-TVBAcig4O9kA83ZLzPM_WAD_DZLWfg_ClE2_Md7qjwGFSbWA6Fzch-mSXacySwmkBXrpJ_Yng"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-7xl mx-auto space-y-10">
+<section class="space-y-4">
+<h2 class="editorial-title text-4xl font-extrabold text-primary leading-tight">Your Digital Sanctuary</h2>
+<p class="text-on-surface-variant max-w-md text-lg">Align your spirit with the celestial cycles of your current location.</p>
+</section>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="p-8 rounded-xl bg-surface-container-low flex flex-col gap-6 relative overflow-hidden">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-9xl" data-icon="auto_awesome">auto_awesome</span>
+</div>
+<span class="text-secondary font-bold tracking-widest text-xs uppercase">Current Prayer</span>
+<h3 class="editorial-title text-5xl font-bold text-primary">Dhuhr</h3>
+<p class="text-3xl text-primary-container font-light">12:45 PM</p>
+<div class="mt-4 flex gap-2">
+<span class="px-4 py-1 rounded-md bg-surface-variant text-on-surface-variant text-sm font-medium">Next: Asr</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Sheet Overlay / Scrim -->
+<div class="fixed inset-0 bg-primary/20 backdrop-blur-sm z-40 transition-opacity duration-500"></div>
+<!-- Bottom Sheet Container -->
+<div class="fixed bottom-0 left-0 w-full z-50 flex flex-col items-center">
+<!-- Success Toast (Hidden state simulated via absolute positioning just above the sheet) -->
+<div class="mb-4 transform translate-y-0 opacity-100 transition-all duration-500">
+<div class="bg-primary text-surface-bright px-6 py-3 rounded-full shadow-xl flex items-center gap-3">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-sm font-semibold tracking-wide">Location updated</span>
+</div>
+</div>
+<div class="w-full max-w-2xl bg-surface-bright rounded-t-[3rem] shadow-[0_-12px_60px_rgba(6,78,59,0.12)] p-8 md:p-12 pb-10 transition-transform duration-500 transform translate-y-0 relative">
+<!-- Handle -->
+<div class="absolute top-4 left-1/2 -translate-x-1/2 w-12 h-1.5 bg-surface-container-highest rounded-full"></div>
+<div class="flex flex-col gap-8">
+<!-- Header -->
+<div class="space-y-2">
+<h2 class="editorial-title text-3xl font-bold text-primary">Manage Location</h2>
+<p class="text-on-surface-variant font-medium">Adjust your coordinates for precise prayer timings.</p>
+</div>
+<!-- Primary Action -->
+<button class="group w-full bg-primary-container hover:bg-primary text-surface py-5 px-8 rounded-full flex items-center justify-between transition-all duration-300 transform active:scale-[0.98]">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center group-hover:bg-primary-fixed-dim/20 transition-colors">
+<span class="material-symbols-outlined text-primary-fixed-dim" data-icon="near_me" style="font-variation-settings: 'FILL' 1;">near_me</span>
+</div>
+<span class="font-bold text-lg tracking-tight">Use Current Location</span>
+</div>
+<span class="material-symbols-outlined opacity-40 group-hover:opacity-100 transition-opacity" data-icon="chevron_right">chevron_right</span>
+</button>
+<!-- Search Input Section -->
+<div class="space-y-4">
+<label class="text-xs font-black uppercase tracking-widest text-secondary pl-2">Search City</label>
+<div class="relative group">
+<div class="absolute inset-y-0 left-5 flex items-center pointer-events-none">
+<span class="material-symbols-outlined text-outline group-focus-within:text-primary transition-colors" data-icon="search">search</span>
+</div>
+<input class="w-full bg-surface-container-low border-none focus:ring-2 focus:ring-primary/10 rounded-2xl py-5 pl-14 pr-6 text-primary font-medium placeholder:text-outline transition-all duration-300" placeholder="Enter city or district name..." type="text"/>
+</div>
+<!-- Suggestions Bento -->
+<div class="grid grid-cols-2 gap-3 mt-4">
+<button class="flex items-center gap-3 p-4 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors group">
+<span class="material-symbols-outlined text-outline text-sm group-hover:text-primary" data-icon="history">history</span>
+<span class="text-sm font-semibold text-on-surface-variant">Istanbul, TR</span>
+</button>
+<button class="flex items-center gap-3 p-4 rounded-xl bg-surface-container hover:bg-surface-container-high transition-colors group">
+<span class="material-symbols-outlined text-outline text-sm group-hover:text-primary" data-icon="history">history</span>
+<span class="text-sm font-semibold text-on-surface-variant">Medina, SA</span>
+</button>
+</div>
+</div>
+<!-- Secondary Actions Row -->
+<div class="pt-4 flex items-center justify-between border-t border-surface-container-highest">
+<button class="flex items-center gap-2 text-primary font-bold hover:bg-surface-container rounded-full px-6 py-3 transition-colors group">
+<span class="material-symbols-outlined text-lg group-hover:rotate-180 transition-transform duration-500" data-icon="refresh">refresh</span>
+<span>Refresh</span>
+</button>
+<button class="text-on-surface-variant font-semibold hover:text-primary transition-colors px-4">
+                        Cancel
+                    </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Navigation Bar (Following Shared Components Logic) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-3 bg-[#fbfbe2]/80 dark:bg-[#1a1a1a]/80 backdrop-blur-xl shadow-[0_-12px_40px_rgba(6,78,59,0.06)] rounded-t-[3rem] md:hidden">
+<a class="flex flex-col items-center justify-center text-[#064e3b] opacity-60 hover:scale-105 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-xs font-medium tracking-wide mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b] opacity-60 hover:scale-105 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="schedule">schedule</span>
+<span class="text-xs font-medium tracking-wide mt-1">Prayer</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b] opacity-60 hover:scale-105 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="text-xs font-medium tracking-wide mt-1">Qibla</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#064e3b] text-[#fbfbe2] rounded-full px-5 py-2 hover:scale-105 transition-transform duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-xs font-bold tracking-wide mt-1">Settings</span>
+</a>
+</nav>
+<!-- Desktop Navigation Alignment -->
+<div class="hidden md:flex fixed top-4 right-24 z-50 gap-8 items-center bg-surface-container-low/50 backdrop-blur-md px-8 py-3 rounded-full">
+<a class="text-primary font-bold transition-colors hover:text-secondary" href="#">Home</a>
+<a class="text-primary font-bold opacity-70 transition-colors hover:text-primary hover:opacity-100" href="#">Prayer</a>
+<a class="text-primary font-bold opacity-70 transition-colors hover:text-primary hover:opacity-100" href="#">Qibla</a>
+<a class="text-secondary font-bold" href="#">Settings</a>
+</div>
+</body></html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "error-container": "#ffdad6",
+              "primary": "#003527",
+              "on-tertiary-fixed": "#281903",
+              "error": "#ba1a1a",
+              "surface": "#fbfbe2",
+              "on-surface": "#1b1d0e",
+              "on-tertiary-fixed-variant": "#574329",
+              "on-primary-fixed": "#002117",
+              "inverse-surface": "#303221",
+              "on-background": "#1b1d0e",
+              "on-surface-variant": "#404944",
+              "on-secondary-fixed-variant": "#574500",
+              "surface-variant": "#e4e4cc",
+              "on-tertiary": "#ffffff",
+              "surface-container-low": "#f5f5dc",
+              "on-secondary-container": "#745c00",
+              "on-error": "#ffffff",
+              "on-error-container": "#93000a",
+              "tertiary-fixed-dim": "#dfc29f",
+              "on-primary": "#ffffff",
+              "inverse-on-surface": "#f2f2d9",
+              "surface-bright": "#fbfbe2",
+              "surface-container": "#efefd7",
+              "primary-container": "#064e3b",
+              "primary-fixed": "#b0f0d6",
+              "on-tertiary-container": "#c9ae8c",
+              "outline": "#707974",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed-dim": "#95d3ba",
+              "tertiary": "#3d2b13",
+              "tertiary-container": "#554127",
+              "secondary-container": "#fed65b",
+              "inverse-primary": "#95d3ba",
+              "tertiary-fixed": "#fcdeba",
+              "background": "#fbfbe2",
+              "surface-tint": "#2b6954",
+              "secondary-fixed": "#ffe088",
+              "on-primary-fixed-variant": "#0b513d",
+              "on-secondary-fixed": "#241a00",
+              "secondary": "#735c00",
+              "on-secondary": "#ffffff",
+              "outline-variant": "#bfc9c3",
+              "on-primary-container": "#80bea6",
+              "surface-dim": "#dbdcc3",
+              "surface-container-highest": "#e4e4cc",
+              "surface-container-high": "#eaead1",
+              "secondary-fixed-dim": "#e9c349"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fbfbe2;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface antialiased overflow-x-hidden min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="bg-[#fbfbe2] flex justify-between items-center w-full px-6 py-4 fixed top-0 z-50">
+<div class="flex items-center gap-4">
+<button class="hover:bg-[#e4e4cc] transition-colors duration-300 p-2 rounded-full text-[#003527]">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="font-manrope font-bold tracking-tight text-xl text-[#003527]">Select Adhan Sound</h1>
+</div>
+<div class="w-10 h-10 rounded-full bg-[#e4e4cc] overflow-hidden">
+<img alt="User" class="w-full h-full object-cover" data-alt="Close-up portrait of a serene man with a soft smile in warm, natural morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB7gcYXWHcplSmPWbuadrLrlxOxEfHTJjfKJHmLWtE9379mFxBOhiFOMwaUfn1QmEKNR3lZe1xWRdjDPYwQt6er1OQrApoeS5KEQj5kU6cqEATs3g5HzuP3d6LIyWmx4uewwbbDKhysLsiU3FWGd_YttZnwLZZydP39gmrKBKfkyLsbRoYpBiNqK2d_aDMMyX_XIJCTQ134G4ZZtJfWzkuSz-X7uL607B8Vq2krFtIjHjuIYkZjdxxY2lNKJw5NnyttD4KHfI2iFbw"/>
+</div>
+</header>
+<main class="mt-24 px-6 space-y-10">
+<!-- Hero Visual Section (Editorial Breathing Room) -->
+<section class="relative w-full h-48 rounded-xl overflow-hidden shadow-[0_-12px_40px_rgba(6,78,59,0.06)] bg-primary-container flex items-center p-8">
+<div class="z-10 max-w-[60%]">
+<h2 class="font-headline text-3xl font-extrabold text-secondary-container leading-none tracking-tighter">Makkah Al-Mukarramah</h2>
+<p class="mt-2 text-on-primary-container text-sm font-medium">Currently active notification sound</p>
+</div>
+<div class="absolute right-[-10%] bottom-[-20%] w-64 h-64 opacity-20 rotate-12">
+<span class="material-symbols-outlined text-[12rem] text-surface" data-icon="mosque">mosque</span>
+</div>
+</section>
+<!-- Sound List -->
+<div class="space-y-4">
+<!-- Active State Row -->
+<div class="group flex items-center justify-between p-6 bg-surface-container-highest rounded-lg transition-all duration-300 hover:bg-[#e4e4cc]">
+<div class="flex items-center gap-6">
+<button class="w-12 h-12 flex items-center justify-center bg-primary-container text-secondary-container rounded-full shadow-lg">
+<span class="material-symbols-outlined" data-icon="play_arrow" style="font-variation-settings: 'FILL' 1;">play_arrow</span>
+</button>
+<div>
+<h3 class="font-headline font-bold text-lg text-primary tracking-tight">Adhan 1</h3>
+<p class="text-xs font-semibold text-primary/60 uppercase tracking-widest">Makkah style</p>
+</div>
+</div>
+<div class="w-8 h-8 flex items-center justify-center bg-primary text-surface rounded-full">
+<span class="material-symbols-outlined text-sm" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+</div>
+</div>
+<!-- Inactive State Row -->
+<div class="group flex items-center justify-between p-6 bg-surface-container-low rounded-lg transition-all duration-300 hover:bg-surface-container">
+<div class="flex items-center gap-6">
+<button class="w-12 h-12 flex items-center justify-center bg-surface-variant text-primary rounded-full hover:bg-primary-container hover:text-secondary-container transition-all">
+<span class="material-symbols-outlined" data-icon="play_arrow">play_arrow</span>
+</button>
+<div>
+<h3 class="font-headline font-bold text-lg text-primary/80 tracking-tight">Adhan 2</h3>
+<p class="text-xs font-semibold text-primary/40 uppercase tracking-widest">Madinah style</p>
+</div>
+</div>
+</div>
+<!-- Soft Tone Row -->
+<div class="group flex items-center justify-between p-6 bg-surface-container-low rounded-lg transition-all duration-300 hover:bg-surface-container">
+<div class="flex items-center gap-6">
+<button class="w-12 h-12 flex items-center justify-center bg-surface-variant text-primary rounded-full hover:bg-primary-container hover:text-secondary-container transition-all">
+<span class="material-symbols-outlined" data-icon="graphic_eq">graphic_eq</span>
+</button>
+<div>
+<h3 class="font-headline font-bold text-lg text-primary/80 tracking-tight">Soft Tone</h3>
+<p class="text-xs font-semibold text-primary/40 uppercase tracking-widest">Minimalist chime</p>
+</div>
+</div>
+</div>
+<!-- Beep Row -->
+<div class="group flex items-center justify-between p-6 bg-surface-container-low rounded-lg transition-all duration-300 hover:bg-surface-container">
+<div class="flex items-center gap-6">
+<button class="w-12 h-12 flex items-center justify-center bg-surface-variant text-primary rounded-full hover:bg-primary-container hover:text-secondary-container transition-all">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div>
+<h3 class="font-headline font-bold text-lg text-primary/80 tracking-tight">Beep</h3>
+<p class="text-xs font-semibold text-primary/40 uppercase tracking-widest">Standard alert</p>
+</div>
+</div>
+</div>
+<!-- Silent Row -->
+<div class="group flex items-center justify-between p-6 bg-surface-container-low rounded-lg transition-all duration-300 hover:bg-surface-container">
+<div class="flex items-center gap-6">
+<button class="w-12 h-12 flex items-center justify-center bg-surface-variant text-primary rounded-full hover:bg-primary-container hover:text-secondary-container transition-all">
+<span class="material-symbols-outlined" data-icon="notifications_off">notifications_off</span>
+</button>
+<div>
+<h3 class="font-headline font-bold text-lg text-primary/80 tracking-tight">Silent</h3>
+<p class="text-xs font-semibold text-primary/40 uppercase tracking-widest">Visual alerts only</p>
+</div>
+</div>
+</div>
+<!-- Custom Row -->
+<div class="group flex items-center justify-between p-6 bg-surface-container-low rounded-lg border-2 border-dashed border-outline-variant/30 transition-all duration-300 hover:bg-surface-container hover:border-primary/20">
+<div class="flex items-center gap-6">
+<button class="w-12 h-12 flex items-center justify-center bg-secondary-container text-on-secondary-container rounded-full shadow-sm">
+<span class="material-symbols-outlined" data-icon="upload_file">upload_file</span>
+</button>
+<div>
+<h3 class="font-headline font-bold text-lg text-primary/80 tracking-tight">Custom</h3>
+<p class="text-xs font-semibold text-primary/40 uppercase tracking-widest">User uploaded files</p>
+</div>
+</div>
+<button class="text-sm font-bold text-primary px-4 py-2 bg-surface-variant rounded-full hover:bg-primary-container hover:text-on-primary-container transition-colors">
+                    Manage Uploads
+                </button>
+</div>
+</div>
+<!-- Tip/Info Card (Intentional Asymmetry) -->
+<div class="relative mt-12 p-8 bg-surface-container rounded-xl overflow-hidden">
+<div class="absolute top-0 right-0 w-32 h-32 opacity-5 translate-x-10 -translate-y-10">
+<span class="material-symbols-outlined text-[10rem] text-primary" data-icon="info">info</span>
+</div>
+<h4 class="font-headline font-bold text-primary mb-2">Sacred Etiquette</h4>
+<p class="text-on-surface-variant leading-relaxed text-sm max-w-[85%]">Choose sounds that inspire tranquility and mindfulness. The Adhan is a call to peace; its tone should reflect the sanctuary within your heart.</p>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-[#fbfbe2]/80 backdrop-blur-xl shadow-[0_-12px_40px_rgba(6,78,59,0.06)] rounded-t-[3rem]">
+<button class="flex flex-col items-center justify-center text-[#064e3b] opacity-70 hover:opacity-100 transition-all duration-300 scale-95 active:scale-90">
+<span class="material-symbols-outlined text-2xl" data-icon="settings_remote">settings_remote</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Prayers</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-[#064e3b] text-[#fbfbe2] rounded-full px-5 py-2 scale-105 transition-all">
+<span class="material-symbols-outlined text-2xl" data-icon="notifications_active" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Settings</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#064e3b] opacity-70 hover:opacity-100 transition-all duration-300 scale-95 active:scale-90">
+<span class="material-symbols-outlined text-2xl" data-icon="explore">explore</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Qibla</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#064e3b] opacity-70 hover:opacity-100 transition-all duration-300 scale-95 active:scale-90">
+<span class="material-symbols-outlined text-2xl" data-icon="group">group</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Community</span>
+</button>
+</nav>
+</body></html>

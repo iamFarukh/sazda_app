@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sazda - Onboarding</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error": "#ffffff",
+              "surface-bright": "#fbfbe2",
+              "on-tertiary-fixed-variant": "#574329",
+              "inverse-on-surface": "#f2f2d9",
+              "surface-container-lowest": "#ffffff",
+              "surface-tint": "#2b6954",
+              "tertiary-container": "#554127",
+              "error": "#ba1a1a",
+              "surface-dim": "#dbdcc3",
+              "error-container": "#ffdad6",
+              "surface": "#fbfbe2",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "on-primary-container": "#80bea6",
+              "primary-fixed": "#b0f0d6",
+              "surface-container": "#efefd7",
+              "tertiary-fixed-dim": "#dfc29f",
+              "on-error-container": "#93000a",
+              "primary-fixed-dim": "#95d3ba",
+              "on-surface": "#1b1d0e",
+              "outline": "#707974",
+              "tertiary-fixed": "#fcdeba",
+              "on-secondary-fixed-variant": "#574500",
+              "outline-variant": "#bfc9c3",
+              "on-secondary": "#ffffff",
+              "surface-container-highest": "#e4e4cc",
+              "secondary": "#735c00",
+              "on-tertiary-container": "#c9ae8c",
+              "surface-container-high": "#eaead1",
+              "on-primary-fixed": "#002117",
+              "background": "#fbfbe2",
+              "secondary-fixed-dim": "#e9c349",
+              "inverse-primary": "#95d3ba",
+              "surface-container-low": "#f5f5dc",
+              "on-secondary-fixed": "#241a00",
+              "inverse-surface": "#303221",
+              "on-primary-fixed-variant": "#0b513d",
+              "on-secondary-container": "#745c00",
+              "secondary-fixed": "#ffe088",
+              "tertiary": "#3d2b13",
+              "on-background": "#1b1d0e",
+              "primary": "#003527",
+              "primary-container": "#064e3b",
+              "surface-variant": "#e4e4cc",
+              "on-surface-variant": "#404944",
+              "on-tertiary-fixed": "#281903",
+              "secondary-container": "#fed65b"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        body {
+            background-color: #fbfbe2;
+            color: #1b1d0e;
+        }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body min-h-screen flex flex-col items-center overflow-hidden">
+<!-- TopAppBar Shell -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 backdrop-blur-2xl">
+<div class="flex items-center gap-2">
+<span class="text-[#003527] font-black italic font-headline text-xl">Sazda</span>
+</div>
+<button class="text-[#064e3b]/60 font-semibold text-sm font-label uppercase tracking-widest hover:opacity-80 transition-opacity">
+            Skip
+        </button>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-1 w-full max-w-lg flex flex-col justify-center px-8 pt-20 pb-32 space-y-12">
+<!-- Illustration Section with Asymmetrical Breathing Room -->
+<div class="relative w-full aspect-square flex items-center justify-center">
+<!-- Decorative Halo Background -->
+<div class="absolute inset-0 bg-surface-container-highest rounded-full blur-3xl opacity-30 scale-110"></div>
+<!-- Hero Graphic Container -->
+<div class="relative z-10 w-full h-full bg-white rounded-xl shadow-[0_-12px_40px_rgba(6,78,59,0.06)] overflow-hidden flex flex-col items-center justify-center p-8">
+<div class="relative">
+<!-- Mosque/Clock Visual representation -->
+<div class="w-48 h-48 rounded-full border-4 border-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-8xl text-primary" data-icon="schedule" style="font-variation-settings: 'wght' 200;">schedule</span>
+</div>
+<!-- Overlapping Crescent -->
+<div class="absolute -top-4 -right-4 bg-secondary-container w-16 h-16 rounded-full flex items-center justify-center shadow-lg">
+<span class="material-symbols-outlined text-primary text-3xl" data-icon="bedtime" style="font-variation-settings: 'FILL' 1;">bedtime</span>
+</div>
+</div>
+<!-- Floating Mini UI Card for "Accuracy" context -->
+<div class="absolute bottom-10 right-4 bg-primary text-white p-4 rounded-lg shadow-xl max-w-[140px] flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary-container text-sm" data-icon="location_on" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<span class="text-[10px] font-bold tracking-wider uppercase">99.9% Accurate</span>
+</div>
+</div>
+</div>
+<!-- Typography & Content -->
+<div class="space-y-6 text-center">
+<h1 class="font-headline font-extrabold text-4xl tracking-tight text-primary leading-tight">
+                Never Miss <br/> <span class="text-secondary">a Prayer.</span>
+</h1>
+<p class="text-on-surface-variant font-medium text-lg leading-relaxed max-w-xs mx-auto">
+                Get precise prayer times based on your location and beautiful Adhan notifications.
+            </p>
+</div>
+<!-- Progress Indicators -->
+<div class="flex justify-center items-center gap-3">
+<div class="w-8 h-2 bg-primary rounded-full transition-all duration-300"></div>
+<div class="w-2 h-2 bg-surface-container-highest rounded-full"></div>
+<div class="w-2 h-2 bg-surface-container-highest rounded-full"></div>
+</div>
+</main>
+<!-- Bottom Navigation Shell (Used for CTA in Onboarding) -->
+<footer class="fixed bottom-0 left-0 w-full z-50 flex flex-col items-center pb-12 px-8">
+<button class="w-full max-w-sm bg-primary-container text-white py-5 rounded-full font-bold text-lg shadow-lg hover:opacity-90 transition-all duration-300 active:scale-95 flex items-center justify-center gap-3">
+            Next
+            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</footer>
+<!-- Abstract Background Elements for Sanctuary feel -->
+<div class="fixed top-[-10%] right-[-10%] w-[50%] h-[50%] bg-secondary-container/10 rounded-full blur-[120px] -z-10"></div>
+<div class="fixed bottom-[-5%] left-[-10%] w-[60%] h-[40%] bg-primary/5 rounded-full blur-[100px] -z-10"></div>
+</body></html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Adhan Settings - Sazda</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "error-container": "#ffdad6",
+              "primary": "#003527",
+              "on-tertiary-fixed": "#281903",
+              "error": "#ba1a1a",
+              "surface": "#fbfbe2",
+              "on-surface": "#1b1d0e",
+              "on-tertiary-fixed-variant": "#574329",
+              "on-primary-fixed": "#002117",
+              "inverse-surface": "#303221",
+              "on-background": "#1b1d0e",
+              "on-surface-variant": "#404944",
+              "on-secondary-fixed-variant": "#574500",
+              "surface-variant": "#e4e4cc",
+              "on-tertiary": "#ffffff",
+              "surface-container-low": "#f5f5dc",
+              "on-secondary-container": "#745c00",
+              "on-error": "#ffffff",
+              "on-error-container": "#93000a",
+              "tertiary-fixed-dim": "#dfc29f",
+              "on-primary": "#ffffff",
+              "inverse-on-surface": "#f2f2d9",
+              "surface-bright": "#fbfbe2",
+              "surface-container": "#efefd7",
+              "primary-container": "#064e3b",
+              "primary-fixed": "#b0f0d6",
+              "on-tertiary-container": "#c9ae8c",
+              "outline": "#707974",
+              "surface-container-lowest": "#ffffff",
+              "primary-fixed-dim": "#95d3ba",
+              "tertiary": "#3d2b13",
+              "tertiary-container": "#554127",
+              "secondary-container": "#fed65b",
+              "inverse-primary": "#95d3ba",
+              "tertiary-fixed": "#fcdeba",
+              "background": "#fbfbe2",
+              "surface-tint": "#2b6954",
+              "secondary-fixed": "#ffe088",
+              "on-primary-fixed-variant": "#0b513d",
+              "on-secondary-fixed": "#241a00",
+              "secondary": "#735c00",
+              "on-secondary": "#ffffff",
+              "outline-variant": "#bfc9c3",
+              "on-primary-container": "#80bea6",
+              "surface-dim": "#dbdcc3",
+              "surface-container-highest": "#e4e4cc",
+              "surface-container-high": "#eaead1",
+              "secondary-fixed-dim": "#e9c349"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fbfbe2;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Top AppBar (Shared Component) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-[#fbfbe2] dark:bg-[#003527] no-line tonal-shift">
+<div class="flex items-center gap-4">
+<button class="p-2 rounded-full hover:bg-[#e4e4cc] dark:hover:bg-[#064e3b] transition-colors duration-300">
+<span class="material-symbols-outlined text-[#003527] dark:text-[#fed65b]">menu</span>
+</button>
+<h1 class="text-[#003527] dark:text-[#fed65b] font-manrope font-black tracking-tighter text-2xl">Sazda</h1>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/10">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="Close-up portrait of a serene man with a short beard against a soft neutral background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAvxvnEjf5dHe8VHVMHqcYdH8jRBgYhF8954MHhnk5AQC3t4eXf9H3_EAXVRLUiBZWo6yZpoah8FI18Oogrpjq6W70Tx770PJx7Sv6ibjvl_ut94ZWa-qNeuqaRVaXf8B4AyCFuatv5LHJsjxYP0jL1XsjUUojcwdj0n7qAQ8wnpRMm3PWmGBC-e6eiQAAIfp-AMMA4u9Oft6To9e1OarOo4T8wY6wBiMKfmKjqTLWYEOMzud5p1EQf1dpUwRIXwb1esZ49upw7DgE"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto min-h-screen">
+<!-- Header Section -->
+<section class="mb-10">
+<div class="flex items-center justify-between mb-2">
+<h2 class="font-headline font-bold text-4xl tracking-tight text-primary">Adhan Settings</h2>
+<span class="material-symbols-outlined text-primary/40 text-3xl">notifications_active</span>
+</div>
+<p class="text-on-surface-variant font-medium">Customize your call to prayer notifications and alerts.</p>
+</section>
+<!-- Master Toggle Card -->
+<section class="mb-8">
+<div class="bg-surface-container-lowest rounded-lg p-6 flex items-center justify-between shadow-[0_-12px_40px_rgba(6,78,59,0.04)] transition-all duration-300 hover:shadow-[0_-12px_40px_rgba(6,78,59,0.08)]">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-on-primary" style="font-variation-settings: 'FILL' 1;">volume_up</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-primary">Enable Adhan</h3>
+<p class="text-sm text-on-surface-variant">Global prayer alerts</p>
+</div>
+</div>
+<!-- Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-14 h-8 bg-surface-container-highest peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:start-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary-container"></div>
+</label>
+</div>
+</section>
+<!-- Prayer List Grid -->
+<section class="mb-10 space-y-4">
+<div class="flex items-center justify-between px-2 mb-4">
+<h4 class="font-headline font-bold text-sm uppercase tracking-widest text-primary/60">Prayer Timings</h4>
+</div>
+<!-- Prayer Row: Fajr -->
+<div class="bg-surface-container-low rounded-lg p-5 flex items-center justify-between transition-all duration-300 hover:bg-surface-container hover:translate-x-1 cursor-pointer">
+<div class="flex items-center gap-5">
+<div class="text-center w-16">
+<span class="block font-headline font-extrabold text-primary text-xl">5:48</span>
+<span class="block text-[10px] font-bold text-primary/60 uppercase tracking-tighter">AM</span>
+</div>
+<div class="h-10 w-[1px] bg-primary/10"></div>
+<div>
+<h3 class="font-headline font-bold text-primary">Fajr</h3>
+<div class="flex items-center gap-1 opacity-60">
+<span class="material-symbols-outlined text-sm">music_note</span>
+<span class="text-xs font-semibold">Makkah Adhan</span>
+</div>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Prayer Row: Dhuhr -->
+<div class="bg-surface-container-low rounded-lg p-5 flex items-center justify-between transition-all duration-300 hover:bg-surface-container hover:translate-x-1 cursor-pointer">
+<div class="flex items-center gap-5">
+<div class="text-center w-16">
+<span class="block font-headline font-extrabold text-primary text-xl">12:30</span>
+<span class="block text-[10px] font-bold text-primary/60 uppercase tracking-tighter">PM</span>
+</div>
+<div class="h-10 w-[1px] bg-primary/10"></div>
+<div>
+<h3 class="font-headline font-bold text-primary">Dhuhr</h3>
+<div class="flex items-center gap-1 opacity-60">
+<span class="material-symbols-outlined text-sm">music_note</span>
+<span class="text-xs font-semibold">Makkah Adhan</span>
+</div>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Prayer Row: Asr -->
+<div class="bg-surface-container-low rounded-lg p-5 flex items-center justify-between transition-all duration-300 hover:bg-surface-container hover:translate-x-1 cursor-pointer">
+<div class="flex items-center gap-5">
+<div class="text-center w-16">
+<span class="block font-headline font-extrabold text-primary text-xl">3:45</span>
+<span class="block text-[10px] font-bold text-primary/60 uppercase tracking-tighter">PM</span>
+</div>
+<div class="h-10 w-[1px] bg-primary/10"></div>
+<div>
+<h3 class="font-headline font-bold text-primary">Asr</h3>
+<div class="flex items-center gap-1 opacity-60">
+<span class="material-symbols-outlined text-sm">music_note</span>
+<span class="text-xs font-semibold">Standard Alert</span>
+</div>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Prayer Row: Maghrib -->
+<div class="bg-surface-container-low rounded-lg p-5 flex items-center justify-between transition-all duration-300 hover:bg-surface-container hover:translate-x-1 cursor-pointer">
+<div class="flex items-center gap-5">
+<div class="text-center w-16">
+<span class="block font-headline font-extrabold text-primary text-xl">6:15</span>
+<span class="block text-[10px] font-bold text-primary/60 uppercase tracking-tighter">PM</span>
+</div>
+<div class="h-10 w-[1px] bg-primary/10"></div>
+<div>
+<h3 class="font-headline font-bold text-primary">Maghrib</h3>
+<div class="flex items-center gap-1 opacity-60">
+<span class="material-symbols-outlined text-sm">music_note</span>
+<span class="text-xs font-semibold">Madinah Adhan</span>
+</div>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Prayer Row: Isha -->
+<div class="bg-surface-container-low rounded-lg p-5 flex items-center justify-between transition-all duration-300 hover:bg-surface-container hover:translate-x-1 cursor-pointer">
+<div class="flex items-center gap-5">
+<div class="text-center w-16">
+<span class="block font-headline font-extrabold text-primary text-xl">7:45</span>
+<span class="block text-[10px] font-bold text-primary/60 uppercase tracking-tighter">PM</span>
+</div>
+<div class="h-10 w-[1px] bg-primary/10"></div>
+<div>
+<h3 class="font-headline font-bold text-primary">Isha</h3>
+<div class="flex items-center gap-1 opacity-60">
+<span class="material-symbols-outlined text-sm">music_note</span>
+<span class="text-xs font-semibold">Madinah Adhan</span>
+</div>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</section>
+<!-- Advanced Preferences Section -->
+<section class="mb-12 space-y-6">
+<div class="flex items-center justify-between px-2">
+<h4 class="font-headline font-bold text-sm uppercase tracking-widest text-primary/60">Notification Preferences</h4>
+</div>
+<!-- Global Mode Control -->
+<div class="bg-surface-container-low rounded-lg p-6">
+<h5 class="font-headline font-bold text-primary mb-4">Adhan Volume Mode</h5>
+<div class="grid grid-cols-3 gap-3 p-1 bg-surface-container rounded-md">
+<button class="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-md bg-primary-container text-on-primary shadow-sm transition-all duration-300">
+<span class="material-symbols-outlined text-xl">volume_up</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Loud</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-md hover:bg-surface-container-highest text-primary/70 transition-all duration-300">
+<span class="material-symbols-outlined text-xl">volume_down</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Soft</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-1 py-3 px-2 rounded-md hover:bg-surface-container-highest text-primary/70 transition-all duration-300">
+<span class="material-symbols-outlined text-xl">volume_off</span>
+<span class="text-[10px] font-bold uppercase tracking-widest">Silent</span>
+</button>
+</div>
+</div>
+<!-- Toggles List -->
+<div class="space-y-3">
+<!-- Pre-reminder -->
+<div class="bg-surface-container-low rounded-lg p-5 flex items-center justify-between hover:bg-surface-container transition-colors duration-300">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary/60">timer</span>
+<div>
+<p class="font-headline font-bold text-primary">Pre-reminder</p>
+<p class="text-xs text-on-surface-variant">Notify 10 mins before each prayer</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+<!-- Vibration -->
+<div class="bg-surface-container-low rounded-lg p-5 flex items-center justify-between hover:bg-surface-container transition-colors duration-300">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-primary/60">vibration</span>
+<div>
+<p class="font-headline font-bold text-primary">Vibration</p>
+<p class="text-xs text-on-surface-variant">Haptic feedback on alerts</p>
+</div>
+</div>
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-12 h-7 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-primary"></div>
+</label>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation (Shared Component) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-8 pt-4 bg-[#fbfbe2]/80 dark:bg-[#003527]/80 backdrop-blur-xl rounded-t-[3rem] shadow-[0_-12px_40px_rgba(6,78,59,0.06)] no-line tonal-shift">
+<button class="flex flex-col items-center justify-center text-[#064e3b] dark:text-[#fbfbe2] opacity-70 hover:opacity-100 transition-all duration-300 scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="settings_remote">settings_remote</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Prayers</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-[#064e3b] dark:bg-[#fed65b] text-[#fbfbe2] dark:text-[#003527] rounded-full px-5 py-2 scale-105 transition-all duration-300">
+<span class="material-symbols-outlined" data-icon="notifications_active" style="font-variation-settings: 'FILL' 1;">notifications_active</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Settings</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#064e3b] dark:text-[#fbfbe2] opacity-70 hover:opacity-100 transition-all duration-300 scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="explore">explore</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Qibla</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#064e3b] dark:text-[#fbfbe2] opacity-70 hover:opacity-100 transition-all duration-300 scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-manrope text-[10px] font-semibold uppercase tracking-widest mt-1">Community</span>
+</button>
+</nav>
+</body></html>

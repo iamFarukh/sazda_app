@@ -1,0 +1,1 @@
+export { TabLandingHeader } from './TabLandingHeader';

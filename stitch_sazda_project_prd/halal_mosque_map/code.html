@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sazda - Halal &amp; Mosque Map</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error": "#ffffff",
+              "surface-bright": "#fbfbe2",
+              "on-tertiary-fixed-variant": "#574329",
+              "inverse-on-surface": "#f2f2d9",
+              "surface-container-lowest": "#ffffff",
+              "surface-tint": "#2b6954",
+              "tertiary-container": "#554127",
+              "error": "#ba1a1a",
+              "surface-dim": "#dbdcc3",
+              "error-container": "#ffdad6",
+              "surface": "#fbfbe2",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "on-primary-container": "#80bea6",
+              "primary-fixed": "#b0f0d6",
+              "surface-container": "#efefd7",
+              "tertiary-fixed-dim": "#dfc29f",
+              "on-error-container": "#93000a",
+              "primary-fixed-dim": "#95d3ba",
+              "on-surface": "#1b1d0e",
+              "outline": "#707974",
+              "tertiary-fixed": "#fcdeba",
+              "on-secondary-fixed-variant": "#574500",
+              "outline-variant": "#bfc9c3",
+              "on-secondary": "#ffffff",
+              "surface-container-highest": "#e4e4cc",
+              "secondary": "#735c00",
+              "on-tertiary-container": "#c9ae8c",
+              "surface-container-high": "#eaead1",
+              "on-primary-fixed": "#002117",
+              "background": "#fbfbe2",
+              "secondary-fixed-dim": "#e9c349",
+              "inverse-primary": "#95d3ba",
+              "surface-container-low": "#f5f5dc",
+              "on-secondary-fixed": "#241a00",
+              "inverse-surface": "#303221",
+              "on-primary-fixed-variant": "#0b513d",
+              "on-secondary-container": "#745c00",
+              "secondary-fixed": "#ffe088",
+              "tertiary": "#3d2b13",
+              "on-background": "#1b1d0e",
+              "primary": "#003527",
+              "primary-container": "#064e3b",
+              "surface-variant": "#e4e4cc",
+              "on-surface-variant": "#404944",
+              "on-tertiary-fixed": "#281903",
+              "secondary-container": "#fed65b"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased overflow-hidden">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 dark:bg-emerald-950/80 backdrop-blur-2xl">
+<div class="flex items-center gap-4">
+<button class="text-[#003527] dark:text-[#fed65b] hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-['Manrope'] font-bold tracking-tight text-lg text-[#003527] dark:text-[#fed65b] italic">Sazda</h1>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant/20">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="User profile avatar circle image" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDwwW_ZmIMp-XvGAoaZDs2stPiLNCijJFRw23qud2Kv-idOIW750KJxEJxu0PeRD15DrEv5PDJ5XYW5CR6vasI103sqrKefIRe60iuSfAR9ixIfVOd5gJDlVtnU-TjMbkyf_XBmwNqqdpg4gRG_jAKO7byO4MXVux_Gk5CQ2MTbR5hrHkjRmloyNmslq7BZqxB2oc5gJSfvDtiVMb0uplKcfwqQNlLggQg7B5TsUOP6NOlaPMLstOL7dSbReInOAsEZcohQn6_GKcY"/>
+</div>
+</header>
+<!-- Main Map View Canvas -->
+<main class="relative w-full h-screen">
+<!-- Map Placeholder Background -->
+<div class="absolute inset-0 z-0 bg-surface-container-low">
+<img class="w-full h-full object-cover opacity-60 grayscale-[20%]" data-alt="Modern minimal light themed map texture" data-location="London" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDt75RSNt8Odek3Kppp8Q5jHv1ElMRLtQQ-VIsTcH0TTQPP8PssebXr65FdI0WNlFtea2-QncQEM0p6kIKy5J9OEtdx3nfIGL7wWbNT5Qmu2LwY0xvKXp3FS0CFMZX7pJwbjnxMJYT3pJY97ElQ5mkvp3FGUhENSNe4oPAa4_5LSI0EcVTA_pXSXB8d8NqdFH8qPSt9wt3AvKd3K6OBE0r3_V40OdXaDLbqZRpqi7UxYXwKRHIv0VLZDTYnPFGG_h66ZZE_PArxrIk"/>
+<!-- Map Markers (Pins) -->
+<!-- Mosque Pin 1 -->
+<div class="absolute top-[35%] left-[25%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+<div class="relative flex flex-col items-center">
+<div class="bg-primary p-2 rounded-full shadow-lg border-2 border-surface-bright text-surface-bright transition-transform hover:scale-110">
+<span class="material-symbols-outlined text-[20px]" data-icon="mosque" style="font-variation-settings: 'FILL' 1;">mosque</span>
+</div>
+<div class="w-1 h-2 bg-primary"></div>
+</div>
+</div>
+<!-- Halal Pin 1 -->
+<div class="absolute top-[45%] right-[30%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+<div class="relative flex flex-col items-center">
+<div class="bg-secondary p-2 rounded-full shadow-lg border-2 border-surface-bright text-surface-bright transition-transform hover:scale-110">
+<span class="material-symbols-outlined text-[20px]" data-icon="restaurant" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+<div class="w-1 h-2 bg-secondary"></div>
+</div>
+</div>
+<!-- Mosque Pin 2 (Target) -->
+<div class="absolute top-[60%] left-[55%] -translate-x-1/2 -translate-y-1/2 group cursor-pointer">
+<div class="relative flex flex-col items-center">
+<div class="bg-primary-container p-3 rounded-full shadow-2xl border-4 border-surface text-secondary-container transition-transform scale-125">
+<span class="material-symbols-outlined text-[24px]" data-icon="mosque" style="font-variation-settings: 'FILL' 1;">mosque</span>
+</div>
+<div class="w-1.5 h-3 bg-primary-container"></div>
+<div class="absolute -top-12 bg-primary-container text-surface-bright px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap shadow-xl">
+                        Central Mosque
+                    </div>
+</div>
+</div>
+</div>
+<!-- Floating UI Overlays -->
+<div class="absolute top-20 left-0 w-full px-6 z-10 flex flex-col gap-4">
+<!-- Search Bar -->
+<div class="w-full max-w-lg mx-auto bg-surface/90 backdrop-blur-xl rounded-full shadow-2xl p-1 flex items-center gap-2 border border-white/40">
+<div class="p-2 ml-2 text-primary">
+<span class="material-symbols-outlined" data-icon="search">search</span>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-on-surface placeholder:text-outline py-2 text-sm font-medium" placeholder="Find Mosques, Halal Food..." type="text"/>
+<button class="bg-primary-container text-on-primary p-2 rounded-full transition-opacity hover:opacity-90 mr-1">
+<span class="material-symbols-outlined" data-icon="tune">tune</span>
+</button>
+</div>
+<!-- Filter Chips -->
+<div class="flex gap-2 overflow-x-auto hide-scrollbar pb-2 max-w-lg mx-auto w-full">
+<button class="flex items-center gap-2 bg-primary-container text-surface px-5 py-2.5 rounded-full text-sm font-semibold shadow-md whitespace-nowrap transition-all">
+<span class="material-symbols-outlined text-sm" data-icon="mosque">mosque</span>
+                    Mosque
+                </button>
+<button class="flex items-center gap-2 bg-surface-container-highest text-primary px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm whitespace-nowrap hover:bg-surface-container-high transition-all border border-outline-variant/10">
+<span class="material-symbols-outlined text-sm" data-icon="restaurant">restaurant</span>
+                    Halal Food
+                </button>
+<button class="flex items-center gap-2 bg-surface-container-highest text-primary px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm whitespace-nowrap hover:bg-surface-container-high transition-all border border-outline-variant/10">
+<span class="material-symbols-outlined text-sm" data-icon="meeting_room">meeting_room</span>
+                    Prayer Room
+                </button>
+<button class="flex items-center gap-2 bg-surface-container-highest text-primary px-5 py-2.5 rounded-full text-sm font-semibold shadow-sm whitespace-nowrap hover:bg-surface-container-high transition-all border border-outline-variant/10">
+<span class="material-symbols-outlined text-sm" data-icon="star">star</span>
+                    Saved
+                </button>
+</div>
+</div>
+<!-- Selected Place Card (Bottom) -->
+<div class="absolute bottom-32 left-0 w-full px-4 z-20">
+<div class="max-w-md mx-auto bg-surface-container-lowest rounded-xl shadow-[0_20px_50px_rgba(6,78,59,0.12)] p-5 border border-outline-variant/10">
+<div class="flex justify-between items-start gap-4">
+<div class="flex-1">
+<div class="flex items-center gap-2 mb-1">
+<span class="text-primary font-bold text-lg font-headline">Regents Park Mosque</span>
+<span class="bg-secondary-container text-on-secondary-container px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider">Open</span>
+</div>
+<p class="text-outline text-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="location_on">location_on</span>
+                            146 Park Rd, London NW8 7RG
+                        </p>
+<div class="mt-3 flex items-center gap-4">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="near_me" style="font-variation-settings: 'FILL' 1;">near_me</span>
+<span class="text-xs font-bold text-on-surface">0.8 miles</span>
+</div>
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-secondary text-sm" data-icon="star" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="text-xs font-bold text-on-surface">4.8 (1.2k)</span>
+</div>
+</div>
+</div>
+<div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 shadow-inner">
+<img class="w-full h-full object-cover" data-alt="Mosque interior with emerald and white architecture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDMU2-SkyY8WTKKO464EuTvWqEZ9y3v_nQrpV3_LqLNCE2GzGeLER-3YVcO8Oyel-1SgpMjyL2zN1ic4ApdbNfLdeNY4DD7ydZnyK47rUNPfpE0Rd7vZjbs6kFkyT6aDnI_03XkyUZAtAxgQxiXgGv4tyttigamWMRz6iAn9iP_nf3v4SYcIKZo4_NzI5JlUZegH04NBfNUaIbeiuoplRo7Z9dkokPqRmnk1jk4YAIG-esamU8LLnLekZkch0IDOZOQNzI3EarQJc"/>
+</div>
+</div>
+<div class="mt-5 flex gap-3">
+<button class="flex-1 bg-primary text-surface py-3 rounded-full font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined" data-icon="directions">directions</span>
+                        Get Directions
+                    </button>
+<button class="w-12 h-12 flex items-center justify-center rounded-full bg-surface-container-high text-primary hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Map Navigation Actions -->
+<div class="absolute right-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-10">
+<button class="w-12 h-12 bg-surface rounded-full shadow-xl flex items-center justify-center text-primary border border-white/50">
+<span class="material-symbols-outlined" data-icon="my_location">my_location</span>
+</button>
+<button class="w-12 h-12 bg-surface rounded-full shadow-xl flex items-center justify-center text-primary border border-white/50">
+<span class="material-symbols-outlined" data-icon="layers">layers</span>
+</button>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end pb-6 px-4 bg-[#fbfbe2]/90 dark:bg-emerald-950/90 backdrop-blur-3xl rounded-t-[3rem] shadow-[0_-12px_40px_rgba(6,78,59,0.06)]">
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Quran</span>
+</a>
+<!-- ACTIVE TAB: Tools -->
+<a class="flex flex-col items-center justify-center bg-[#064e3b] dark:bg-[#fed65b] text-[#fbfbe2] dark:text-[#003527] rounded-full w-14 h-14 -mt-4 shadow-lg scale-110 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-0.5">Tools</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

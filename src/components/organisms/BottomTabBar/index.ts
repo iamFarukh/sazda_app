@@ -1,0 +1,2 @@
+export { SazdaBottomTabBar } from './SazdaBottomTabBar';
+

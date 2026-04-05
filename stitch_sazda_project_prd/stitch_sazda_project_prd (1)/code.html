@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Al-Mihrab - Tools Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error-container": "#93000a",
+              "on-error": "#ffffff",
+              "surface-container-low": "#f5f5dc",
+              "on-secondary-container": "#745c00",
+              "on-primary": "#ffffff",
+              "inverse-on-surface": "#f2f2d9",
+              "tertiary-fixed-dim": "#dfc29f",
+              "surface-bright": "#fbfbe2",
+              "on-tertiary-fixed": "#281903",
+              "error": "#ba1a1a",
+              "primary": "#003527",
+              "error-container": "#ffdad6",
+              "on-primary-fixed": "#002117",
+              "on-tertiary-fixed-variant": "#574329",
+              "surface": "#fbfbe2",
+              "on-surface": "#1b1d0e",
+              "on-background": "#1b1d0e",
+              "inverse-surface": "#303221",
+              "on-tertiary": "#ffffff",
+              "surface-variant": "#e4e4cc",
+              "on-surface-variant": "#404944",
+              "on-secondary-fixed-variant": "#574500",
+              "secondary": "#735c00",
+              "on-secondary-fixed": "#241a00",
+              "on-primary-container": "#80bea6",
+              "outline-variant": "#bfc9c3",
+              "on-secondary": "#ffffff",
+              "surface-container-high": "#eaead1",
+              "secondary-fixed-dim": "#e9c349",
+              "surface-dim": "#dbdcc3",
+              "surface-container-highest": "#e4e4cc",
+              "primary-fixed": "#b0f0d6",
+              "on-tertiary-container": "#c9ae8c",
+              "surface-container": "#efefd7",
+              "primary-container": "#064e3b",
+              "surface-container-lowest": "#ffffff",
+              "outline": "#707974",
+              "tertiary-container": "#554127",
+              "tertiary": "#3d2b13",
+              "primary-fixed-dim": "#95d3ba",
+              "secondary-fixed": "#ffe088",
+              "on-primary-fixed-variant": "#0b513d",
+              "surface-tint": "#2b6954",
+              "tertiary-fixed": "#fcdeba",
+              "background": "#fbfbe2",
+              "secondary-container": "#fed65b",
+              "inverse-primary": "#95d3ba"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .liquid-glass-motion {
+        transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      body {
+        background-color: #fbfbe2;
+        font-family: 'Plus Jakarta Sans', sans-serif;
+      }
+      .asymmetric-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-background min-h-screen pb-32">
+<!-- Top Navigation Shell -->
+<header class="fixed top-0 w-full flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 dark:bg-[#003527]/80 backdrop-blur-xl z-50 shadow-[0_12px_40px_rgba(6,78,59,0.06)]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#003527] dark:text-[#fed65b] cursor-pointer" data-icon="menu">menu</span>
+<h1 class="text-2xl font-black text-[#003527] dark:text-[#fed65b] tracking-tighter font-['Manrope']">Al-Mihrab</h1>
+</div>
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-secondary-container">
+<img alt="User Profile" class="w-full h-full object-cover" data-alt="portrait of a smiling man with a neat beard in soft studio lighting against a neutral warm background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxj1OUwRDsSh3neoRITf7_txZKhyiOqleD03zGB4dAEDm7QvNgjECXVUssGozL7uoQFgQzoL-tLXS-gd1ShzHUKRaenkkaaFwJL_D1_z4lEcFhexl_k8TyXMrQhEEB55pCn_uzqAXeuTMb66KV73Rl8C5TvLLCx2h7GNnP1AfS9Z6bDkEQQoIEbr93aa5VXJYd9xvu0JXAIfjgVN3WMIxve0FjKjcHD79w0kw0XOPcKCMK2qMDnNzyipmABclW0P8ynThwWEEF3gU"/>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto">
+<!-- Personalized Greeting -->
+<section class="mb-10">
+<p class="text-primary/60 font-semibold tracking-wider uppercase text-xs mb-1 font-label">As-salāmu ʿalaykum</p>
+<h2 class="text-4xl font-extrabold text-primary font-headline tracking-tight leading-none mb-4">Ahmed, <span class="text-secondary">Peace be with you.</span></h2>
+<!-- Quick Insights / Spiritual Summary -->
+<div class="bg-surface-container-low rounded-xl p-6 flex items-center justify-between shadow-sm">
+<div class="space-y-1">
+<p class="text-on-surface-variant text-sm font-medium">Next Prayer: <span class="text-primary font-bold">Asr</span></p>
+<p class="text-primary text-2xl font-bold font-headline">15:42</p>
+<div class="flex items-center gap-2 mt-2">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">24 min remaining</span>
+</div>
+</div>
+<div class="text-right border-l border-outline-variant/30 pl-6">
+<p class="text-on-surface-variant text-sm font-medium">Fasting Streak</p>
+<div class="flex items-center justify-end gap-1">
+<span class="text-primary text-2xl font-bold font-headline">12</span>
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+</div>
+<p class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Top 5% this month</p>
+</div>
+</div>
+</section>
+<!-- Tools Grid Section -->
+<section class="mb-12">
+<div class="flex items-baseline justify-between mb-6">
+<h3 class="text-xl font-bold text-primary font-headline">Sacred Tools</h3>
+<span class="text-secondary text-sm font-bold cursor-pointer">View All</span>
+</div>
+<div class="asymmetric-grid">
+<!-- Qibla Finder - Larger Card -->
+<div class="col-span-2 bg-primary-container text-on-primary p-6 rounded-xl flex items-center justify-between relative overflow-hidden group cursor-pointer transition-all duration-300 hover:shadow-xl">
+<div class="relative z-10">
+<h4 class="text-lg font-bold font-headline mb-1">Qibla Finder</h4>
+<p class="text-on-primary-container text-xs opacity-80">Precision compass for your location</p>
+<div class="mt-4 flex items-center gap-2">
+<span class="px-3 py-1 bg-white/10 rounded-full text-[10px] font-bold uppercase tracking-widest">Active GPS</span>
+</div>
+</div>
+<div class="relative z-10 bg-secondary-container text-primary p-4 rounded-full shadow-lg group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined text-3xl" data-icon="explore">explore</span>
+</div>
+<!-- Decorative Element -->
+<div class="absolute -right-10 -bottom-10 opacity-10">
+<span class="material-symbols-outlined text-[120px]" data-icon="language">language</span>
+</div>
+</div>
+<!-- Tasbeeh Counter -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex flex-col justify-between shadow-sm transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined" data-icon="counter_5">counter_5</span>
+</div>
+<div>
+<h4 class="font-bold text-primary text-sm font-headline">Tasbeeh Counter</h4>
+<p class="text-on-surface-variant text-[10px] mt-1 leading-tight">Daily dhikr &amp; digital beads</p>
+</div>
+</div>
+<!-- Zakat Calculator -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex flex-col justify-between shadow-sm transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary mb-4">
+<span class="material-symbols-outlined" data-icon="calculate" style="font-variation-settings: 'FILL' 1;">calculate</span>
+</div>
+<div>
+<h4 class="font-bold text-primary text-sm font-headline">Zakat Calculator</h4>
+<p class="text-on-surface-variant text-[10px] mt-1 leading-tight">Asset evaluation &amp; wealth logic</p>
+</div>
+</div>
+<!-- Inheritance Logic -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex flex-col justify-between shadow-sm transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-primary mb-4">
+<span class="material-symbols-outlined" data-icon="account_tree">account_tree</span>
+</div>
+<div>
+<h4 class="font-bold text-primary text-sm font-headline">Inheritance</h4>
+<p class="text-on-surface-variant text-[10px] mt-1 leading-tight">Islamic Shariah distribution logic</p>
+</div>
+</div>
+<!-- Mosque & Halal Finder -->
+<div class="bg-surface-container-lowest p-5 rounded-xl flex flex-col justify-between shadow-sm transition-all duration-300 hover:scale-[1.02] cursor-pointer">
+<div class="w-10 h-10 rounded-lg bg-surface-container-high flex items-center justify-center text-secondary mb-4">
+<span class="material-symbols-outlined" data-icon="restaurant" style="font-variation-settings: 'FILL' 1;">restaurant</span>
+</div>
+<div>
+<h4 class="font-bold text-primary text-sm font-headline">Halal Finder</h4>
+<p class="text-on-surface-variant text-[10px] mt-1 leading-tight">Nearby mosques &amp; certified dining</p>
+</div>
+</div>
+<!-- Hijri Calendar - Wide again to break grid -->
+<div class="col-span-2 bg-surface-variant/30 border border-outline-variant/20 p-6 rounded-xl flex items-center gap-6 cursor-pointer transition-all duration-300 hover:bg-surface-variant/50">
+<div class="bg-surface p-4 rounded-xl text-center min-w-[70px] shadow-sm">
+<p class="text-secondary text-[10px] font-bold uppercase tracking-widest mb-1">Rajab</p>
+<p class="text-primary text-3xl font-black font-headline">14</p>
+<p class="text-on-surface-variant text-[10px] font-bold">1445 AH</p>
+</div>
+<div>
+<h4 class="font-bold text-primary font-headline">Hijri Calendar</h4>
+<p class="text-on-surface-variant text-xs mt-1">Important Islamic dates and moon phases at a glance.</p>
+<div class="mt-3 flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-sm" data-icon="event_note">event_note</span>
+<span class="text-[10px] font-bold text-primary">Next event: Isra' and Mi'raj (27 Rajab)</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Quick Insights Section (Secondary focus) -->
+<section class="mb-8">
+<h3 class="text-xl font-bold text-primary font-headline mb-6">Daily Wisdom</h3>
+<div class="bg-surface-container-highest/50 p-8 rounded-xl relative overflow-hidden text-center">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="format_quote">format_quote</span>
+<p class="text-primary font-medium italic text-lg leading-relaxed mb-6 px-4">"Verily, in the remembrance of Allah do hearts find rest."</p>
+<p class="text-secondary font-bold text-xs uppercase tracking-[0.2em] font-label">Surah Ar-Ra'd 13:28</p>
+</div>
+<div class="absolute inset-0 opacity-5 pointer-events-none">
+<!-- Geometric Pattern Hint -->
+<div class="w-full h-full" style="background-image: radial-gradient(circle at 2px 2px, #003527 1px, transparent 0); background-size: 24px 24px;"></div>
+</div>
+</div>
+</section>
+</main>
+<!-- Bottom Navigation Shell (Liquid Glass) -->
+<nav class="fixed bottom-6 left-0 right-0 z-50 flex justify-around items-center px-4 h-20 bg-[#fbfbe2]/80 dark:bg-[#003527]/80 backdrop-blur-2xl mx-4 w-[calc(100%-2rem)] rounded-full shadow-[0_20px_50px_rgba(0,53,39,0.15)] no-line-rule depth-via-layering">
+<a class="flex flex-col items-center justify-center text-[#064e3b] dark:text-[#fbfbe2] opacity-50 hover:scale-110 transition-transform duration-500 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="temple_hindu">temple_hindu</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Sanctuary</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#064e3b] dark:bg-[#fed65b] text-[#fbfbe2] dark:text-[#003527] rounded-full w-14 h-14 shadow-lg transition-transform duration-500 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-0.5">Tools</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b] dark:text-[#fbfbe2] opacity-50 hover:scale-110 transition-transform duration-500 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="auto_graph">auto_graph</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Insights</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b] dark:text-[#fbfbe2] opacity-50 hover:scale-110 transition-transform duration-500 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b] dark:text-[#fbfbe2] opacity-50 hover:scale-110 transition-transform duration-500 ease-out" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Profile</span>
+</a>
+</nav>
+</body></html>

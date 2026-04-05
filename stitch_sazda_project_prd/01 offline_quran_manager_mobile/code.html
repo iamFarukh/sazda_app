@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Offline Quran Manager - Sazda</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#bfc9c3",
+                    "on-error": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#fbfbe2",
+                    "on-tertiary-fixed-variant": "#574329",
+                    "on-primary": "#ffffff",
+                    "background": "#fbfbe2",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#eaead1",
+                    "surface-dim": "#dbdcc3",
+                    "inverse-surface": "#303221",
+                    "outline": "#707974",
+                    "on-primary-container": "#80bea6",
+                    "on-background": "#1b1d0e",
+                    "inverse-on-surface": "#f2f2d9",
+                    "secondary-container": "#fed65b",
+                    "surface-container": "#efefd7",
+                    "primary": "#003527",
+                    "tertiary-fixed-dim": "#dfc29f",
+                    "secondary-fixed-dim": "#e9c349",
+                    "on-secondary-fixed-variant": "#574500",
+                    "on-tertiary-fixed": "#281903",
+                    "on-tertiary-container": "#c9ae8c",
+                    "on-error-container": "#93000a",
+                    "surface-tint": "#2b6954",
+                    "on-surface": "#1b1d0e",
+                    "on-secondary-fixed": "#241a00",
+                    "tertiary-container": "#554127",
+                    "on-primary-fixed-variant": "#0b513d",
+                    "on-primary-fixed": "#002117",
+                    "secondary": "#735c00",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#064e3b",
+                    "on-secondary-container": "#745c00",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e4e4cc",
+                    "tertiary": "#3d2b13",
+                    "surface-container-low": "#f5f5dc",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-highest": "#e4e4cc",
+                    "secondary-fixed": "#ffe088",
+                    "primary-fixed-dim": "#95d3ba",
+                    "inverse-primary": "#95d3ba",
+                    "tertiary-fixed": "#fcdeba",
+                    "surface": "#fbfbe2",
+                    "on-surface-variant": "#404944",
+                    "primary-fixed": "#b0f0d6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .liquid-glass-morph {
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 dark:bg-[#003527]/80 backdrop-blur-3xl shadow-[0_12px_40px_rgba(6,78,59,0.06)]">
+<div class="flex items-center gap-4">
+<button class="p-2 hover:bg-[#f5f5dc] dark:hover:bg-[#064e3b] rounded-full transition-all duration-300">
+<span class="material-symbols-outlined text-[#003527] dark:text-[#fbfbe2]">arrow_back</span>
+</button>
+<h1 class="text-xl font-bold text-[#003527] dark:text-[#fbfbe2] font-headline tracking-tight">Offline Sanctuary</h1>
+</div>
+<button class="p-2 hover:bg-[#f5f5dc] dark:hover:bg-[#064e3b] rounded-full transition-all duration-300">
+<span class="material-symbols-outlined text-[#003527] dark:text-[#fbfbe2]">cloud_download</span>
+</button>
+</header>
+<main class="pt-24 px-6 space-y-8">
+<!-- Global Progress Card -->
+<section class="relative bg-surface-container-lowest rounded-xl p-6 shadow-[0_12px_40px_rgba(6,78,59,0.06)] overflow-hidden">
+<div class="absolute -right-12 -top-12 w-48 h-48 bg-primary-container opacity-5 rounded-full blur-3xl"></div>
+<div class="flex items-center justify-between relative z-10">
+<div class="space-y-1">
+<h2 class="text-sm font-medium text-on-surface-variant uppercase tracking-wider">Global Progress</h2>
+<p class="text-3xl font-extrabold font-headline text-primary">45% <span class="text-lg font-medium text-secondary">Downloaded</span></p>
+<div class="flex items-center gap-2 mt-4 text-xs font-semibold text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">database</span>
+<span>110MB / 240MB</span>
+</div>
+</div>
+<!-- Circular Progress -->
+<div class="relative w-24 h-24">
+<svg class="w-full h-full -rotate-90" viewbox="0 0 36 36">
+<circle class="stroke-surface-container-highest" cx="18" cy="18" fill="none" r="16" stroke-width="3"></circle>
+<circle class="stroke-primary" cx="18" cy="18" fill="none" r="16" stroke-dasharray="45, 100" stroke-linecap="round" stroke-width="3"></circle>
+</svg>
+<div class="absolute inset-0 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-3xl">cloud_download</span>
+</div>
+</div>
+</div>
+<!-- Action Buttons -->
+<div class="flex gap-3 mt-8">
+<button class="flex-1 py-3 px-4 bg-primary-container text-white rounded-full font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-xl">pause_circle</span>
+                    Pause All
+                </button>
+<button class="flex-1 py-3 px-4 bg-secondary-fixed text-on-secondary-fixed rounded-full font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-xl">play_circle</span>
+                    Resume All
+                </button>
+</div>
+</section>
+<!-- Surah Lists -->
+<div class="space-y-10">
+<!-- Downloading Section -->
+<section class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<h3 class="font-headline font-bold text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-secondary animate-pulse"></span>
+                        Downloading
+                    </h3>
+<span class="text-xs font-bold text-secondary uppercase tracking-widest">1 Active</span>
+</div>
+<div class="bg-surface-container-low rounded-lg p-4 flex items-center gap-4 group transition-all duration-300 hover:bg-surface-container">
+<div class="w-12 h-12 bg-primary-container text-white rounded-md flex items-center justify-center font-headline font-bold text-lg">
+                        18
+                    </div>
+<div class="flex-1">
+<div class="flex justify-between items-baseline">
+<h4 class="font-bold text-primary">Surah Al-Kahf</h4>
+<span class="text-[10px] font-bold text-secondary">65%</span>
+</div>
+<div class="mt-2 h-1.5 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-primary rounded-full transition-all duration-1000" style="width: 65%"></div>
+</div>
+</div>
+<button class="p-2 text-on-surface-variant hover:text-error transition-colors">
+<span class="material-symbols-outlined">cancel</span>
+</button>
+</div>
+</section>
+<!-- Completed Section -->
+<section class="space-y-4">
+<div class="flex items-center justify-between px-2">
+<h3 class="font-headline font-bold text-primary">Completed</h3>
+<span class="text-xs font-bold text-primary/40 uppercase tracking-widest">2 Surahs</span>
+</div>
+<div class="space-y-3">
+<div class="bg-white rounded-lg p-4 flex items-center gap-4 shadow-sm border border-transparent hover:border-primary/10 transition-all">
+<div class="w-12 h-12 bg-surface-container-low text-primary rounded-md flex items-center justify-center font-headline font-bold text-lg">
+                            1
+                        </div>
+<div class="flex-1">
+<h4 class="font-bold text-primary">Surah Al-Fatihah</h4>
+<p class="text-xs text-on-surface-variant">1.2 MB • Audio &amp; Translation</p>
+</div>
+<div class="flex items-center text-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+<div class="bg-white rounded-lg p-4 flex items-center gap-4 shadow-sm border border-transparent hover:border-primary/10 transition-all">
+<div class="w-12 h-12 bg-surface-container-low text-primary rounded-md flex items-center justify-center font-headline font-bold text-lg">
+                            2
+                        </div>
+<div class="flex-1">
+<h4 class="font-bold text-primary">Surah Al-Baqarah</h4>
+<p class="text-xs text-on-surface-variant">42.5 MB • Audio &amp; Translation</p>
+</div>
+<div class="flex items-center text-primary-container">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Pending Section -->
+<section class="space-y-4 pb-12">
+<div class="flex items-center justify-between px-2">
+<h3 class="font-headline font-bold text-primary">Pending</h3>
+<span class="text-xs font-bold text-primary/40 uppercase tracking-widest">2 Surahs</span>
+</div>
+<div class="space-y-3 opacity-80">
+<div class="bg-surface-container-low/50 rounded-lg p-4 flex items-center gap-4 border border-dashed border-outline-variant">
+<div class="w-12 h-12 bg-surface-variant text-on-surface-variant rounded-md flex items-center justify-center font-headline font-bold text-lg">
+                            3
+                        </div>
+<div class="flex-1">
+<h4 class="font-bold text-primary/60">Surah Ali 'Imran</h4>
+<p class="text-xs text-on-surface-variant/60">Estimated: 18.4 MB</p>
+</div>
+<button class="p-2 text-primary/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">cloud_download</span>
+</button>
+</div>
+<div class="bg-surface-container-low/50 rounded-lg p-4 flex items-center gap-4 border border-dashed border-outline-variant">
+<div class="w-12 h-12 bg-surface-variant text-on-surface-variant rounded-md flex items-center justify-center font-headline font-bold text-lg">
+                            4
+                        </div>
+<div class="flex-1">
+<h4 class="font-bold text-primary/60">Surah An-Nisa</h4>
+<p class="text-xs text-on-surface-variant/60">Estimated: 22.1 MB</p>
+</div>
+<button class="p-2 text-primary/40 hover:text-primary transition-colors">
+<span class="material-symbols-outlined">cloud_download</span>
+</button>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-[#fbfbe2]/80 dark:bg-[#003527]/80 backdrop-blur-3xl shadow-[0_-12px_40px_rgba(6,78,59,0.06)] rounded-t-[3rem]">
+<!-- Sanctuary -->
+<a class="flex flex-col items-center justify-center text-[#003527]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">mosque</span>
+<span class="text-[10px] font-medium tracking-wide uppercase mt-1">Sanctuary</span>
+</a>
+<!-- Library -->
+<a class="flex flex-col items-center justify-center text-[#003527]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">auto_stories</span>
+<span class="text-[10px] font-medium tracking-wide uppercase mt-1">Library</span>
+</a>
+<!-- Downloads (ACTIVE) -->
+<a class="flex flex-col items-center justify-center bg-[#064e3b] text-[#fed65b] rounded-full p-3 scale-110 -translate-y-2 transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">download_for_offline</span>
+<span class="text-[10px] font-bold tracking-wide uppercase mt-1">Downloads</span>
+</a>
+<!-- Settings -->
+<a class="flex flex-col items-center justify-center text-[#003527]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined text-2xl">settings</span>
+<span class="text-[10px] font-medium tracking-wide uppercase mt-1">Settings</span>
+</a>
+</nav>
+<!-- Decorative Element -->
+<div class="fixed top-1/2 -right-24 w-64 h-64 bg-secondary opacity-[0.03] rounded-full blur-3xl pointer-events-none"></div>
+</body></html>

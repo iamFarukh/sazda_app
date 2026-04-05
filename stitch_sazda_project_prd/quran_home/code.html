@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbfbe2",
+                        "on-tertiary-fixed-variant": "#574329",
+                        "inverse-on-surface": "#f2f2d9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#2b6954",
+                        "tertiary-container": "#554127",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dbdcc3",
+                        "error-container": "#ffdad6",
+                        "surface": "#fbfbe2",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#80bea6",
+                        "primary-fixed": "#b0f0d6",
+                        "surface-container": "#efefd7",
+                        "tertiary-fixed-dim": "#dfc29f",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#95d3ba",
+                        "on-surface": "#1b1d0e",
+                        "outline": "#707974",
+                        "tertiary-fixed": "#fcdeba",
+                        "on-secondary-fixed-variant": "#574500",
+                        "outline-variant": "#bfc9c3",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e4e4cc",
+                        "secondary": "#735c00",
+                        "on-tertiary-container": "#c9ae8c",
+                        "surface-container-high": "#eaead1",
+                        "on-primary-fixed": "#002117",
+                        "background": "#fbfbe2",
+                        "secondary-fixed-dim": "#e9c349",
+                        "inverse-primary": "#95d3ba",
+                        "surface-container-low": "#f5f5dc",
+                        "on-secondary-fixed": "#241a00",
+                        "inverse-surface": "#303221",
+                        "on-primary-fixed-variant": "#0b513d",
+                        "on-secondary-container": "#745c00",
+                        "secondary-fixed": "#ffe088",
+                        "tertiary": "#3d2b13",
+                        "on-background": "#1b1d0e",
+                        "primary": "#003527",
+                        "primary-container": "#064e3b",
+                        "surface-variant": "#e4e4cc",
+                        "on-surface-variant": "#404944",
+                        "on-tertiary-fixed": "#281903",
+                        "secondary-container": "#fed65b"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fbfbe2;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body text-on-surface antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 backdrop-blur-2xl transition-opacity duration-300">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#003527]">menu</span>
+<span class="text-[#003527] font-black italic font-headline tracking-tight text-lg">Sazda</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant/10">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="User profile avatar close up photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgQfRSFkLhxvogl4MWC6-jhACpW09F8VSP5sgxE44dm6FMO5I8FupM9WdM1ydijVcak6nv_GK0XJ9OqbMgDPEaDNItyExLYZNwN7COqNKgiEDorK--wkRputMA5a9VcJkn822YFiQJ0zdBzYPc5Blq2zi1wFGsitF7hRrKe2a7pH7mCCAXrjj-yM1S1LjbNfQlBLeazYug3lbqKVcC3Q1f7MKRZayeEbA8jQYN0jBlbu9veP8yE-D1STYC2TSadXKnRHIpB4Vjmoc"/>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-5xl mx-auto">
+<!-- Search & Editorial Title -->
+<section class="mb-10">
+<h1 class="font-headline font-extrabold text-4xl text-primary tracking-tighter mb-6 leading-none">The Holy Quran</h1>
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary/40 group-focus-within:text-primary transition-colors">search</span>
+<input class="w-full h-14 pl-12 pr-6 bg-surface-container-low border-none rounded-2xl focus:ring-0 focus:bg-surface-container-highest transition-all placeholder:text-primary/30 text-primary font-medium" placeholder="Search Surah, Juz, or Ayah..." type="text"/>
+</div>
+</section>
+<!-- Continue Reading Bento Hero -->
+<section class="mb-12">
+<div class="bg-gradient-to-br from-primary to-primary-container rounded-xl p-8 text-on-primary relative overflow-hidden shadow-xl shadow-primary/10">
+<div class="relative z-10 flex flex-col h-full justify-between">
+<div>
+<div class="flex items-center gap-2 mb-2 opacity-80">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="text-xs font-bold uppercase tracking-widest font-label">Continue Reading</span>
+</div>
+<h2 class="text-3xl font-headline font-bold mb-1">Surah Al-Kahf</h2>
+<p class="text-on-primary/70 font-medium">Verse 10 • Juz 15</p>
+</div>
+<div class="mt-8 flex items-center justify-between">
+<button class="bg-secondary-container text-on-secondary-container px-6 py-3 rounded-full font-bold flex items-center gap-2 hover:opacity-90 transition-opacity">
+                            Resume Reading
+                            <span class="material-symbols-outlined text-lg">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Abstract Geometric Background Element -->
+<div class="absolute -right-12 -bottom-12 w-48 h-48 bg-secondary/20 rounded-full blur-3xl"></div>
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'wght' 100;">menu_book</span>
+</div>
+</div>
+</section>
+<!-- Recently Opened Horizontal Scroll -->
+<section class="mb-12">
+<div class="flex justify-between items-end mb-6">
+<h3 class="font-headline font-bold text-xl text-primary">Recently Opened</h3>
+<button class="text-sm font-bold text-secondary flex items-center gap-1">View History <span class="material-symbols-outlined text-xs">chevron_right</span></button>
+</div>
+<div class="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-6 px-6">
+<!-- Recent Card 1 -->
+<div class="min-w-[160px] bg-surface-container-lowest p-5 rounded-lg flex flex-col items-center text-center shadow-sm border border-outline-variant/10">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center mb-3 text-secondary">
+<span class="font-headline font-black italic">36</span>
+</div>
+<span class="font-bold text-primary mb-0.5">Ya-Sin</span>
+<span class="text-[10px] text-primary/40 font-bold uppercase tracking-tighter">83 Verses</span>
+</div>
+<!-- Recent Card 2 -->
+<div class="min-w-[160px] bg-surface-container-lowest p-5 rounded-lg flex flex-col items-center text-center shadow-sm border border-outline-variant/10">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center mb-3 text-secondary">
+<span class="font-headline font-black italic">67</span>
+</div>
+<span class="font-bold text-primary mb-0.5">Al-Mulk</span>
+<span class="text-[10px] text-primary/40 font-bold uppercase tracking-tighter">30 Verses</span>
+</div>
+<!-- Recent Card 3 -->
+<div class="min-w-[160px] bg-surface-container-lowest p-5 rounded-lg flex flex-col items-center text-center shadow-sm border border-outline-variant/10">
+<div class="w-12 h-12 bg-surface-container-high rounded-full flex items-center justify-center mb-3 text-secondary">
+<span class="font-headline font-black italic">55</span>
+</div>
+<span class="font-bold text-primary mb-0.5">Ar-Rahman</span>
+<span class="text-[10px] text-primary/40 font-bold uppercase tracking-tighter">78 Verses</span>
+</div>
+</div>
+</section>
+<!-- Popular Surahs Bento Grid -->
+<section class="mb-12">
+<h3 class="font-headline font-bold text-xl text-primary mb-6">Popular Surahs</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Surah Item -->
+<div class="flex items-center justify-between p-5 bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-primary-container text-primary-fixed-dim rounded-md flex items-center justify-center font-headline font-bold">1</div>
+<div>
+<h4 class="font-bold text-primary leading-tight">Al-Fatiha</h4>
+<p class="text-xs text-primary/40 uppercase tracking-widest font-bold">The Opening</p>
+</div>
+</div>
+<div class="text-right">
+<span class="text-lg font-bold text-primary/80">الفاتحة</span>
+<p class="text-[10px] text-secondary font-bold">7 Verses</p>
+</div>
+</div>
+<!-- Surah Item -->
+<div class="flex items-center justify-between p-5 bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-highest text-primary rounded-md flex items-center justify-center font-headline font-bold">2</div>
+<div>
+<h4 class="font-bold text-primary leading-tight">Al-Baqarah</h4>
+<p class="text-xs text-primary/40 uppercase tracking-widest font-bold">The Cow</p>
+</div>
+</div>
+<div class="text-right">
+<span class="text-lg font-bold text-primary/80">البقرة</span>
+<p class="text-[10px] text-secondary font-bold">286 Verses</p>
+</div>
+</div>
+<!-- Surah Item -->
+<div class="flex items-center justify-between p-5 bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-highest text-primary rounded-md flex items-center justify-center font-headline font-bold">56</div>
+<div>
+<h4 class="font-bold text-primary leading-tight">Al-Waqi'ah</h4>
+<p class="text-xs text-primary/40 uppercase tracking-widest font-bold">The Inevitable</p>
+</div>
+</div>
+<div class="text-right">
+<span class="text-lg font-bold text-primary/80">الواقعة</span>
+<p class="text-[10px] text-secondary font-bold">96 Verses</p>
+</div>
+</div>
+<!-- Surah Item -->
+<div class="flex items-center justify-between p-5 bg-surface-container-low rounded-lg hover:bg-surface-container transition-colors cursor-pointer group">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-highest text-primary rounded-md flex items-center justify-center font-headline font-bold">114</div>
+<div>
+<h4 class="font-bold text-primary leading-tight">An-Nas</h4>
+<p class="text-xs text-primary/40 uppercase tracking-widest font-bold">Mankind</p>
+</div>
+</div>
+<div class="text-right">
+<span class="text-lg font-bold text-primary/80">الناس</span>
+<p class="text-[10px] text-secondary font-bold">6 Verses</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end pb-6 px-4 bg-[#fbfbe2]/90 backdrop-blur-3xl rounded-t-[3rem] shadow-[0_-12px_40px_rgba(6,78,59,0.06)]">
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#064e3b] text-[#fbfbe2] rounded-full w-14 h-14 -mt-4 shadow-lg scale-110 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[8px] font-bold uppercase tracking-tighter mt-1">Quran</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">grid_view</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Tools</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">group</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined mb-1">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Profile</span>
+</a>
+</nav>
+</body></html>

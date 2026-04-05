@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "inverse-on-surface": "#f2f2d9",
+              "on-surface-variant": "#404944",
+              "on-error": "#ffffff",
+              "error-container": "#ffdad6",
+              "tertiary": "#3d2b13",
+              "surface-container-low": "#f5f5dc",
+              "primary-container": "#064e3b",
+              "primary-fixed-dim": "#95d3ba",
+              "on-primary-fixed": "#002117",
+              "surface-container": "#efefd7",
+              "secondary-container": "#fed65b",
+              "on-primary-container": "#80bea6",
+              "primary": "#003527",
+              "secondary": "#735c00",
+              "on-secondary-fixed": "#241a00",
+              "background": "#fbfbe2",
+              "surface-variant": "#e4e4cc",
+              "on-tertiary-container": "#c9ae8c",
+              "on-secondary": "#ffffff",
+              "on-tertiary-fixed": "#281903",
+              "secondary-fixed": "#ffe088",
+              "on-surface": "#1b1d0e",
+              "surface-tint": "#2b6954",
+              "primary-fixed": "#b0f0d6",
+              "outline-variant": "#bfc9c3",
+              "tertiary-fixed": "#fcdeba",
+              "tertiary-fixed-dim": "#dfc29f",
+              "error": "#ba1a1a",
+              "tertiary-container": "#554127",
+              "surface": "#fbfbe2",
+              "on-primary": "#ffffff",
+              "on-tertiary-fixed-variant": "#574329",
+              "secondary-fixed-dim": "#e9c349",
+              "on-secondary-container": "#745c00",
+              "inverse-primary": "#95d3ba",
+              "on-tertiary": "#ffffff",
+              "on-primary-fixed-variant": "#0b513d",
+              "surface-container-lowest": "#ffffff",
+              "on-secondary-fixed-variant": "#574500",
+              "outline": "#707974",
+              "inverse-surface": "#303221",
+              "on-error-container": "#93000a",
+              "surface-container-highest": "#e4e4cc",
+              "surface-bright": "#fbfbe2",
+              "surface-dim": "#dbdcc3",
+              "on-background": "#1b1d0e",
+              "surface-container-high": "#eaead1"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .dua-card-pattern {
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23064e3b' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2v-4h4v-2h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2v-4h4v-2H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface antialiased">
+<!-- Top App Bar (Shared Component) -->
+<header class="bg-[#fbfbe2] dark:bg-emerald-950/20 flex justify-between items-center w-full px-6 py-4 fixed top-0 z-50">
+<div class="flex items-center gap-4">
+<button class="text-emerald-900 dark:text-emerald-50 hover:bg-emerald-100/50 dark:hover:bg-emerald-800/30 transition-colors p-2 rounded-full">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="text-emerald-900 dark:text-emerald-100 font-manrope font-extrabold tracking-tighter text-2xl">Sazda</h1>
+</div>
+<div class="flex items-center gap-2">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border-2 border-primary-container/10">
+<img alt="User profile" data-alt="User profile avatar circle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhxVz2MFzjtpCrEOttEoKy1OVqOTwMf2bI0eBPXRp1VoczUxzmt35sVWauUAXooO4IFoJ1rp59INnslebKxx6PnteaX0ANPyulWJBwLkaxb5SyyCgpOcOpVjl1JuAOu4gEwef44vFr0cVk54JJBNXUfZkO5OdUb4aPp6t4GAkfltwdAhXUNkeolLFF92uP_2WpFQe35LMLQj0ATJkAjD3VmGv-i7SighVQI8oi-2GCYgexKIxAgaCyBG4NBDs0Rj0L1WsrRDitTvM"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-5xl mx-auto">
+<!-- Hero Section: Editorial Breathing Room -->
+<section class="mb-12">
+<h2 class="font-headline font-extrabold text-5xl text-primary tracking-tight mb-4">Dua Wall</h2>
+<p class="text-on-surface-variant max-w-md text-lg leading-relaxed">
+                A shared sanctuary for intentions. Lift each other's prayers with a sincere Ameen.
+            </p>
+</section>
+<!-- Bento Grid Dua Feed -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<!-- Featured Card (Asymmetric Span) -->
+<article class="md:col-span-2 bg-surface-container-lowest p-8 rounded-[1.5rem] shadow-[0_12px_40px_rgba(6,78,59,0.04)] border border-outline-variant/10 relative overflow-hidden dua-card-pattern">
+<div class="relative z-10">
+<div class="flex items-center gap-3 mb-6">
+<span class="text-secondary font-semibold text-xs uppercase tracking-widest bg-secondary-container/30 px-3 py-1 rounded-full">Global Prayer</span>
+<span class="text-on-surface-variant/60 text-xs">2 hours ago</span>
+</div>
+<p class="text-2xl font-medium text-primary leading-snug mb-8">
+                        "Ya Allah, grant ease to all those struggling in silence. Restore their hope and fill their hearts with tranquility."
+                    </p>
+<div class="flex items-center justify-between">
+<div class="flex gap-4">
+<button class="flex items-center gap-2 bg-primary-container text-on-primary px-6 py-2.5 rounded-full hover:opacity-90 transition-all shadow-md">
+<span class="material-symbols-outlined text-sm" data-icon="favorite" data-weight="fill" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span class="text-sm font-semibold tracking-wide">Ameen</span>
+<span class="text-on-primary-container/80 text-xs font-medium ml-1">1.2k</span>
+</button>
+<button class="p-2.5 rounded-full bg-surface-container-low text-primary hover:bg-surface-container-highest transition-colors">
+<span class="material-symbols-outlined text-sm" data-icon="share">share</span>
+</button>
+</div>
+<div class="hidden sm:block">
+<span class="text-xs text-on-surface-variant italic">Anonymous from Medina</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Standard Card 1 -->
+<article class="bg-surface-container-low p-6 rounded-[1.5rem] flex flex-col justify-between border border-transparent hover:border-primary/5 transition-all">
+<p class="text-on-surface leading-relaxed mb-6">
+                    "Praying for my mother's health and recovery. May she see many more years of joy."
+                </p>
+<div class="flex items-center justify-between mt-auto pt-4 border-t border-outline-variant/10">
+<button class="flex items-center gap-2 text-primary-container font-bold text-sm">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+<span>Ameen (42)</span>
+</button>
+<button class="text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="share">share</span>
+</button>
+</div>
+</article>
+<!-- Standard Card 2 (Secondary Tonal Shift) -->
+<article class="bg-surface-container-highest p-6 rounded-[1.5rem] flex flex-col justify-between">
+<p class="text-on-surface leading-relaxed mb-6">
+                    "Guidance for a difficult career decision. Trusting in His plan for my sustenance."
+                </p>
+<div class="flex items-center justify-between mt-auto">
+<button class="flex items-center gap-2 text-primary font-bold text-sm bg-white/50 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+<span>Ameen (128)</span>
+</button>
+<button class="text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="share">share</span>
+</button>
+</div>
+</article>
+<!-- Standard Card 3 (Editorial Style) -->
+<article class="bg-primary-container p-6 rounded-[1.5rem] flex flex-col justify-between text-on-primary-container">
+<div>
+<span class="material-symbols-outlined mb-4 opacity-50" data-icon="format_quote" data-weight="fill" style="font-variation-settings: 'FILL' 1;">format_quote</span>
+<p class="text-lg font-medium leading-relaxed mb-6 italic text-white">
+                        "For the youth of our community, that they find strength in their faith and light in their paths."
+                    </p>
+</div>
+<div class="flex items-center justify-between">
+<button class="flex items-center gap-2 text-white font-bold text-sm">
+<span class="material-symbols-outlined text-lg" data-icon="favorite" data-weight="fill" style="font-variation-settings: 'FILL' 1;">favorite</span>
+<span>Ameen (310)</span>
+</button>
+<button class="text-white/70">
+<span class="material-symbols-outlined text-lg" data-icon="share">share</span>
+</button>
+</div>
+</article>
+<!-- Standard Card 4 -->
+<article class="bg-surface-container-lowest p-6 rounded-[1.5rem] flex flex-col justify-between shadow-sm">
+<p class="text-on-surface leading-relaxed mb-6">
+                    "Grateful for the small mercies today. Alhamdulillah for every breath."
+                </p>
+<div class="flex items-center justify-between">
+<button class="flex items-center gap-2 text-primary-container font-bold text-sm">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+<span>Ameen (89)</span>
+</button>
+<button class="text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="share">share</span>
+</button>
+</div>
+</article>
+<!-- Standard Card 5 -->
+<article class="bg-surface-container-low p-6 rounded-[1.5rem] flex flex-col justify-between">
+<p class="text-on-surface leading-relaxed mb-6">
+                    "Praying for peace in our hearts and peace in the world. May we be instruments of mercy."
+                </p>
+<div class="flex items-center justify-between">
+<button class="flex items-center gap-2 text-primary-container font-bold text-sm">
+<span class="material-symbols-outlined text-lg" data-icon="favorite">favorite</span>
+<span>Ameen (556)</span>
+</button>
+<button class="text-on-surface-variant">
+<span class="material-symbols-outlined text-lg" data-icon="share">share</span>
+</button>
+</div>
+</article>
+</div>
+</main>
+<!-- Post a Dua FAB (Contextual Action) -->
+<button class="fixed bottom-28 right-6 bg-secondary text-on-secondary w-16 h-16 rounded-full flex items-center justify-center shadow-2xl z-40 group transition-all hover:scale-105 active:scale-95">
+<span class="material-symbols-outlined text-3xl" data-icon="add">add</span>
+<!-- Floating Tooltip -->
+<span class="absolute right-20 bg-primary-container text-on-primary px-4 py-2 rounded-lg text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Post a Dua</span>
+</button>
+<!-- Bottom Navigation Bar (Shared Component) -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end px-4 pb-6 pt-2 bg-[#fbfbe2]/80 dark:bg-emerald-950/80 backdrop-blur-xl shadow-[0_-12px_40px_rgba(6,78,59,0.06)] rounded-t-[3rem]">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-emerald-800/50 dark:text-emerald-200/50 p-2 hover:text-emerald-900 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-plus-jakarta text-[11px] font-medium uppercase tracking-wider mt-1">Home</span>
+</a>
+<!-- Quran -->
+<a class="flex flex-col items-center justify-center text-emerald-800/50 dark:text-emerald-200/50 p-2 hover:text-emerald-900 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-plus-jakarta text-[11px] font-medium uppercase tracking-wider mt-1">Quran</span>
+</a>
+<!-- Tasbeeh -->
+<a class="flex flex-col items-center justify-center text-emerald-800/50 dark:text-emerald-200/50 p-2 hover:text-emerald-900 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="fingerprint">fingerprint</span>
+<span class="font-plus-jakarta text-[11px] font-medium uppercase tracking-wider mt-1">Tasbeeh</span>
+</a>
+<!-- Community (Active) -->
+<a class="flex flex-col items-center justify-center bg-emerald-800 dark:bg-amber-400 text-[#fbfbe2] dark:text-emerald-950 rounded-full w-14 h-14 mb-2 shadow-lg scale-110" href="#">
+<span class="material-symbols-outlined" data-icon="group" data-weight="fill" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="hidden">Community</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-emerald-800/50 dark:text-emerald-200/50 p-2 hover:text-emerald-900 transition-all" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-plus-jakarta text-[11px] font-medium uppercase tracking-wider mt-1">Profile</span>
+</a>
+</nav>
+<!-- Subtle Background Elements (Design System Principle 6) -->
+<div class="fixed top-20 -right-20 w-80 h-80 bg-primary-container/5 rounded-full blur-[100px] -z-10"></div>
+<div class="fixed bottom-40 -left-20 w-60 h-60 bg-secondary-container/10 rounded-full blur-[80px] -z-10"></div>
+</body></html>

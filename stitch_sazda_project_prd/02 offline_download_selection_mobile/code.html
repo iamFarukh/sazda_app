@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Download Selection - Al-Quran Library</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "outline-variant": "#bfc9c3",
+                    "on-error": "#ffffff",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#fbfbe2",
+                    "on-tertiary-fixed-variant": "#574329",
+                    "on-primary": "#ffffff",
+                    "background": "#fbfbe2",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-container-high": "#eaead1",
+                    "surface-dim": "#dbdcc3",
+                    "inverse-surface": "#303221",
+                    "outline": "#707974",
+                    "on-primary-container": "#80bea6",
+                    "on-background": "#1b1d0e",
+                    "inverse-on-surface": "#f2f2d9",
+                    "secondary-container": "#fed65b",
+                    "surface-container": "#efefd7",
+                    "primary": "#003527",
+                    "tertiary-fixed-dim": "#dfc29f",
+                    "secondary-fixed-dim": "#e9c349",
+                    "on-secondary-fixed-variant": "#574500",
+                    "on-tertiary-fixed": "#281903",
+                    "on-tertiary-container": "#c9ae8c",
+                    "on-error-container": "#93000a",
+                    "surface-tint": "#2b6954",
+                    "on-surface": "#1b1d0e",
+                    "on-secondary-fixed": "#241a00",
+                    "tertiary-container": "#554127",
+                    "on-primary-fixed-variant": "#0b513d",
+                    "on-primary-fixed": "#002117",
+                    "secondary": "#735c00",
+                    "error-container": "#ffdad6",
+                    "primary-container": "#064e3b",
+                    "on-secondary-container": "#745c00",
+                    "error": "#ba1a1a",
+                    "surface-variant": "#e4e4cc",
+                    "tertiary": "#3d2b13",
+                    "surface-container-low": "#f5f5dc",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-highest": "#e4e4cc",
+                    "secondary-fixed": "#ffe088",
+                    "primary-fixed-dim": "#95d3ba",
+                    "inverse-primary": "#95d3ba",
+                    "tertiary-fixed": "#fcdeba",
+                    "surface": "#fbfbe2",
+                    "on-surface-variant": "#404944",
+                    "primary-fixed": "#b0f0d6"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .bg-mesh {
+            background-color: #fbfbe2;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(6, 78, 59, 0.05) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(115, 92, 0, 0.05) 0px, transparent 50%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-mesh min-h-screen text-on-surface">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 dark:bg-[#003527]/80 backdrop-blur-3xl shadow-[0_12px_40px_rgba(6,78,59,0.06)]">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#f5f5dc] transition-colors duration-300">
+<span class="material-symbols-outlined text-[#003527]" data-icon="arrow_back">arrow_back</span>
+</button>
+<h1 class="text-xl font-headline font-extrabold tracking-tight text-[#003527]">Download Selection</h1>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-[#f5f5dc] transition-colors duration-300">
+<span class="material-symbols-outlined text-[#003527]" data-icon="cloud_download">cloud_download</span>
+</button>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-md mx-auto space-y-8">
+<!-- Hero Visual Section -->
+<section class="relative h-48 rounded-xl overflow-hidden shadow-2xl">
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 to-transparent z-10"></div>
+<img alt="Holy Quran" class="w-full h-full object-cover" data-alt="Close-up of elegant Quran pages with gold leaf details and Arabic calligraphy in soft warm morning light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCAR1JD2FJFlilexSY-2CayhEP_9xByAwGGG5yBz1gr5LhipfZ0hzosRCDyjunScAxuy9_zrceM0naA0ZAlmva5kY1s82A7UlscND07Vb8EvRpBfINhTFUCvN8ZBSy9k5mhZrwc6IzROHrk0Zgbl3dyP148Saea14TRshT3vH9JQtURXujEAHY72RPEg8WWGnmmkR2dF8QdMYkerfByvtlFhw7X0XHJ41eACp9hZl4Q3ZP4NHBQfAS9Hn3PjjBCWzdTDjjKUeMVfbw"/>
+<div class="absolute bottom-4 left-6 z-20">
+<p class="text-surface font-headline font-bold text-lg">Preserve the Sanctuary</p>
+<p class="text-surface/80 text-sm">Access the Divine Word without an internet connection.</p>
+</div>
+</section>
+<!-- Download Options Grid -->
+<section class="space-y-4">
+<h2 class="text-primary font-headline font-bold text-sm uppercase tracking-widest px-1">Package Selection</h2>
+<div class="grid gap-4">
+<!-- Arabic Text -->
+<label class="group relative flex items-center p-5 rounded-lg bg-surface-container-lowest border-2 border-transparent has-[:checked]:border-secondary transition-all duration-300 cursor-pointer shadow-sm">
+<input checked="" class="hidden peer" type="checkbox"/>
+<div class="flex-1">
+<h3 class="font-headline font-bold text-primary">Arabic Text</h3>
+<p class="text-xs text-on-surface-variant">Uthmani Script • 12MB</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center peer-checked:bg-secondary peer-checked:border-secondary transition-colors">
+<span class="material-symbols-outlined text-white text-sm" data-icon="check">check</span>
+</div>
+</label>
+<!-- English Translation -->
+<label class="group relative flex items-center p-5 rounded-lg bg-surface-container-lowest border-2 border-transparent has-[:checked]:border-secondary transition-all duration-300 cursor-pointer shadow-sm">
+<input class="hidden peer" type="checkbox"/>
+<div class="flex-1">
+<h3 class="font-headline font-bold text-primary">English Translation</h3>
+<p class="text-xs text-on-surface-variant">Saheeh International • 8MB</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center peer-checked:bg-secondary peer-checked:border-secondary transition-colors">
+<span class="material-symbols-outlined text-white text-sm" data-icon="check">check</span>
+</div>
+</label>
+<!-- Full Audio Recitation -->
+<div class="space-y-3">
+<label class="group relative flex items-center p-5 rounded-lg bg-surface-container-lowest border-2 border-transparent has-[:checked]:border-secondary transition-all duration-300 cursor-pointer shadow-sm">
+<input class="hidden peer" id="audio-toggle" type="checkbox"/>
+<div class="flex-1">
+<h3 class="font-headline font-bold text-primary">Full Audio Recitation</h3>
+<p class="text-xs text-on-surface-variant">High Quality (128kbps) • 220MB</p>
+</div>
+<div class="w-6 h-6 rounded-full border-2 border-outline-variant flex items-center justify-center peer-checked:bg-secondary peer-checked:border-secondary transition-colors">
+<span class="material-symbols-outlined text-white text-sm" data-icon="check">check</span>
+</div>
+</label>
+<!-- Reciter Selection Dropdown -->
+<div class="pl-4">
+<div class="relative group">
+<div class="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none">
+<span class="material-symbols-outlined text-primary/60 text-lg" data-icon="person">person</span>
+</div>
+<select class="w-full bg-surface-container-low border-none rounded-lg py-4 pl-12 pr-10 text-sm font-medium focus:ring-2 focus:ring-primary/20 appearance-none text-primary">
+<option>Mishary Alafasy</option>
+<option>Abdul Rahman Al-Sudais</option>
+<option>Saud Al-Shuraim</option>
+<option>Maher Al-Muaiqly</option>
+</select>
+<div class="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+<span class="material-symbols-outlined text-primary/60" data-icon="expand_more">expand_more</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Storage Warning -->
+<section class="p-5 rounded-lg bg-[#fff4e5] border border-[#ff9800]/20 flex gap-4 items-start shadow-inner">
+<span class="material-symbols-outlined text-[#ef6c00]" data-icon="warning">warning</span>
+<div class="space-y-1">
+<h4 class="text-sm font-bold text-[#ef6c00]">Storage Warning</h4>
+<p class="text-xs text-[#ef6c00]/80 leading-relaxed">Your device has only 1.2GB available. Downloading the full audio might impact performance.</p>
+</div>
+</section>
+<!-- Start Download CTA -->
+<div class="pt-4">
+<button class="w-full py-5 bg-primary-container text-white rounded-full font-headline font-extrabold text-lg shadow-[0_12px_30px_rgba(6,78,59,0.2)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-3">
+<span class="material-symbols-outlined" data-icon="download">download</span>
+                Start Download
+            </button>
+<p class="text-center text-[10px] text-on-surface-variant mt-4 uppercase tracking-[0.2em]">Estimated time: 4 minutes via Wi-Fi</p>
+</div>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 pb-6 pt-2 bg-[#fbfbe2]/80 dark:bg-[#003527]/80 backdrop-blur-3xl rounded-t-[3rem] shadow-[0_-12px_40px_rgba(6,78,59,0.06)]">
+<div class="flex flex-col items-center justify-center text-[#003527]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors">
+<span class="material-symbols-outlined text-2xl" data-icon="mosque">mosque</span>
+<span class="text-[10px] font-medium tracking-wide uppercase mt-1">Sanctuary</span>
+</div>
+<!-- Active Tab: Downloads (Matches Library Intent) -->
+<div class="flex flex-col items-center justify-center bg-[#064e3b] text-[#fed65b] rounded-full p-3 scale-110 -translate-y-2 shadow-xl transition-all duration-300">
+<span class="material-symbols-outlined text-2xl" data-icon="download_for_offline">download_for_offline</span>
+<span class="text-[10px] font-bold tracking-wide uppercase mt-1">Downloads</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#003527]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors">
+<span class="material-symbols-outlined text-2xl" data-icon="auto_stories">auto_stories</span>
+<span class="text-[10px] font-medium tracking-wide uppercase mt-1">Library</span>
+</div>
+<div class="flex flex-col items-center justify-center text-[#003527]/50 dark:text-[#fbfbe2]/50 p-2 hover:text-[#735c00] transition-colors">
+<span class="material-symbols-outlined text-2xl" data-icon="settings">settings</span>
+<span class="text-[10px] font-medium tracking-wide uppercase mt-1">Settings</span>
+</div>
+</nav>
+</body></html>

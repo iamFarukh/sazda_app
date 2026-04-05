@@ -1,0 +1,2 @@
+export { SazdaIcon } from './SazdaIcon';
+

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .headline-font {
+            font-family: 'Manrope', sans-serif;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbfbe2",
+                        "on-tertiary-fixed-variant": "#574329",
+                        "inverse-on-surface": "#f2f2d9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#2b6954",
+                        "tertiary-container": "#554127",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dbdcc3",
+                        "error-container": "#ffdad6",
+                        "surface": "#fbfbe2",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#80bea6",
+                        "primary-fixed": "#b0f0d6",
+                        "surface-container": "#efefd7",
+                        "tertiary-fixed-dim": "#dfc29f",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#95d3ba",
+                        "on-surface": "#1b1d0e",
+                        "outline": "#707974",
+                        "tertiary-fixed": "#fcdeba",
+                        "on-secondary-fixed-variant": "#574500",
+                        "outline-variant": "#bfc9c3",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e4e4cc",
+                        "secondary": "#735c00",
+                        "on-tertiary-container": "#c9ae8c",
+                        "surface-container-high": "#eaead1",
+                        "on-primary-fixed": "#002117",
+                        "background": "#fbfbe2",
+                        "secondary-fixed-dim": "#e9c349",
+                        "inverse-primary": "#95d3ba",
+                        "surface-container-low": "#f5f5dc",
+                        "on-secondary-fixed": "#241a00",
+                        "inverse-surface": "#303221",
+                        "on-primary-fixed-variant": "#0b513d",
+                        "on-secondary-container": "#745c00",
+                        "secondary-fixed": "#ffe088",
+                        "tertiary": "#3d2b13",
+                        "on-background": "#1b1d0e",
+                        "primary": "#003527",
+                        "primary-container": "#064e3b",
+                        "surface-variant": "#e4e4cc",
+                        "on-surface-variant": "#404944",
+                        "on-tertiary-fixed": "#281903",
+                        "secondary-container": "#fed65b"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col items-center justify-center overflow-hidden selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- Top Navigation Anchor (Suppressed Shared Nav for focus journey) -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-2">
+<span class="text-primary font-headline font-black italic tracking-tight text-lg">Sazda</span>
+</div>
+</header>
+<main class="relative w-full max-w-md mx-auto px-8 flex flex-col items-center">
+<!-- Background Decorative Elements -->
+<div class="absolute -top-32 -right-32 w-80 h-80 bg-secondary-container/20 rounded-full blur-[80px] pointer-events-none"></div>
+<div class="absolute -bottom-40 -left-20 w-64 h-64 bg-primary-container/10 rounded-full blur-[60px] pointer-events-none"></div>
+<!-- Illustration Section: The Digital Sanctuary Visual -->
+<div class="relative mb-12">
+<!-- Compass / Map Pin Composite -->
+<div class="relative w-64 h-64 flex items-center justify-center">
+<!-- Outer Halo -->
+<div class="absolute inset-0 rounded-full bg-surface-container-highest/40 animate-pulse"></div>
+<!-- Inner Progress Ring / Compass Track -->
+<div class="absolute inset-4 rounded-full border-4 border-surface-container-highest border-dashed opacity-50"></div>
+<!-- The Core Element -->
+<div class="relative w-40 h-40 bg-surface-container-lowest rounded-full shadow-[0_12px_40px_rgba(6,78,59,0.06)] flex items-center justify-center overflow-hidden">
+<div class="absolute inset-0 opacity-10" data-location="Mecca" style="">
+<img alt="Stylized map of city layout" class="w-full h-full object-cover grayscale" data-alt="Stylized monochrome city map texture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtLei-4cZpk-U4NxoMP1wvomdSFzsyCApoMJBVCiZo0tqCRRFK5prwqR18R1Ma3jNOoxM8bpbzyxS-RAj3GbDm_m2-7N_nG-9UCCqv8qiAHMLdpJofd9uVONFu3dxJBbRXPuIcSzhbfJm3I5P525l9Ec3wA-Wnf6pX3qhfS6VkqHhfkOmSCMA-XSk4jptnuIze0oCLZtT3bl0DBJ2hdWct2EVLJTAs_3Z0fgTkPJZsNEsiy6Eevx9GbuyqA1CgZ1ZqGSrHl-EhgrA"/>
+</div>
+<div class="relative z-10 flex flex-col items-center">
+<span class="material-symbols-outlined text-6xl text-secondary" style="font-variation-settings: 'FILL' 1;">location_on</span>
+<div class="absolute -top-1 -right-1">
+<span class="material-symbols-outlined text-3xl text-primary" style="font-variation-settings: 'FILL' 1;">dark_mode</span>
+</div>
+</div>
+</div>
+<!-- Floating Taqua Tags (Asymmetric accent) -->
+<div class="absolute top-0 right-4 bg-surface-container-lowest px-4 py-2 rounded-full shadow-sm flex items-center gap-2 border border-outline-variant/10">
+<span class="material-symbols-outlined text-sm text-primary">explore</span>
+<span class="text-[10px] font-bold uppercase tracking-tighter text-on-surface-variant">Qibla Path</span>
+</div>
+</div>
+</div>
+<!-- Content Section -->
+<div class="text-center space-y-6">
+<h1 class="headline-font text-3xl font-extrabold text-primary tracking-tight leading-tight px-4">
+                Enable Location for Prayer Times.
+            </h1>
+<p class="text-on-surface-variant leading-relaxed px-2 text-base font-medium">
+                Sazda needs your location to provide accurate prayer times and the direction of the Qibla from wherever you are.
+            </p>
+</div>
+<!-- Action Section -->
+<div class="w-full mt-12 space-y-4">
+<!-- Primary CTA -->
+<button class="group w-full bg-primary-container text-surface py-5 rounded-full flex items-center justify-center gap-3 shadow-[0_12px_30px_rgba(6,78,59,0.15)] hover:opacity-95 transition-all active:scale-95 duration-300">
+<span class="font-bold text-base tracking-wide">Allow Location</span>
+<span class="material-symbols-outlined text-xl transition-transform group-hover:translate-x-1">arrow_forward</span>
+</button>
+<!-- Secondary CTA -->
+<button class="w-full bg-transparent text-primary py-4 rounded-full border border-outline-variant/30 hover:bg-surface-container-low transition-colors duration-300">
+<span class="font-semibold text-sm">Enter Location Manually</span>
+</button>
+</div>
+<!-- Trust Indicator -->
+<div class="mt-10 flex items-center gap-2 text-on-surface-variant/60">
+<span class="material-symbols-outlined text-sm">lock</span>
+<span class="text-[11px] font-medium tracking-wide">Your data is processed locally and never stored.</span>
+</div>
+</main>
+<!-- Decorative Bottom Anchor (Editorial Breathing Room) -->
+<footer class="fixed bottom-12 w-full flex justify-center opacity-20 pointer-events-none">
+<div class="flex gap-4">
+<span class="material-symbols-outlined text-4xl">pattern</span>
+<span class="material-symbols-outlined text-4xl">grid_view</span>
+<span class="material-symbols-outlined text-4xl">filter_vintage</span>
+</div>
+</footer>
+</body></html>

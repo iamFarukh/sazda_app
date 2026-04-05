@@ -1,0 +1,2 @@
+export { SazdaText } from './SazdaText';
+

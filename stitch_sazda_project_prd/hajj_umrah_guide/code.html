@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-container-high": "#eaead1",
+              "outline-variant": "#bfc9c3",
+              "on-secondary": "#ffffff",
+              "error": "#ba1a1a",
+              "tertiary-fixed": "#fcdeba",
+              "inverse-primary": "#95d3ba",
+              "surface-container-highest": "#e4e4cc",
+              "secondary-container": "#fed65b",
+              "on-tertiary-fixed": "#281903",
+              "tertiary": "#3d2b13",
+              "primary": "#003527",
+              "on-secondary-fixed-variant": "#574500",
+              "secondary-fixed-dim": "#e9c349",
+              "tertiary-container": "#554127",
+              "on-primary-fixed-variant": "#0b513d",
+              "background": "#fbfbe2",
+              "primary-fixed-dim": "#95d3ba",
+              "outline": "#707974",
+              "on-primary-fixed": "#002117",
+              "tertiary-fixed-dim": "#dfc29f",
+              "on-secondary-container": "#745c00",
+              "surface-bright": "#fbfbe2",
+              "surface": "#fbfbe2",
+              "on-secondary-fixed": "#241a00",
+              "on-primary": "#ffffff",
+              "surface-container-low": "#f5f5dc",
+              "surface-container": "#efefd7",
+              "surface-tint": "#2b6954",
+              "on-tertiary-container": "#c9ae8c",
+              "inverse-on-surface": "#f2f2d9",
+              "on-surface-variant": "#404944",
+              "surface-dim": "#dbdcc3",
+              "primary-container": "#064e3b",
+              "error-container": "#ffdad6",
+              "on-surface": "#1b1d0e",
+              "surface-container-lowest": "#ffffff",
+              "on-tertiary-fixed-variant": "#574329",
+              "surface-variant": "#e4e4cc",
+              "on-error-container": "#93000a",
+              "on-tertiary": "#ffffff",
+              "secondary-fixed": "#ffe088",
+              "primary-fixed": "#b0f0d6",
+              "on-error": "#ffffff",
+              "secondary": "#735c00",
+              "on-background": "#1b1d0e",
+              "on-primary-container": "#80bea6",
+              "inverse-surface": "#303221"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        background-color: #fbfbe2;
+      }
+      .font-headline { font-family: 'Manrope', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface antialiased min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fbfbe2]/80 dark:bg-emerald-950/80 backdrop-blur-xl shadow-[0_12px_40px_rgba(6,78,59,0.06)] flex items-center justify-between px-6 h-16 w-full">
+<button class="text-[#003527] dark:text-[#fed65b] hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-['Manrope'] tracking-widest font-extrabold text-2xl text-[#003527] dark:text-[#fed65b]">Sazda</h1>
+<div class="w-8 h-8 rounded-full bg-primary-container/10 flex items-center justify-center overflow-hidden">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="User profile avatar photo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBuHbLUsFyY4nSt2N7-JXtwY5zha3fhrQ4oiHoV3WnY4Rj9M_tCSZcfgvETDe0ES1JZbQ_tM_t0x2chMfHGmzPNZTo3FWZRHwmnzEfxLsKxJfjNUUwVNfQzCQc4WvoMiuUrBx1ETTnFhDMkIZzr0WmeKacd-Y6dRon8zcbUBI4d1XMfkX5GNCWbGacYqp_-iaKuRLSiDC79EbqwMdIPRT5aEW5vxtkeQ3LxNhW4BECIPWjsXIIKCcHLasCJVk9EKCr0UXC_TqkJ0ak"/>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-2xl mx-auto space-y-10">
+<!-- Hero Section -->
+<section class="relative group">
+<div class="w-full h-72 rounded-xl overflow-hidden shadow-2xl relative">
+<img alt="Kaaba" class="w-full h-full object-cover brightness-75 group-hover:scale-105 transition-transform duration-700" data-alt="Majestic wide angle view of the Holy Kaaba in Mecca" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDGQqQaRXbhcOoKxeMgcRuIzv41fslwT0pDJwy16RmLhiHZzhOC5wCCOOaV5y-i1bq9qtoVCr3ZYt8FPFKio4BWmRFNCHS5XkHTNwWBFVfB43en6lj7Z947qKEo3V_2eKLnCiHltQbRtPygOyigJkxMQiuSTDu8qSY_c89ns5dCdc_XLSAP5Uy1ZDPt8kHsp4eS4O6cKUTGQMGsLRhCZ5pM4LHJCqzbCQueopCNQz3k_Ko3hCXApRudnw7hjJUxEijFSxWBqdvshxo"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/80 via-transparent to-transparent"></div>
+<div class="absolute bottom-6 left-6 right-6">
+<span class="inline-block px-3 py-1 rounded-full bg-secondary-container text-on-secondary-container text-xs font-bold tracking-widest uppercase mb-2">Interactive Guide</span>
+<h2 class="font-headline text-3xl font-extrabold text-white tracking-tight">Umrah Journey</h2>
+</div>
+</div>
+</section>
+<!-- Progress Indicator -->
+<section class="bg-surface-container-low p-6 rounded-lg space-y-4">
+<div class="flex justify-between items-end">
+<div>
+<p class="text-sm font-label text-on-surface-variant uppercase tracking-widest">Current Status</p>
+<h3 class="font-headline text-xl font-bold text-primary">Niyyah &amp; Ihram</h3>
+</div>
+<p class="text-secondary font-bold text-lg">25%</p>
+</div>
+<div class="h-3 w-full bg-surface-container-highest rounded-full overflow-hidden">
+<div class="h-full bg-gradient-to-r from-primary to-primary-container w-1/4 rounded-full"></div>
+</div>
+<p class="text-xs text-on-surface-variant/80 italic">“O Allah, I perform Umrah for Your sake...”</p>
+</section>
+<!-- Vertical Stepper / Timeline -->
+<section class="relative">
+<!-- Timeline Line -->
+<div class="absolute left-6 top-4 bottom-4 w-px bg-outline-variant/30"></div>
+<div class="space-y-8 relative">
+<!-- Step 1: Ihram (Active/Done) -->
+<div class="flex gap-6 items-start">
+<div class="z-10 w-12 h-12 rounded-full bg-primary flex items-center justify-center text-white ring-8 ring-surface shadow-lg">
+<span class="material-symbols-outlined" data-icon="check">check</span>
+</div>
+<div class="flex-1 bg-surface-container-lowest p-6 rounded-md shadow-[0_12px_40px_rgba(6,78,59,0.04)] border-l-4 border-primary">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-headline font-bold text-lg text-primary">Ihram</h4>
+<span class="material-symbols-outlined text-primary/40" data-icon="apparel">apparel</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Enter the state of purity. Recite the Talbiyah and make your intention at the Miqat.</p>
+</div>
+</div>
+<!-- Step 2: Tawaf (Current) -->
+<div class="flex gap-6 items-start">
+<div class="z-10 w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container ring-8 ring-surface shadow-xl">
+<span class="material-symbols-outlined" data-icon="sync" style="font-variation-settings: 'FILL' 1;">sync</span>
+</div>
+<div class="flex-1 bg-primary-container text-white p-6 rounded-md shadow-xl transform scale-[1.02]">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-headline font-bold text-lg text-secondary-container">Tawaf</h4>
+<span class="material-symbols-outlined text-secondary-container/60" data-icon="all_inclusive">all_inclusive</span>
+</div>
+<p class="text-sm text-on-primary-container leading-relaxed">Circle the Kaaba seven times counter-clockwise, starting and ending at the Hajar al-Aswad.</p>
+<button class="mt-4 w-full py-2 bg-secondary-container text-on-secondary-container rounded-full text-sm font-bold uppercase tracking-widest hover:opacity-90 transition-opacity">View Supplications</button>
+</div>
+</div>
+<!-- Step 3: Sa'i (Upcoming) -->
+<div class="flex gap-6 items-start">
+<div class="z-10 w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant ring-8 ring-surface">
+<span class="material-symbols-outlined" data-icon="directions_walk">directions_walk</span>
+</div>
+<div class="flex-1 bg-surface-container-low p-6 rounded-md opacity-60">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-headline font-bold text-lg text-on-surface-variant">Sa'i</h4>
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="mountain_flag">mountain_flag</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Walk seven times between the hills of Safa and Marwa in remembrance of Hajar (AS).</p>
+</div>
+</div>
+<!-- Step 4: Halq/Taqsir (Upcoming) -->
+<div class="flex gap-6 items-start">
+<div class="z-10 w-12 h-12 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant ring-8 ring-surface">
+<span class="material-symbols-outlined" data-icon="content_cut">content_cut</span>
+</div>
+<div class="flex-1 bg-surface-container-low p-6 rounded-md opacity-60">
+<div class="flex justify-between items-start mb-2">
+<h4 class="font-headline font-bold text-lg text-on-surface-variant">Halq &amp; Taqsir</h4>
+<span class="material-symbols-outlined text-on-surface-variant/40" data-icon="content_cut">content_cut</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">Complete your Umrah by shaving or cutting a portion of your hair.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Contextual Info Card -->
+<section class="bg-surface-container-highest/30 p-8 rounded-xl border border-outline-variant/10 text-center">
+<span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="auto_awesome">auto_awesome</span>
+<h3 class="font-headline font-bold text-primary mb-2">Did You Know?</h3>
+<p class="text-sm text-on-surface-variant italic">“The performance of Umrah is an expiation for the sins committed between it and the previous one.” (Bukhari)</p>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-4 py-3 bg-[#fbfbe2]/90 dark:bg-emerald-950/90 backdrop-blur-2xl shadow-[0_-8px_30px_rgba(0,53,39,0.08)] rounded-t-[3rem] pb-safe">
+<!-- Home -->
+<div class="flex flex-col items-center justify-center text-[#003527]/50 dark:text-[#fed65b]/50 hover:text-[#735c00] dark:hover:text-white transition-transform scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Home</span>
+</div>
+<!-- Quran -->
+<div class="flex flex-col items-center justify-center text-[#003527]/50 dark:text-[#fed65b]/50 hover:text-[#735c00] dark:hover:text-white transition-transform scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Quran</span>
+</div>
+<!-- Tools (Active) -->
+<div class="flex flex-col items-center justify-center bg-[#064e3b] dark:bg-[#fed65b] text-[#fbfbe2] dark:text-[#003527] rounded-full w-12 h-12 mb-1 transition-all duration-500 scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="architecture">architecture</span>
+<span class="hidden">Tools</span>
+</div>
+<!-- Community -->
+<div class="flex flex-col items-center justify-center text-[#003527]/50 dark:text-[#fed65b]/50 hover:text-[#735c00] dark:hover:text-white transition-transform scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="groups">groups</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Community</span>
+</div>
+<!-- Profile -->
+<div class="flex flex-col items-center justify-center text-[#003527]/50 dark:text-[#fed65b]/50 hover:text-[#735c00] dark:hover:text-white transition-transform scale-95 active:scale-90">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Profile</span>
+</div>
+</nav>
+</body></html>

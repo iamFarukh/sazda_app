@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sazda - Tasbeeh Counter</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Google Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error": "#ffffff",
+              "surface-bright": "#fbfbe2",
+              "on-tertiary-fixed-variant": "#574329",
+              "inverse-on-surface": "#f2f2d9",
+              "surface-container-lowest": "#ffffff",
+              "surface-tint": "#2b6954",
+              "tertiary-container": "#554127",
+              "error": "#ba1a1a",
+              "surface-dim": "#dbdcc3",
+              "error-container": "#ffdad6",
+              "surface": "#fbfbe2",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "on-primary-container": "#80bea6",
+              "primary-fixed": "#b0f0d6",
+              "surface-container": "#efefd7",
+              "tertiary-fixed-dim": "#dfc29f",
+              "on-error-container": "#93000a",
+              "primary-fixed-dim": "#95d3ba",
+              "on-surface": "#1b1d0e",
+              "outline": "#707974",
+              "tertiary-fixed": "#fcdeba",
+              "on-secondary-fixed-variant": "#574500",
+              "outline-variant": "#bfc9c3",
+              "on-secondary": "#ffffff",
+              "surface-container-highest": "#e4e4cc",
+              "secondary": "#735c00",
+              "on-tertiary-container": "#c9ae8c",
+              "surface-container-high": "#eaead1",
+              "on-primary-fixed": "#002117",
+              "background": "#fbfbe2",
+              "secondary-fixed-dim": "#e9c349",
+              "inverse-primary": "#95d3ba",
+              "surface-container-low": "#f5f5dc",
+              "on-secondary-fixed": "#241a00",
+              "inverse-surface": "#303221",
+              "on-primary-fixed-variant": "#0b513d",
+              "on-secondary-container": "#745c00",
+              "secondary-fixed": "#ffe088",
+              "tertiary": "#3d2b13",
+              "on-background": "#1b1d0e",
+              "primary": "#003527",
+              "primary-container": "#064e3b",
+              "surface-variant": "#e4e4cc",
+              "on-surface-variant": "#404944",
+              "on-tertiary-fixed": "#281903",
+              "secondary-container": "#fed65b"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .bg-geometric {
+        background-color: #fbfbe2;
+        background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23064e3b' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      }
+      .tap-active:active {
+        transform: scale(0.96);
+        transition: transform 0.1s ease-out;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface selection:bg-secondary-container min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 backdrop-blur-2xl">
+<div class="flex items-center gap-4">
+<button class="text-[#003527] hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h1 class="font-['Manrope'] font-black italic text-lg tracking-tight text-[#003527]">Sazda</h1>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center overflow-hidden border border-outline-variant/20">
+<img alt="Profile picture" class="w-full h-full object-cover" data-alt="Close up profile portrait of a smiling person" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhQf7ynPlqqVNb3LtNxMyKTNv6AqUYDUeI7UwTWJL9bVN1t_plAiDRl45dyXqH7zCd8TQ5mhFNLeKTJ2HFq1oY-ZCO_u1SWbr2NBwa2QcjJD9mJXn9L0iA5c3tKKoaOmZ76GdcfgpxtqAh4nRaphXCeISytcx9MNTI3nIo0MCXVXI3-tXkGcH4WjZ6gxlD6BKT4D9r9qJdIk8ftkt0zbxc4JUTFh92ylhxJwNjftXxTljbtKlUiVocM457JpJZjJjSA576u61MHyA"/>
+</div>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="flex-grow pt-20 pb-32 px-6 bg-geometric flex flex-col items-center justify-between">
+<!-- Dhikr Selection & Info -->
+<section class="w-full max-w-md flex flex-col items-center text-center mt-4">
+<div class="bg-surface-container-lowest/60 backdrop-blur-sm px-4 py-1.5 rounded-full mb-6 border border-outline-variant/10">
+<span class="text-xs font-label font-bold tracking-widest uppercase text-secondary">Currently Reciting</span>
+</div>
+<h2 class="font-headline font-extrabold text-3xl text-primary tracking-tight">SubhanAllah</h2>
+<p class="text-on-surface-variant text-sm mt-2 font-medium">Glory be to Allah</p>
+</section>
+<!-- The Large Counter & Tap Area -->
+<section class="relative w-full max-w-md flex flex-col items-center justify-center gap-12">
+<!-- Progress Counter -->
+<div class="flex flex-col items-center">
+<div class="flex items-baseline gap-2">
+<span class="font-headline font-extrabold text-8xl text-primary-container tracking-tighter">33</span>
+<span class="font-headline font-bold text-3xl text-on-surface-variant/40">/ 100</span>
+</div>
+</div>
+<!-- Main Interaction Sphere -->
+<div class="relative group cursor-pointer">
+<!-- Outer Ring Decoration -->
+<div class="absolute -inset-8 border border-primary/5 rounded-full animate-pulse"></div>
+<div class="absolute -inset-4 border border-primary/10 rounded-full"></div>
+<!-- Main Tap Button -->
+<button class="tap-active w-64 h-64 rounded-full bg-gradient-to-br from-primary to-primary-container shadow-[0_24px_60px_rgba(6,78,59,0.25)] flex items-center justify-center relative overflow-hidden focus:outline-none">
+<div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-paper.png')] opacity-20"></div>
+<!-- Ripple/Light effect -->
+<div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-white/10 to-transparent pointer-events-none"></div>
+<span class="material-symbols-outlined text-surface text-6xl" data-icon="touch_app" data-weight="fill" style="font-variation-settings: 'FILL' 1;">touch_app</span>
+</button>
+</div>
+</section>
+<!-- Tools & Settings (Bento-style layout) -->
+<section class="w-full max-w-md grid grid-cols-2 gap-4 mt-8">
+<!-- Reset Card -->
+<button class="flex flex-col items-center justify-center bg-surface-container-low p-6 rounded-xl hover:bg-surface-container transition-colors group">
+<span class="material-symbols-outlined text-primary mb-2 transition-transform group-hover:rotate-180 duration-500" data-icon="refresh">refresh</span>
+<span class="font-label font-semibold text-xs uppercase tracking-widest text-on-surface">Reset</span>
+</button>
+<!-- Haptic Card -->
+<button class="flex flex-col items-center justify-center bg-surface-container-low p-6 rounded-xl hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-secondary mb-2" data-icon="vibration" data-weight="fill" style="font-variation-settings: 'FILL' 1;">vibration</span>
+<span class="font-label font-semibold text-xs uppercase tracking-widest text-on-surface">Haptic: On</span>
+</button>
+<!-- Goal Selection (Spans 2 cols) -->
+<div class="col-span-2 bg-primary-container p-1 rounded-full flex justify-between items-center">
+<button class="flex-1 py-3 px-4 rounded-full font-label font-bold text-xs text-on-primary-container bg-surface/10">33</button>
+<button class="flex-1 py-3 px-4 rounded-full font-label font-bold text-xs text-surface">99</button>
+<button class="flex-1 py-3 px-4 rounded-full font-label font-bold text-xs text-on-primary-container hover:bg-surface/5 transition-colors">1000</button>
+<button class="flex-1 py-3 px-4 rounded-full font-label font-bold text-xs text-on-primary-container hover:bg-surface/5 transition-colors">Custom</button>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end pb-6 px-4 bg-[#fbfbe2]/90 backdrop-blur-3xl shadow-[0_-12px_40px_rgba(6,78,59,0.06)] rounded-t-[3rem]">
+<!-- Home -->
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="home">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Home</span>
+</a>
+<!-- Quran -->
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="menu_book">menu_book</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Quran</span>
+</a>
+<!-- Tools (Active) -->
+<a class="flex flex-col items-center justify-center bg-[#064e3b] text-[#fbfbe2] rounded-full w-14 h-14 -mt-4 shadow-lg scale-110 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="grid_view" data-weight="fill" style="font-variation-settings: 'FILL' 1;">grid_view</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[8px] font-bold uppercase tracking-tighter mt-0.5">Tools</span>
+</a>
+<!-- Community -->
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="group">group</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Community</span>
+</a>
+<!-- Profile -->
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined mb-1" data-icon="person">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest">Profile</span>
+</a>
+</nav>
+</body></html>

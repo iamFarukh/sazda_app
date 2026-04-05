@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sazda - Connect. Reflect. Grow.</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbfbe2",
+                        "on-tertiary-fixed-variant": "#574329",
+                        "inverse-on-surface": "#f2f2d9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#2b6954",
+                        "tertiary-container": "#554127",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dbdcc3",
+                        "error-container": "#ffdad6",
+                        "surface": "#fbfbe2",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#80bea6",
+                        "primary-fixed": "#b0f0d6",
+                        "surface-container": "#efefd7",
+                        "tertiary-fixed-dim": "#dfc29f",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#95d3ba",
+                        "on-surface": "#1b1d0e",
+                        "outline": "#707974",
+                        "tertiary-fixed": "#fcdeba",
+                        "on-secondary-fixed-variant": "#574500",
+                        "outline-variant": "#bfc9c3",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e4e4cc",
+                        "secondary": "#735c00",
+                        "on-tertiary-container": "#c9ae8c",
+                        "surface-container-high": "#eaead1",
+                        "on-primary-fixed": "#002117",
+                        "background": "#fbfbe2",
+                        "secondary-fixed-dim": "#e9c349",
+                        "inverse-primary": "#95d3ba",
+                        "surface-container-low": "#f5f5dc",
+                        "on-secondary-fixed": "#241a00",
+                        "inverse-surface": "#303221",
+                        "on-primary-fixed-variant": "#0b513d",
+                        "on-secondary-container": "#745c00",
+                        "secondary-fixed": "#ffe088",
+                        "tertiary": "#3d2b13",
+                        "on-background": "#1b1d0e",
+                        "primary": "#003527",
+                        "primary-container": "#064e3b",
+                        "surface-variant": "#e4e4cc",
+                        "on-surface-variant": "#404944",
+                        "on-tertiary-fixed": "#281903",
+                        "secondary-container": "#fed65b"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 200, 'GRAD' 0, 'opsz' 24;
+        }
+        .crescent-moon {
+            font-variation-settings: 'FILL' 1, 'wght' 200, 'GRAD' 0, 'opsz' 48;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-primary text-surface font-body overflow-hidden">
+<!-- Main Splash Container -->
+<div class="relative min-h-screen w-full flex flex-col items-center justify-center bg-gradient-to-br from-primary via-primary-container to-primary overflow-hidden">
+<!-- Subtle Geometric Background Pattern -->
+<div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: radial-gradient(circle at 2px 2px, #fed65b 1px, transparent 0); background-size: 40px 40px;"></div>
+<!-- Hero Content Section -->
+<main class="relative z-10 flex flex-col items-center gap-8 px-6 text-center">
+<!-- Logo Cluster -->
+<div class="flex flex-col items-center gap-4">
+<div class="w-20 h-20 bg-secondary-container/10 rounded-full flex items-center justify-center backdrop-blur-xl border border-secondary-container/20">
+<span class="material-symbols-outlined text-secondary-container text-6xl crescent-moon" data-icon="dark_mode">dark_mode</span>
+</div>
+<h1 class="font-headline font-black italic text-5xl tracking-tighter text-secondary-container">
+                    Sazda
+                </h1>
+</div>
+<!-- Tagline Section -->
+<div class="space-y-2">
+<p class="font-body text-secondary-container text-lg tracking-[0.2em] font-medium opacity-90">
+                    Connect. Reflect. Grow.
+                </p>
+<div class="w-12 h-[1px] bg-secondary-container/30 mx-auto mt-4"></div>
+</div>
+</main>
+<!-- Mosque Silhouette (Bottom Anchor) -->
+<div class="absolute bottom-0 left-0 w-full flex justify-center opacity-20 pointer-events-none">
+<div class="relative w-full max-w-4xl h-48">
+<!-- SVG-based Mosque Silhouette for precision -->
+<svg class="w-full h-full fill-surface-container-highest/20" preserveaspectratio="none" viewbox="0 0 1000 300">
+<path d="M0,300 L1000,300 L1000,250 Q950,220 900,250 L850,230 Q800,100 750,230 L700,250 Q650,220 600,250 L550,200 Q500,50 450,200 L400,250 Q350,220 300,250 L250,230 Q200,100 150,230 L100,250 Q50,220 0,250 Z"></path>
+<rect height="150" rx="5" width="30" x="485" y="100"></rect>
+<circle cx="500" cy="80" r="15"></circle>
+<rect height="100" rx="5" width="30" x="235" y="150"></rect>
+<circle cx="250" cy="130" r="15"></circle>
+<rect height="100" rx="5" width="30" x="735" y="150"></rect>
+<circle cx="750" cy="130" r="15"></circle>
+</svg>
+</div>
+</div>
+<!-- Subtle Loading Indicator -->
+<div class="absolute bottom-16 flex flex-col items-center gap-3">
+<div class="flex gap-1.5 items-center">
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-container/40"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-container/60"></div>
+<div class="w-1.5 h-1.5 rounded-full bg-secondary-container"></div>
+</div>
+<span class="text-[10px] font-label uppercase tracking-widest text-secondary-container/50">Preparing Sanctuary</span>
+</div>
+<!-- Ambient Glow Elements -->
+<div class="absolute top-1/4 -left-20 w-96 h-96 bg-primary-container rounded-full blur-[120px] opacity-30"></div>
+<div class="absolute bottom-1/4 -right-20 w-96 h-96 bg-secondary rounded-full blur-[150px] opacity-10"></div>
+</div>
+<!-- Hidden standard data for screen readers / SEO -->
+<div class="sr-only">
+<h2>Sazda - Your Digital Sanctuary</h2>
+<p>A premium experience for spiritual connection and growth.</p>
+<img alt="Deep emerald green gradient background with minimalist gold moon logo and mosque silhouette" data-alt="Deep emerald spiritual background with gold crescent logo" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgiB4z24ttk64ZgtQWK1qLsxgL1Xk8YXzzhXqZ49w-gcRhiS4TfhFgBQaCYTBr9-0DkOdYhT3_bIBnw6N9_eFZ40d_LsWLoLDQlb8MMinslAwIRkiwdD7mwnuHFkzb88uAz4VV-9vozMqAI6tmQrjVrph6UV1CrqKmWHRnJ217kii4MbuyJUMH8AdbGxGKnwFu3na29yx989SQDqfNjQA9_k2wDnTWP9v0AK0yjbaqeQa0KkGQb2ze_bHEiPg3Ks-gu_JQA9SudKk"/>
+</div>
+</body></html>

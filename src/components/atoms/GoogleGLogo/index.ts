@@ -1,0 +1,1 @@
+export { GoogleGLogo } from './GoogleGLogo';

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sazda - Profile Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "on-error": "#ffffff",
+                        "surface-bright": "#fbfbe2",
+                        "on-tertiary-fixed-variant": "#574329",
+                        "inverse-on-surface": "#f2f2d9",
+                        "surface-container-lowest": "#ffffff",
+                        "surface-tint": "#2b6954",
+                        "tertiary-container": "#554127",
+                        "error": "#ba1a1a",
+                        "surface-dim": "#dbdcc3",
+                        "error-container": "#ffdad6",
+                        "surface": "#fbfbe2",
+                        "on-tertiary": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-container": "#80bea6",
+                        "primary-fixed": "#b0f0d6",
+                        "surface-container": "#efefd7",
+                        "tertiary-fixed-dim": "#dfc29f",
+                        "on-error-container": "#93000a",
+                        "primary-fixed-dim": "#95d3ba",
+                        "on-surface": "#1b1d0e",
+                        "outline": "#707974",
+                        "tertiary-fixed": "#fcdeba",
+                        "on-secondary-fixed-variant": "#574500",
+                        "outline-variant": "#bfc9c3",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e4e4cc",
+                        "secondary": "#735c00",
+                        "on-tertiary-container": "#c9ae8c",
+                        "surface-container-high": "#eaead1",
+                        "on-primary-fixed": "#002117",
+                        "background": "#fbfbe2",
+                        "secondary-fixed-dim": "#e9c349",
+                        "inverse-primary": "#95d3ba",
+                        "surface-container-low": "#f5f5dc",
+                        "on-secondary-fixed": "#241a00",
+                        "inverse-surface": "#303221",
+                        "on-primary-fixed-variant": "#0b513d",
+                        "on-secondary-container": "#745c00",
+                        "secondary-fixed": "#ffe088",
+                        "tertiary": "#3d2b13",
+                        "on-background": "#1b1d0e",
+                        "primary": "#003527",
+                        "primary-container": "#064e3b",
+                        "surface-variant": "#e4e4cc",
+                        "on-surface-variant": "#404944",
+                        "on-tertiary-fixed": "#281903",
+                        "secondary-container": "#fed65b"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            background-color: #fbfbe2;
+            color: #1b1d0e;
+            -webkit-font-smoothing: antialiased;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="font-body selection:bg-secondary-container selection:text-on-secondary-container">
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 backdrop-blur-2xl">
+<div class="flex items-center gap-4">
+<button class="text-[#003527] transition-opacity hover:opacity-80">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h1 class="font-headline font-black italic text-lg tracking-tight text-[#003527]">Sazda</h1>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-[#003527] transition-opacity hover:opacity-80">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="Ahmed Profile" class="w-full h-full object-cover" data-alt="Portrait of a smiling young man" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAfFbCbcadNIc4G_uZJd5Eftqz2r-qMFUpsIgEoDxVQbLA0FHxns1N9JW1-uzqNM1T1YEw9lNNsFPsV7ozen3zzu2oMp2cuVp1pWjKGf8unrqzSSUoaEaLbWU8BstHfVMj_k5J00SFkGrSDzV-XXcCsB81B7Zy3xN_HKq6EreogJG8o0N1ATfcuo05Lu9Yr6CPmFIa5xjiBrCvGZchJkwTwetOkZz10llDRS6vzzyMeSuMrJmw_8u7vTtHc4MJYGWZcxYB3WOfpA4"/>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto space-y-10">
+<section class="flex flex-col items-center text-center space-y-4">
+<div class="relative">
+<div class="w-32 h-32 rounded-xl overflow-hidden shadow-2xl ring-4 ring-surface-container-lowest">
+<img alt="Ahmed Profile" class="w-full h-full object-cover" data-alt="Clear professional headshot of a person" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVY1ph5JC6UFieb_JJ-ntjA4HqmRriqVXxagtUyrcm7sh3ybI7bHxmgaoxaMJkAcFRzgx5HhpTtl53izVGJpHgC7v3SHAPz3EQCutp1r2MVxx7u0v8P8QgWrIb7TaZioWZ4kWMNhnlCRLwooKTiAVJzxBUDBuPx_ABM7fUGfNObGzyLqJESW2mrsExIS0dk-IFivbaQCPXt_Nv_KL6FDvnXdKZobviNnGxFbXzCtF2V35gTk7g-K0g5fNwoDaIA2WfFFLIEfHXN_k"/>
+</div>
+<div class="absolute -bottom-2 -right-2 bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-md border-2 border-surface">
+                    Gold Member
+                </div>
+</div>
+<div>
+<h2 class="font-headline text-3xl font-extrabold text-primary tracking-tight">Ahmed</h2>
+<p class="text-on-surface-variant/70 text-sm mt-1">Journeying towards Taqwa</p>
+</div>
+</section>
+<section class="grid grid-cols-3 gap-3">
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center justify-center text-center space-y-1">
+<span class="text-primary font-headline text-xl font-bold">7</span>
+<span class="text-[10px] font-semibold text-on-surface-variant/60 uppercase tracking-tighter">Day Streak</span>
+</div>
+<div class="bg-primary-container p-4 rounded-lg flex flex-col items-center justify-center text-center space-y-1">
+<span class="text-secondary-container font-headline text-xl font-bold">12</span>
+<span class="text-[10px] font-semibold text-surface/60 uppercase tracking-tighter">Surahs Read</span>
+</div>
+<div class="bg-surface-container-low p-4 rounded-lg flex flex-col items-center justify-center text-center space-y-1">
+<span class="text-primary font-headline text-xl font-bold">450</span>
+<span class="text-[10px] font-semibold text-on-surface-variant/60 uppercase tracking-tighter">Duas Shared</span>
+</div>
+</section>
+<section class="space-y-6">
+<div class="flex items-end justify-between">
+<h3 class="font-headline text-xl font-bold text-primary">My Activity</h3>
+<span class="text-xs font-bold text-secondary cursor-pointer">View All</span>
+</div>
+<div class="space-y-3">
+<div class="bg-surface-container-lowest p-5 rounded-lg flex items-center justify-between shadow-[0_12px_40px_rgba(6,78,59,0.04)] group hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary-container/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">bookmark</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Al-Kahf (1-10)</p>
+<p class="text-xs text-on-surface-variant/60">Last bookmarked Friday</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/30 group-hover:text-primary transition-colors">chevron_right</span>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-lg flex items-center justify-between shadow-[0_12px_40px_rgba(6,78,59,0.04)] group hover:bg-surface-container-low transition-colors duration-300">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-container/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined">wb_sunny</span>
+</div>
+<div>
+<p class="font-semibold text-on-surface">Sunnah of Dhikr</p>
+<p class="text-xs text-on-surface-variant/60">Completed 4 hours ago</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant/30 group-hover:text-primary transition-colors">chevron_right</span>
+</div>
+</div>
+</section>
+<section class="space-y-6">
+<h3 class="font-headline text-xl font-bold text-primary">Achievements</h3>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-6 rounded-lg text-center space-y-3 border border-transparent hover:border-secondary/20 transition-all">
+<div class="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-3xl text-secondary" style="font-variation-settings: 'FILL' 1;">bedtime</span>
+</div>
+<div>
+<p class="font-bold text-on-surface text-sm">Early Bird</p>
+<p class="text-[10px] text-on-surface-variant/60">Prayed Fajr 30 days in a row</p>
+</div>
+</div>
+<div class="bg-surface-container-low p-6 rounded-lg text-center space-y-3 border border-transparent hover:border-secondary/20 transition-all">
+<div class="mx-auto w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-inner">
+<span class="material-symbols-outlined text-3xl text-primary" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+</div>
+<div>
+<p class="font-bold text-on-surface text-sm">Quran Explorer</p>
+<p class="text-[10px] text-on-surface-variant/60">Read from 5 different Surahs</p>
+</div>
+</div>
+</div>
+</section>
+<section class="space-y-6">
+<div class="flex items-end justify-between">
+<h3 class="font-headline text-xl font-bold text-primary">My Duas</h3>
+<span class="text-xs font-bold text-secondary cursor-pointer">Post New</span>
+</div>
+<div class="bg-surface-container-highest p-8 rounded-xl relative overflow-hidden text-center group">
+<div class="absolute top-0 right-0 p-4 opacity-10">
+<span class="material-symbols-outlined text-6xl">format_quote</span>
+</div>
+<p class="italic text-primary-container font-medium text-lg relative z-10 leading-relaxed">
+                    "O Allah, I ask You for knowledge that is of benefit, a good provision, and deeds that will be accepted."
+                </p>
+<div class="mt-6 flex items-center justify-center gap-6 text-on-surface-variant/50 text-[10px] font-bold uppercase tracking-widest">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">favorite</span> 124 Likes</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">share</span> 12 Shares</span>
+</div>
+</div>
+</section>
+</main>
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end pb-6 px-4 bg-[#fbfbe2]/90 backdrop-blur-3xl rounded-t-[3rem] shadow-[0_-12px_40px_rgba(6,78,59,0.06)]">
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined">menu_book</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Quran</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined">grid_view</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Tools</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#064e3b]/50 p-2 hover:text-[#735c00] transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center bg-[#064e3b] text-[#fbfbe2] rounded-full w-14 h-14 -mt-4 shadow-lg scale-110 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest hidden">Profile</span>
+</a>
+</nav>
+</body></html>

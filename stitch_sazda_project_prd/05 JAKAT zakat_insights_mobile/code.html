@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zakat Insights - Sazda</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-error-container": "#93000a",
+                    "inverse-surface": "#303221",
+                    "inverse-on-surface": "#f2f2d9",
+                    "surface-container": "#efefd7",
+                    "surface-dim": "#dbdcc3",
+                    "surface-bright": "#fbfbe2",
+                    "inverse-primary": "#95d3ba",
+                    "secondary": "#735c00",
+                    "error": "#ba1a1a",
+                    "primary-container": "#064e3b",
+                    "on-secondary-container": "#745c00",
+                    "on-primary-fixed": "#002117",
+                    "on-error": "#ffffff",
+                    "surface-container-high": "#eaead1",
+                    "surface-container-lowest": "#ffffff",
+                    "outline": "#707974",
+                    "on-secondary": "#ffffff",
+                    "on-primary-fixed-variant": "#0b513d",
+                    "secondary-fixed-dim": "#e9c349",
+                    "error-container": "#ffdad6",
+                    "primary": "#003527",
+                    "on-secondary-fixed-variant": "#574500",
+                    "background": "#fbfbe2",
+                    "tertiary-fixed-dim": "#dfc29f",
+                    "outline-variant": "#bfc9c3",
+                    "on-tertiary-fixed-variant": "#574329",
+                    "on-tertiary-container": "#c9ae8c",
+                    "on-secondary-fixed": "#241a00",
+                    "primary-fixed-dim": "#95d3ba",
+                    "on-surface": "#1b1d0e",
+                    "surface": "#fbfbe2",
+                    "on-primary-container": "#80bea6",
+                    "tertiary-container": "#554127",
+                    "surface-variant": "#e4e4cc",
+                    "on-surface-variant": "#404944",
+                    "surface-container-highest": "#e4e4cc",
+                    "secondary-container": "#fed65b",
+                    "on-tertiary-fixed": "#281903",
+                    "surface-tint": "#2b6954",
+                    "on-primary": "#ffffff",
+                    "on-background": "#1b1d0e",
+                    "primary-fixed": "#b0f0d6",
+                    "tertiary-fixed": "#fcdeba",
+                    "surface-container-low": "#f5f5dc",
+                    "on-tertiary": "#ffffff",
+                    "secondary-fixed": "#ffe088",
+                    "tertiary": "#3d2b13"
+            },
+            "borderRadius": {
+                    "DEFAULT": "1rem",
+                    "lg": "2rem",
+                    "xl": "3rem",
+                    "full": "9999px"
+            },
+            "fontFamily": {
+                    "headline": ["Manrope"],
+                    "body": ["Plus Jakarta Sans"],
+                    "label": ["Plus Jakarta Sans"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(24px);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface-container-low text-on-surface font-body selection:bg-secondary-container selection:text-on-secondary-container min-h-screen pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-[#fbfbe2]/80 backdrop-blur-xl flex justify-between items-center px-6 h-16">
+<div class="flex items-center gap-4">
+<button class="hover:opacity-80 transition-opacity">
+<span class="material-symbols-outlined text-[#003527]">arrow_back</span>
+</button>
+<h1 class="font-['Manrope'] tracking-tight font-bold text-lg text-[#003527]">Zakat Insights</h1>
+</div>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full overflow-hidden border-2 border-primary/10">
+<img alt="Profile" class="w-full h-full object-cover" data-alt="portrait of a professional middle-eastern man in business attire looking at the camera with a calm expression" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBD2czsEhwTXbkyq7YIc5t35aKAZKGUa3pdKYT3ZaKP8wBp1FEhCpr900Mz6eL3sNJ90b0yjbk21ZHnPHWminEKLYlF6NefiD64-5gRuy3NiGFpJlztSmu5l12FB6czfXDhBE9r97JFiPQAQaPia5qvjBPPKdproIBxIAlXCdcbgXBfL60X3BhUveoluN1brOBgDKEC1ugkn-xj8-B6CDfL2U5z-d_qKTNTHdFojANEDMqhuz1wP8_AJsJ8jpnpYr6AVQ6bWhpW6FM"/>
+</div>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-5xl mx-auto space-y-10">
+<!-- Hero Stats Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<!-- Main Stats Card -->
+<div class="md:col-span-2 bg-primary-container text-on-primary rounded-xl p-8 flex flex-col justify-between relative overflow-hidden group shadow-[0_12px_40px_rgba(6,78,59,0.08)]">
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/20 rounded-full -translate-y-1/2 translate-x-1/2 blur-3xl transition-transform duration-700 group-hover:scale-110"></div>
+<div>
+<span class="text-on-primary-container font-label text-xs uppercase tracking-widest font-semibold opacity-80">Total Distributed Year-to-Date</span>
+<h2 class="font-headline text-5xl font-extrabold mt-2 tracking-tight text-surface-bright">$24,850.00</h2>
+</div>
+<div class="mt-8 flex gap-4">
+<div class="px-4 py-2 bg-surface-bright/10 rounded-full backdrop-blur-md flex items-center gap-2">
+<span class="material-symbols-outlined text-sm" style="font-variation-settings: 'FILL' 1;">trending_up</span>
+<span class="text-xs font-bold">+12% from last year</span>
+</div>
+</div>
+</div>
+<!-- Most Given To Card -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_12px_40px_rgba(6,78,59,0.04)] flex flex-col justify-between">
+<div>
+<span class="text-on-surface-variant font-label text-xs uppercase tracking-widest font-semibold">Most given to</span>
+<h3 class="font-headline text-2xl font-bold mt-2 text-primary">Community Masjid</h3>
+</div>
+<div class="flex items-center gap-3 mt-4">
+<div class="w-12 h-12 bg-secondary-container rounded-lg flex items-center justify-center">
+<span class="material-symbols-outlined text-on-secondary-container">mosque</span>
+</div>
+<div>
+<p class="text-sm font-bold">42% of total</p>
+<p class="text-xs text-on-surface-variant">Ongoing support</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Analytics Section -->
+<section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+<!-- Category Breakdown Donut -->
+<div class="bg-surface rounded-xl p-8 space-y-6">
+<div class="flex justify-between items-center">
+<h4 class="font-headline text-xl font-bold text-primary">Category Breakdown</h4>
+<span class="material-symbols-outlined text-on-surface-variant">pie_chart</span>
+</div>
+<div class="relative w-64 h-64 mx-auto flex items-center justify-center">
+<!-- SVG Donut Chart -->
+<svg class="w-full h-full -rotate-90" viewbox="0 0 36 36">
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#e4e4cc" stroke-width="3.5"></circle>
+<!-- Masjid Segment (Emerald) -->
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#003527" stroke-dasharray="42 100" stroke-linecap="round" stroke-width="4.2"></circle>
+<!-- Poor Segment (Gold) -->
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#fed65b" stroke-dasharray="35 100" stroke-dashoffset="-42" stroke-linecap="round" stroke-width="4.2"></circle>
+<!-- Other Segment (Tonal) -->
+<circle cx="18" cy="18" fill="transparent" r="15.9" stroke="#064e3b" stroke-dasharray="23 100" stroke-dashoffset="-77" stroke-linecap="round" stroke-width="4.2"></circle>
+</svg>
+<div class="absolute inset-0 flex flex-col items-center justify-center">
+<span class="text-xs uppercase tracking-tighter font-bold text-on-surface-variant">Total</span>
+<span class="text-2xl font-extrabold text-primary">100%</span>
+</div>
+</div>
+<div class="space-y-4 pt-4">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-primary"></div>
+<span class="text-sm font-semibold">Masjid Support</span>
+</div>
+<span class="text-sm font-bold">42%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-secondary-container"></div>
+<span class="text-sm font-semibold">Poverty Alleviation</span>
+</div>
+<span class="text-sm font-bold">35%</span>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-3 h-3 rounded-full bg-primary-container"></div>
+<span class="text-sm font-semibold">Disaster Relief</span>
+</div>
+<span class="text-sm font-bold">23%</span>
+</div>
+</div>
+</div>
+<!-- Trends Bar Chart -->
+<div class="bg-surface rounded-xl p-8 flex flex-col h-full">
+<div class="flex justify-between items-center mb-8">
+<h4 class="font-headline text-xl font-bold text-primary">Monthly Trends</h4>
+<select class="bg-surface-container-low border-none rounded-full text-xs font-bold px-4 py-2 ring-0 focus:ring-2 focus:ring-primary/20">
+<option>Last 6 Months</option>
+<option>Full Year</option>
+</select>
+</div>
+<div class="flex-grow flex items-end justify-between gap-4 h-64 pb-4">
+<div class="flex flex-col items-center gap-4 group flex-1">
+<div class="w-full bg-surface-variant rounded-t-lg relative flex items-end h-32 group-hover:bg-primary-fixed-dim transition-colors">
+<div class="w-full bg-primary rounded-t-lg" style="height: 60%"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">MAR</span>
+</div>
+<div class="flex flex-col items-center gap-4 group flex-1">
+<div class="w-full bg-surface-variant rounded-t-lg relative flex items-end h-48 group-hover:bg-primary-fixed-dim transition-colors">
+<div class="w-full bg-primary rounded-t-lg" style="height: 80%"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">APR</span>
+</div>
+<div class="flex flex-col items-center gap-4 group flex-1">
+<div class="w-full bg-surface-variant rounded-t-lg relative flex items-end h-24 group-hover:bg-primary-fixed-dim transition-colors">
+<div class="w-full bg-primary rounded-t-lg" style="height: 40%"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">MAY</span>
+</div>
+<div class="flex flex-col items-center gap-4 group flex-1">
+<div class="w-full bg-surface-variant rounded-t-lg relative flex items-end h-56 group-hover:bg-primary-fixed-dim transition-colors">
+<div class="w-full bg-primary rounded-t-lg" style="height: 95%"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">JUN</span>
+</div>
+<div class="flex flex-col items-center gap-4 group flex-1">
+<div class="w-full bg-surface-variant rounded-t-lg relative flex items-end h-40 group-hover:bg-primary-fixed-dim transition-colors">
+<div class="w-full bg-primary rounded-t-lg" style="height: 70%"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">JUL</span>
+</div>
+<div class="flex flex-col items-center gap-4 group flex-1">
+<div class="w-full bg-surface-variant rounded-t-lg relative flex items-end h-36 group-hover:bg-primary-fixed-dim transition-colors">
+<div class="w-full bg-primary rounded-t-lg" style="height: 65%"></div>
+</div>
+<span class="text-[10px] font-bold text-on-surface-variant">AUG</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Timeline & Secondary Stats -->
+<section class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<!-- Progress Timeline -->
+<div class="md:col-span-2 bg-surface rounded-xl p-8">
+<h4 class="font-headline text-xl font-bold text-primary mb-8">Recent Activity Path</h4>
+<div class="space-y-8 relative before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-[2px] before:bg-surface-variant">
+<div class="relative flex gap-6 items-start">
+<div class="mt-1.5 w-6 h-6 rounded-full bg-primary border-4 border-surface ring-1 ring-primary z-10"></div>
+<div>
+<p class="text-sm font-bold text-primary">Ramadan Special Collection</p>
+<p class="text-xs text-on-surface-variant mt-1">Distributed to local food banks • June 12, 2023</p>
+<span class="inline-block mt-3 px-3 py-1 bg-surface-container-high rounded-full text-[10px] font-bold uppercase tracking-wider text-primary">Completed</span>
+</div>
+</div>
+<div class="relative flex gap-6 items-start">
+<div class="mt-1.5 w-6 h-6 rounded-full bg-secondary-container border-4 border-surface ring-1 ring-secondary-container z-10"></div>
+<div>
+<p class="text-sm font-bold text-primary">Monthly Sponsorship</p>
+<p class="text-xs text-on-surface-variant mt-1">Global Education Fund • May 28, 2023</p>
+<span class="inline-block mt-3 px-3 py-1 bg-surface-container-high rounded-full text-[10px] font-bold uppercase tracking-wider text-primary">Completed</span>
+</div>
+</div>
+<div class="relative flex gap-6 items-start">
+<div class="mt-1.5 w-6 h-6 rounded-full bg-surface-dim border-4 border-surface ring-1 ring-surface-dim z-10"></div>
+<div class="opacity-60">
+<p class="text-sm font-bold text-primary">Eid-ul-Adha Distribution</p>
+<p class="text-xs text-on-surface-variant mt-1">Planned for Qurbani services • Scheduled</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Stats Sub-Cards -->
+<div class="space-y-6">
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Average payment</span>
+<p class="text-2xl font-extrabold text-primary mt-1">$450.00</p>
+<div class="mt-3 flex items-center gap-1 text-on-error-container">
+<span class="material-symbols-outlined text-sm">trending_down</span>
+<span class="text-[10px] font-bold">-2% vs last month</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-xl shadow-sm border border-outline-variant/10">
+<span class="text-[10px] font-bold uppercase tracking-widest text-on-surface-variant">Highest single payment</span>
+<p class="text-2xl font-extrabold text-primary mt-1">$5,200.00</p>
+<div class="mt-2 flex -space-x-2">
+<div class="w-6 h-6 rounded-full bg-primary ring-2 ring-surface flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-[10px] text-surface-bright">check</span>
+</div>
+<p class="pl-4 text-[10px] font-medium text-on-surface-variant">Verified on blockchain</p>
+</div>
+</div>
+<!-- Status Badge Card -->
+<div class="bg-secondary-container p-6 rounded-xl relative overflow-hidden">
+<div class="relative z-10">
+<p class="text-xs font-bold text-on-secondary-fixed-variant leading-relaxed">Your Zakat contributions are helping <span class="underline">14 families</span> this month.</p>
+<button class="mt-4 text-xs font-extrabold flex items-center gap-2 text-on-secondary-fixed-variant">
+                            VIEW IMPACT REPORT <span class="material-symbols-outlined text-sm">chevron_right</span>
+</button>
+</div>
+<span class="material-symbols-outlined absolute -right-4 -bottom-4 text-8xl opacity-10 text-on-secondary-fixed-variant">volunteer_activism</span>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-6 left-0 right-0 z-50 flex justify-around items-center px-4 py-2 mx-auto max-w-md bg-[#fbfbe2]/80 backdrop-blur-2xl rounded-full shadow-[0_12px_40px_rgba(6,78,59,0.06)]">
+<button class="flex flex-col items-center justify-center text-[#064e3b]/50 hover:scale-110 transition-transform px-4">
+<span class="material-symbols-outlined">mosque</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Sanctuary</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#064e3b]/50 hover:scale-110 transition-transform px-4">
+<span class="material-symbols-outlined">calculate</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Calculators</span>
+</button>
+<button class="flex flex-col items-center justify-center bg-[#064e3b] text-[#fbfbe2] rounded-full w-14 h-14 transition-all duration-500 scale-95 active:duration-200">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">receipt_long</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">History</span>
+</button>
+<button class="flex flex-col items-center justify-center text-[#064e3b]/50 hover:scale-110 transition-transform px-4">
+<span class="material-symbols-outlined">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Profile</span>
+</button>
+</nav>
+</body></html>

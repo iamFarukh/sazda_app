@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error": "#ffffff",
+              "surface-bright": "#fbfbe2",
+              "on-tertiary-fixed-variant": "#574329",
+              "inverse-on-surface": "#f2f2d9",
+              "surface-container-lowest": "#ffffff",
+              "surface-tint": "#2b6954",
+              "tertiary-container": "#554127",
+              "error": "#ba1a1a",
+              "surface-dim": "#dbdcc3",
+              "error-container": "#ffdad6",
+              "surface": "#fbfbe2",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "on-primary-container": "#80bea6",
+              "primary-fixed": "#b0f0d6",
+              "surface-container": "#efefd7",
+              "tertiary-fixed-dim": "#dfc29f",
+              "on-error-container": "#93000a",
+              "primary-fixed-dim": "#95d3ba",
+              "on-surface": "#1b1d0e",
+              "outline": "#707974",
+              "tertiary-fixed": "#fcdeba",
+              "on-secondary-fixed-variant": "#574500",
+              "outline-variant": "#bfc9c3",
+              "on-secondary": "#ffffff",
+              "surface-container-highest": "#e4e4cc",
+              "secondary": "#735c00",
+              "on-tertiary-container": "#c9ae8c",
+              "surface-container-high": "#eaead1",
+              "on-primary-fixed": "#002117",
+              "background": "#fbfbe2",
+              "secondary-fixed-dim": "#e9c349",
+              "inverse-primary": "#95d3ba",
+              "surface-container-low": "#f5f5dc",
+              "on-secondary-fixed": "#241a00",
+              "inverse-surface": "#303221",
+              "on-primary-fixed-variant": "#0b513d",
+              "on-secondary-container": "#745c00",
+              "secondary-fixed": "#ffe088",
+              "tertiary": "#3d2b13",
+              "on-background": "#1b1d0e",
+              "primary": "#003527",
+              "primary-container": "#064e3b",
+              "surface-variant": "#e4e4cc",
+              "on-surface-variant": "#404944",
+              "on-tertiary-fixed": "#281903",
+              "secondary-container": "#fed65b"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .pattern-bg {
+            background-color: #fbfbe2;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 0l2.5 7.5L40 10l-7.5 2.5L30 20l-2.5-7.5L20 10l7.5-2.5L30 0zm0 40l2.5 7.5L40 50l-7.5 2.5L30 60l-2.5-7.5L20 50l7.5-2.5L30 40z' fill='%23e4e4cc' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface font-body text-on-surface selection:bg-secondary-container antialiased pattern-bg min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 dark:bg-emerald-950/80 backdrop-blur-2xl">
+<button aria-label="Close" class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-surface-container-high transition-colors">
+<span class="material-symbols-outlined text-[#003527] dark:text-[#fed65b]">close</span>
+</button>
+<h1 class="font-headline font-bold tracking-tight text-lg text-[#003527] dark:text-[#fed65b]">New Dua</h1>
+<div class="w-10"></div> <!-- Spacer for centering -->
+</header>
+<main class="pt-24 pb-32 px-6 max-w-2xl mx-auto min-h-screen flex flex-col">
+<!-- Header Section -->
+<section class="mb-10 text-center">
+<h2 class="font-headline font-extrabold text-4xl text-primary leading-tight mb-3">
+                Pour out your soul
+            </h2>
+<p class="text-on-surface-variant/80 font-medium">Your intentions are heard in the heavens before they are spoken on earth.</p>
+</section>
+<!-- Main Composition Card -->
+<div class="bg-surface-container-lowest rounded-xl p-8 shadow-[0_-12px_40px_rgba(6,78,59,0.04)] flex-grow flex flex-col gap-8">
+<!-- Dua Input Area -->
+<div class="flex-grow flex flex-col">
+<label class="sr-only" for="dua-content">What's on your heart?</label>
+<textarea class="w-full h-full min-h-[240px] bg-transparent border-none focus:ring-0 text-xl md:text-2xl font-medium text-primary placeholder:text-on-surface-variant/30 resize-none p-0" id="dua-content" placeholder="What's on your heart?"></textarea>
+</div>
+<!-- Custom Controls Section -->
+<div class="space-y-8 pt-6 border-t border-surface-container">
+<!-- Category Selector -->
+<div class="space-y-4">
+<span class="font-label text-xs font-bold uppercase tracking-[0.15em] text-on-surface-variant/60 ml-1">Select Category</span>
+<div class="flex flex-wrap gap-2">
+<button class="px-5 py-2.5 rounded-full bg-primary-container text-on-primary text-sm font-semibold transition-all">Gratitude</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-semibold hover:bg-surface-variant transition-all">Guidance</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-semibold hover:bg-surface-variant transition-all">Healing</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-semibold hover:bg-surface-variant transition-all">Family</button>
+<button class="px-5 py-2.5 rounded-full bg-surface-container-high text-on-surface-variant text-sm font-semibold hover:bg-surface-variant transition-all">Patience</button>
+</div>
+</div>
+<!-- Anonymity Toggle -->
+<div class="flex items-center justify-between p-4 bg-surface-container-low rounded-lg">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-secondary" style="font-variation-settings: 'FILL' 1;">visibility_off</span>
+</div>
+<div>
+<p class="font-bold text-primary">Post Anonymously</p>
+<p class="text-xs text-on-surface-variant/70">Your identity will be hidden from the wall</p>
+</div>
+</div>
+<!-- Custom Toggle Switch -->
+<label class="relative inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox" value=""/>
+<div class="w-12 h-6 bg-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary"></div>
+</label>
+</div>
+</div>
+</div>
+<!-- Footer / Action Area -->
+<div class="mt-10 flex flex-col items-center gap-6">
+<button class="w-full max-w-md py-5 rounded-full bg-primary-container text-on-primary font-bold text-lg shadow-xl shadow-primary-container/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-3">
+<span>Post to Wall</span>
+<span class="material-symbols-outlined">send</span>
+</button>
+<p class="text-on-surface-variant/50 text-xs flex items-center gap-2">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+                Your words are a bridge between you and the Divine
+            </p>
+</div>
+</main>
+<!-- Suppressed BottomNavBar as this is a focused transactional screen -->
+</body></html>

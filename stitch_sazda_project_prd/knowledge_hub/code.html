@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Knowledge Hub - Sazda</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "on-error": "#ffffff",
+              "surface-bright": "#fbfbe2",
+              "on-tertiary-fixed-variant": "#574329",
+              "inverse-on-surface": "#f2f2d9",
+              "surface-container-lowest": "#ffffff",
+              "surface-tint": "#2b6954",
+              "tertiary-container": "#554127",
+              "error": "#ba1a1a",
+              "surface-dim": "#dbdcc3",
+              "error-container": "#ffdad6",
+              "surface": "#fbfbe2",
+              "on-tertiary": "#ffffff",
+              "on-primary": "#ffffff",
+              "on-primary-container": "#80bea6",
+              "primary-fixed": "#b0f0d6",
+              "surface-container": "#efefd7",
+              "tertiary-fixed-dim": "#dfc29f",
+              "on-error-container": "#93000a",
+              "primary-fixed-dim": "#95d3ba",
+              "on-surface": "#1b1d0e",
+              "outline": "#707974",
+              "tertiary-fixed": "#fcdeba",
+              "on-secondary-fixed-variant": "#574500",
+              "outline-variant": "#bfc9c3",
+              "on-secondary": "#ffffff",
+              "surface-container-highest": "#e4e4cc",
+              "secondary": "#735c00",
+              "on-tertiary-container": "#c9ae8c",
+              "surface-container-high": "#eaead1",
+              "on-primary-fixed": "#002117",
+              "background": "#fbfbe2",
+              "secondary-fixed-dim": "#e9c349",
+              "inverse-primary": "#95d3ba",
+              "surface-container-low": "#f5f5dc",
+              "on-secondary-fixed": "#241a00",
+              "inverse-surface": "#303221",
+              "on-primary-fixed-variant": "#0b513d",
+              "on-secondary-container": "#745c00",
+              "secondary-fixed": "#ffe088",
+              "tertiary": "#3d2b13",
+              "on-background": "#1b1d0e",
+              "primary": "#003527",
+              "primary-container": "#064e3b",
+              "surface-variant": "#e4e4cc",
+              "on-surface-variant": "#404944",
+              "on-tertiary-fixed": "#281903",
+              "secondary-container": "#fed65b"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Plus Jakarta Sans"],
+              "label": ["Plus Jakarta Sans"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fbfbe2;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .hero-gradient {
+            background: linear-gradient(135deg, #003527 0%, #064e3b 100%);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="text-on-surface antialiased pb-32">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 flex justify-between items-center px-6 h-16 bg-[#fbfbe2]/80 dark:bg-emerald-950/80 backdrop-blur-2xl">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-[#003527] dark:text-[#fed65b] cursor-pointer hover:opacity-80 transition-opacity">menu</span>
+<h1 class="font-['Manrope'] font-bold tracking-tight text-lg text-[#003527] dark:text-[#fed65b] italic">Sazda</h1>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-surface-container-highest">
+<img alt="Profile picture" class="w-full h-full object-cover" data-alt="User profile portrait in circular frame" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCIjnM6xdBGrOBmxXrHhtehKQtNstRMFKGUgg3T55RSwfp_SWcfHRdJL4Ak5yudj3gXJzqwYmWQ-ucRIBMkOEH3OZ20cPCX3pTRiA5_deuGMu0CgrxgSJqQHv9PeBt4ln1h7PE4-3anqbR7wo2ItRuTsQ2X6VPsZQ31EtVx8LHI_qFOKG4Hr0nLYwZY9cPG3QBOAKWZOlIvJfpDS5pc55PyMXhvzuZ_XqmSywR5x1sy4i9XrMozCwzShCWa6uPsNOQctBPaOSM7U5Q"/>
+</div>
+</header>
+<main class="pt-24 px-6 max-w-5xl mx-auto space-y-12">
+<!-- Hero Section -->
+<section class="space-y-6">
+<div class="space-y-2">
+<h2 class="font-headline text-4xl font-extrabold text-primary tracking-tight">Knowledge Hub</h2>
+<p class="text-on-surface-variant font-body max-w-md">Seek guidance and find clarity through our curated repository of Islamic wisdom.</p>
+</div>
+<div class="hero-gradient rounded-xl p-8 flex flex-col md:flex-row justify-between items-center gap-8 shadow-xl relative overflow-hidden">
+<div class="z-10 space-y-4 text-center md:text-left">
+<h3 class="font-headline text-2xl font-bold text-surface-bright leading-tight">Have a specific question?<br/><span class="text-secondary-container">Consult with a Scholar.</span></h3>
+<button class="bg-secondary-container text-on-secondary-container font-body font-bold py-3 px-8 rounded-full shadow-lg hover:scale-105 transition-transform">
+                        Ask an Imam
+                    </button>
+</div>
+<div class="opacity-10 absolute -right-4 -bottom-4 z-0">
+<span class="material-symbols-outlined text-[160px]">mosque</span>
+</div>
+</div>
+</section>
+<!-- Search Bar -->
+<section class="relative">
+<div class="flex items-center bg-surface-container-low rounded-xl px-6 py-4 shadow-sm focus-within:ring-2 ring-primary/20 transition-all">
+<span class="material-symbols-outlined text-on-surface-variant mr-4">search</span>
+<input class="bg-transparent border-none focus:ring-0 w-full font-body text-on-surface placeholder:text-on-surface-variant/50" placeholder="Search fatwas, articles, or topics..." type="text"/>
+</div>
+</section>
+<!-- Categories Section -->
+<section class="space-y-6">
+<div class="flex justify-between items-end">
+<h3 class="font-headline text-xl font-bold text-primary">Browse Categories</h3>
+<span class="text-primary font-body text-sm font-semibold cursor-pointer">View All</span>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+<div class="bg-surface-container-highest rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-transform hover:-translate-y-1 cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">prayer_times</span>
+</div>
+<span class="font-body font-semibold text-sm text-primary">Prayer</span>
+</div>
+<div class="bg-surface-container-highest rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-transform hover:-translate-y-1 cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">nights_stay</span>
+</div>
+<span class="font-body font-semibold text-sm text-primary">Fasting</span>
+</div>
+<div class="bg-surface-container-highest rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-transform hover:-translate-y-1 cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">volunteer_activism</span>
+</div>
+<span class="font-body font-semibold text-sm text-primary">Zakat</span>
+</div>
+<div class="bg-surface-container-highest rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-transform hover:-translate-y-1 cursor-pointer">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">family_restroom</span>
+</div>
+<span class="font-body font-semibold text-sm text-primary">Family</span>
+</div>
+<div class="bg-surface-container-highest rounded-lg p-6 flex flex-col items-center justify-center gap-3 transition-transform hover:-translate-y-1 cursor-pointer col-span-2 md:col-span-1">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">restaurant</span>
+</div>
+<span class="font-body font-semibold text-sm text-primary">Halal</span>
+</div>
+</div>
+</section>
+<!-- Trending Questions -->
+<section class="space-y-6">
+<h3 class="font-headline text-xl font-bold text-primary">Trending Questions</h3>
+<div class="grid md:grid-cols-2 gap-6">
+<!-- Question Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border-l-4 border-secondary hover:shadow-md transition-shadow">
+<div class="flex items-start gap-4 mb-4">
+<span class="material-symbols-outlined text-secondary text-lg">help</span>
+<h4 class="font-headline font-bold text-primary leading-snug">How to maintain focus (Khushu) in daily Salah?</h4>
+</div>
+<p class="text-on-surface-variant text-sm font-body leading-relaxed mb-4">
+                        Start by understanding the meaning of what you recite and minimize external distractions before starting your prayer...
+                    </p>
+<div class="flex justify-between items-center">
+<span class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant/60">4.2k Reads</span>
+<span class="material-symbols-outlined text-primary cursor-pointer">arrow_forward</span>
+</div>
+</div>
+<!-- Question Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-sm border-l-4 border-secondary hover:shadow-md transition-shadow">
+<div class="flex items-start gap-4 mb-4">
+<span class="material-symbols-outlined text-secondary text-lg">help</span>
+<h4 class="font-headline font-bold text-primary leading-snug">Rulings on cryptocurrency and digital assets?</h4>
+</div>
+<p class="text-on-surface-variant text-sm font-body leading-relaxed mb-4">
+                        The majority of modern scholars view it as permissible provided it avoids elements of gambling and extreme uncertainty...
+                    </p>
+<div class="flex justify-between items-center">
+<span class="text-[10px] font-label uppercase tracking-widest text-on-surface-variant/60">8.9k Reads</span>
+<span class="material-symbols-outlined text-primary cursor-pointer">arrow_forward</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Latest Fatwa -->
+<section class="space-y-6">
+<h3 class="font-headline text-xl font-bold text-primary">Latest Fatwa</h3>
+<div class="bg-surface-container rounded-xl overflow-hidden shadow-sm flex flex-col md:flex-row">
+<div class="md:w-1/3 h-48 md:h-auto overflow-hidden">
+<img alt="Featured Article" class="w-full h-full object-cover" data-alt="Traditional Islamic library with rows of ancient books" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAr4Xnk87g8wUeQkxaZs1w94hjIQVhEgCwsOmJ4Pi1CnhjcYUGtlz4YQ6GV4NLWOdNSzc_H3T6W9PmUHtLZIbgzKrc6HMdQwIK87eTEJ_kJLkJRbo6sJ9MtpTTyvdANMcHJQw4O1_eEqrnwJo6qpNzXS4T0CsbVDrnNAqdAe8D8s4va5LQJ8JHaYDZGFBT4rFDPsYHfHiHZAFlLmfYceescmmLgGGrNOSTD_Dgv6cdiyc16QbMkT0aVhdSabKZl_EmBzBBKc2Vi9Y0"/>
+</div>
+<div class="md:w-2/3 p-8 space-y-4">
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-primary text-surface-bright text-[10px] font-label uppercase tracking-widest rounded-full">New Ruling</span>
+<span class="px-3 py-1 bg-surface-container-highest text-primary text-[10px] font-label uppercase tracking-widest rounded-full">Finance</span>
+</div>
+<h4 class="font-headline text-2xl font-bold text-primary">The Ethics of Modern Investment and Sharia Compliance</h4>
+<p class="text-on-surface-variant font-body leading-relaxed">
+                        A detailed exploration of how the contemporary financial landscape interacts with traditional Islamic values of fairness, transparency, and social welfare...
+                    </p>
+<button class="text-primary font-bold font-body flex items-center gap-2 hover:gap-4 transition-all">
+                        Read Full Article <span class="material-symbols-outlined">east</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-end pb-6 px-4 bg-[#fbfbe2]/90 dark:bg-emerald-950/90 backdrop-blur-3xl shadow-[0_-12px_40px_rgba(6,78,59,0.06)] rounded-t-[3rem]">
+<!-- Home -->
+<div class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 cursor-pointer hover:text-[#735c00] transition-colors">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Home</span>
+</div>
+<!-- Quran -->
+<div class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 cursor-pointer hover:text-[#735c00] transition-colors">
+<span class="material-symbols-outlined" data-icon="menu_book">menu_book</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Quran</span>
+</div>
+<!-- Tools -->
+<div class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 cursor-pointer hover:text-[#735c00] transition-colors">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Tools</span>
+</div>
+<!-- Community (Active) -->
+<div class="flex flex-col items-center justify-center bg-[#064e3b] dark:bg-[#fed65b] text-[#fbfbe2] dark:text-[#003527] rounded-full w-14 h-14 -mt-4 shadow-lg scale-110 transition-all duration-300 cursor-pointer">
+<span class="material-symbols-outlined" data-icon="group" style="font-variation-settings: 'FILL' 1;">group</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[8px] font-bold uppercase tracking-tighter">Community</span>
+</div>
+<!-- Profile -->
+<div class="flex flex-col items-center justify-center text-[#064e3b]/50 dark:text-[#fbfbe2]/50 p-2 cursor-pointer hover:text-[#735c00] transition-colors">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-['Plus_Jakarta_Sans'] text-[10px] font-semibold uppercase tracking-widest mt-1">Profile</span>
+</div>
+</nav>
+</body></html>

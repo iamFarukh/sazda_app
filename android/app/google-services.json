@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "589686095543",
+    "project_id": "sazda-ce392",
+    "storage_bucket": "sazda-ce392.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:589686095543:android:1105d6958d7ae623a1d732",
+        "android_client_info": {
+          "package_name": "com.sazda"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "589686095543-3frjj24ta5hae4trjvsgp85tkvnggnt5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sazda",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "589686095543-52du413vosth04mpb7inptm9gsidn39t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLXVVqN5m1YpF_gsyYWGurF8gpfUl6YQU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "589686095543-52du413vosth04mpb7inptm9gsidn39t.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "589686095543-e1esqc195ghm75kh5p7tv4du2mkrhvgq.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "org.reactjs.native.example.sazda"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

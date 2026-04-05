@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Class Course & Notebook Price List</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* Optimised for A4 black & white printing: borders + contrast, not pale grey fills. */
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: 'DM Sans', system-ui, sans-serif;
+        background: #e5e5e5;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 100vh;
+        padding: 12px;
+        color: #000;
+      }
+
+      .page {
+        width: 210mm;
+        min-height: 297mm;
+        max-width: 100%;
+        background: #fff;
+        padding: 10mm 11mm 10mm 11mm;
+        position: relative;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+      }
+
+      .page::before,
+      .page::after {
+        content: '';
+        position: absolute;
+        width: 6mm;
+        height: 6mm;
+        border-color: #000;
+        border-style: solid;
+        opacity: 0.5;
+      }
+      .page::before {
+        top: 4mm;
+        left: 4mm;
+        border-width: 2px 0 0 2px;
+      }
+      .page::after {
+        bottom: 4mm;
+        right: 4mm;
+        border-width: 0 2px 2px 0;
+      }
+
+      /* HEADER */
+      .header {
+        text-align: center;
+        border-bottom: 2px solid #000;
+        padding-bottom: 4mm;
+        margin-bottom: 3mm;
+        flex-shrink: 0;
+      }
+      .header .school-tag {
+        font-size: 6.5pt;
+        font-weight: 600;
+        letter-spacing: 3.5px;
+        text-transform: uppercase;
+        color: #000;
+        margin-bottom: 0.5mm;
+      }
+      .header h1 {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 18pt;
+        font-weight: 900;
+        color: #000;
+        line-height: 1.12;
+      }
+      .header .sub {
+        font-size: 7.5pt;
+        color: #000;
+        margin-top: 0.8mm;
+        letter-spacing: 0.5px;
+      }
+      .header .session-bar {
+        display: inline-block;
+        background: #000;
+        color: #fff;
+        font-size: 6.5pt;
+        letter-spacing: 2px;
+        padding: 1.2mm 5mm;
+        margin-top: 1.5mm;
+        font-weight: 600;
+        border: 2px solid #000;
+      }
+
+      /* LEGEND — screen: light tint + border; print overrides to white + black border */
+      .legend {
+        display: flex;
+        gap: 3mm;
+        flex-shrink: 0;
+        background: #fff;
+        border: 1px solid #000;
+        padding: 2mm 3mm;
+        margin-bottom: 3mm;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .legend-title {
+        font-size: 6.5pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        color: #000;
+        margin-right: 1mm;
+      }
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 2mm;
+        font-size: 7pt;
+        color: #000;
+      }
+      .nb-mark {
+        width: 12px;
+        height: 12px;
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 6.5pt;
+        font-weight: 800;
+        line-height: 1;
+        box-sizing: border-box;
+      }
+      /* B&W-safe: H = solid black; E = double outline; B = dashed; S = single outline */
+      .mark-H {
+        background: #000;
+        color: #fff;
+        border: 1px solid #000;
+      }
+      .mark-E {
+        background: #fff;
+        color: #000;
+        border: 2px double #000;
+      }
+      .mark-B {
+        background: #fff;
+        color: #000;
+        border: 2px dashed #000;
+      }
+      .mark-S {
+        background: #fff;
+        border: 2px solid #000;
+        color: #000;
+      }
+      .legend-item strong {
+        font-weight: 700;
+        color: #000;
+      }
+      .legend-sep {
+        color: #000;
+        font-weight: 300;
+      }
+
+      /* GRID */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 2.5mm;
+        flex: 1;
+        min-height: 0;
+      }
+
+      /* CARD */
+      .card {
+        border: 1px solid #000;
+        display: flex;
+        flex-direction: column;
+        page-break-inside: avoid;
+        break-inside: avoid;
+        background: #fff;
+      }
+      .card-header {
+        background: #fff;
+        color: #000;
+        border-bottom: 1px solid #000;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 2mm 2.5mm;
+        flex-shrink: 0;
+      }
+      .card-header .class-label {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 10pt;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .card-header .class-label span {
+        font-size: 5.5pt;
+        font-weight: 600;
+        opacity: 1;
+        display: block;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        font-family: 'DM Sans', system-ui, sans-serif;
+      }
+      .card-header .class-num {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 18pt;
+        font-weight: 900;
+        color: #ccc;
+        line-height: 1;
+      }
+
+      .card-body {
+        padding: 2mm 2.5mm;
+        flex: 1;
+      }
+
+      .row-course {
+        background: #fff;
+        border: 1px solid #000;
+        padding: 1.5mm 2mm;
+        margin-bottom: 1.5mm;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .row-course .lbl {
+        font-size: 6.5pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        color: #000;
+      }
+      .row-course .amt {
+        font-size: 9pt;
+        font-weight: 800;
+        color: #000;
+      }
+
+      .nb-title {
+        font-size: 6pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: #000;
+        margin-bottom: 1.2mm;
+        padding-bottom: 0.5mm;
+        border-bottom: 1px solid #000;
+      }
+
+      .nb-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1mm 0;
+        border-bottom: 1px dashed #000;
+      }
+      .nb-row:last-child {
+        border-bottom: none;
+      }
+
+      .nb-left {
+        display: flex;
+        align-items: center;
+        gap: 1.8mm;
+      }
+      .nb-name {
+        font-size: 6.5pt;
+        color: #000;
+        line-height: 1.2;
+      }
+      .nb-right {
+        text-align: right;
+        flex-shrink: 0;
+      }
+      .nb-qty {
+        font-size: 6pt;
+        color: #000;
+      }
+      .nb-price {
+        font-size: 7pt;
+        font-weight: 700;
+        color: #000;
+      }
+
+      /* Total — on screen: inverted; on print: outlined box (saves ink, stays sharp) */
+      .total-bar {
+        background: #000;
+        color: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2mm 2.5mm;
+        flex-shrink: 0;
+        border-top: 2px solid #000;
+      }
+      .total-bar .lbl {
+        font-size: 6.5pt;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        opacity: 1;
+      }
+      .total-bar .amt {
+        font-family: 'Playfair Display', Georgia, serif;
+        font-size: 12pt;
+        font-weight: 700;
+        color: #fff;
+      }
+
+      /* FOOTER */
+      .footer {
+        margin-top: 3mm;
+        padding-top: 2.5mm;
+        border-top: 1px solid #000;
+        flex-shrink: 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 4mm;
+      }
+      .footer .note {
+        font-size: 6pt;
+        color: #000;
+        font-style: italic;
+        max-width: 65%;
+      }
+      .footer .sig {
+        font-size: 6.5pt;
+        color: #000;
+        white-space: nowrap;
+      }
+
+      @media print {
+        html {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        body {
+          background: #fff !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          display: block !important;
+        }
+
+        .page {
+          width: 100%;
+          max-width: 100%;
+          min-height: 0;
+          margin: 0;
+          padding: 0;
+          box-shadow: none !important;
+          page-break-after: auto;
+        }
+
+        @page {
+          size: A4 portrait;
+          margin: 12mm;
+        }
+
+        /* Force readable B&W: no “invisible” grey boxes */
+        .header .school-tag,
+        .header .sub,
+        .legend-item,
+        .nb-qty,
+        .footer .note,
+        .footer .sig {
+          color: #000 !important;
+        }
+
+        .session-bar {
+          background: #000 !important;
+          color: #fff !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .legend {
+          background: #fff !important;
+          border: 1px solid #000 !important;
+        }
+
+        .mark-H {
+          background: #000 !important;
+          color: #fff !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+        .mark-E {
+          background: #fff !important;
+          color: #000 !important;
+          border: 2px double #000 !important;
+        }
+        .mark-B {
+          background: #fff !important;
+          color: #000 !important;
+          border: 2px dashed #000 !important;
+        }
+        .mark-S {
+          background: #fff !important;
+          color: #000 !important;
+          border: 2px solid #000 !important;
+        }
+
+        .card-header {
+          background: #fff !important;
+          border-bottom: 1px solid #000 !important;
+        }
+        .card-header .class-num {
+          color: #bbb !important;
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+
+        .row-course {
+          background: #fff !important;
+          border: 1px solid #000 !important;
+        }
+
+        .nb-title {
+          color: #000 !important;
+          border-bottom: 1px solid #000 !important;
+        }
+
+        .nb-row {
+          border-bottom: 1px dashed #000 !important;
+        }
+
+        /* Total: white box + black border + black text (best for B&W printers) */
+        .total-bar {
+          background: #fff !important;
+          color: #000 !important;
+          border: 2px solid #000 !important;
+          border-top: 2px solid #000 !important;
+        }
+        .total-bar .lbl {
+          color: #000 !important;
+          opacity: 1 !important;
+        }
+        .total-bar .amt {
+          color: #000 !important;
+        }
+
+        .footer {
+          border-top: 1px solid #000 !important;
+        }
+
+        .page::before,
+        .page::after {
+          opacity: 1 !important;
+          border-color: #000 !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="header">
+        <div class="school-tag">Academic Price List</div>
+        <h1>श्री सरस्वती विद्या भवन चेण्डा</h1>
+        <div class="sub">
+          Course &amp; Notebook Price Chart — Class I to VIII
+        </div>
+        <div class="session-bar">SESSION 2025 – 2026</div>
+      </div>
+
+      <div class="legend">
+        <div class="legend-title">Notebooks —</div>
+        <div class="legend-item">
+          <span class="nb-mark mark-H">H</span
+          ><strong>2-Line</strong>&nbsp;Hindi ₹32
+        </div>
+        <span class="legend-sep">|</span>
+        <div class="legend-item">
+          <span class="nb-mark mark-E">E</span
+          ><strong>4-Line</strong>&nbsp;English ₹32
+        </div>
+        <span class="legend-sep">|</span>
+        <div class="legend-item">
+          <span class="nb-mark mark-B">B</span
+          ><strong>Box-Line</strong>&nbsp;Maths ₹32
+        </div>
+        <span class="legend-sep">|</span>
+        <div class="legend-item">
+          <span class="nb-mark mark-S">S</span
+          ><strong>Single-Line</strong>&nbsp;Maths ₹40
+        </div>
+      </div>
+
+      <div class="grid">
+        <!-- CLASS 1 | Course 400 | NB 128 | Total → 530 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="class-label"><span>Class</span>1st</div>
+            <div class="class-num">1</div>
+          </div>
+          <div class="card-body">
+            <div class="row-course">
+              <div class="lbl">Course Set</div>
+              <div class="amt">₹400</div>
+            </div>
+            <div class="nb-title">Notebooks</div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-H">H</span>
+                <div class="nb-name">Hindi (2-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×2</div>
+                <div class="nb-price">₹64</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-E">E</span>
+                <div class="nb-name">English (4-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-B">B</span>
+                <div class="nb-name">Maths (Box)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+          </div>
+          <div class="total-bar">
+            <span class="lbl">Total</span><span class="amt">₹530</span>
+          </div>
+        </div>
+
+        <!-- CLASS 2 | Course 420 | NB 128 | Total → 550 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="class-label"><span>Class</span>2nd</div>
+            <div class="class-num">2</div>
+          </div>
+          <div class="card-body">
+            <div class="row-course">
+              <div class="lbl">Course Set</div>
+              <div class="amt">₹420</div>
+            </div>
+            <div class="nb-title">Notebooks</div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-H">H</span>
+                <div class="nb-name">Hindi (2-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×2</div>
+                <div class="nb-price">₹64</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-E">E</span>
+                <div class="nb-name">English (4-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-B">B</span>
+                <div class="nb-name">Maths (Box)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+          </div>
+          <div class="total-bar">
+            <span class="lbl">Total</span><span class="amt">₹550</span>
+          </div>
+        </div>
+
+        <!-- CLASS 3 | Course 620 | NB 208 | Total → 830 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="class-label"><span>Class</span>3rd</div>
+            <div class="class-num">3</div>
+          </div>
+          <div class="card-body">
+            <div class="row-course">
+              <div class="lbl">Course Set</div>
+              <div class="amt">₹620</div>
+            </div>
+            <div class="nb-title">Notebooks</div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-H">H</span>
+                <div class="nb-name">Hindi (2-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×2</div>
+                <div class="nb-price">₹64</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-E">E</span>
+                <div class="nb-name">English (4-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-B">B</span>
+                <div class="nb-name">Maths (Box)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-S">S</span>
+                <div class="nb-name">Hindi (Single)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×2</div>
+                <div class="nb-price">₹80</div>
+              </div>
+            </div>
+          </div>
+          <div class="total-bar">
+            <span class="lbl">Total</span><span class="amt">₹830</span>
+          </div>
+        </div>
+
+        <!-- CLASS 4 | Course 660 | NB 208 | Total → 868 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="class-label"><span>Class</span>4th</div>
+            <div class="class-num">4</div>
+          </div>
+          <div class="card-body">
+            <div class="row-course">
+              <div class="lbl">Course Set</div>
+              <div class="amt">₹660</div>
+            </div>
+            <div class="nb-title">Notebooks</div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-H">H</span>
+                <div class="nb-name">Hindi (2-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×2</div>
+                <div class="nb-price">₹64</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-E">E</span>
+                <div class="nb-name">English (4-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-B">B</span>
+                <div class="nb-name">Maths (Box)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-S">S</span>
+                <div class="nb-name">Hindi (Single)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×2</div>
+                <div class="nb-price">₹80</div>
+              </div>
+            </div>
+          </div>
+          <div class="total-bar">
+            <span class="lbl">Total</span><span class="amt">₹868</span>
+          </div>
+        </div>
+
+        <!-- CLASS 5 | Course 330 | NB 208 | Total → 540 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="class-label"><span>Class</span>5th</div>
+            <div class="class-num">5</div>
+          </div>
+          <div class="card-body">
+            <div class="row-course">
+              <div class="lbl">Course Set</div>
+              <div class="amt">₹330</div>
+            </div>
+            <div class="nb-title">Notebooks</div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-H">H</span>
+                <div class="nb-name">Hindi (2-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×2</div>
+                <div class="nb-price">₹64</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-E">E</span>
+                <div class="nb-name">English (4-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-B">B</span>
+                <div class="nb-name">Maths (Box)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-S">S</span>
+                <div class="nb-name">Hindi (Single)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×2</div>
+                <div class="nb-price">₹80</div>
+              </div>
+            </div>
+          </div>
+          <div class="total-bar">
+            <span class="lbl">Total</span><span class="amt">₹540</span>
+          </div>
+        </div>
+
+        <!-- CLASS 6 | Course 750 | NB 384 | Total → 1,150 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="class-label"><span>Class</span>6th</div>
+            <div class="class-num">6</div>
+          </div>
+          <div class="card-body">
+            <div class="row-course">
+              <div class="lbl">Course Set</div>
+              <div class="amt">₹750</div>
+            </div>
+            <div class="nb-title">Notebooks</div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-H">H</span>
+                <div class="nb-name">Hindi (2-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-E">E</span>
+                <div class="nb-name">English (4-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-S">S</span>
+                <div class="nb-name">Hindi (Single)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×8</div>
+                <div class="nb-price">₹320</div>
+              </div>
+            </div>
+          </div>
+          <div class="total-bar">
+            <span class="lbl">Total</span><span class="amt">₹1,150</span>
+          </div>
+        </div>
+
+        <!-- CLASS 7 | Course 1050 | NB 384 | Total → 1,450 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="class-label"><span>Class</span>7th</div>
+            <div class="class-num">7</div>
+          </div>
+          <div class="card-body">
+            <div class="row-course">
+              <div class="lbl">Course Set</div>
+              <div class="amt">₹1,050</div>
+            </div>
+            <div class="nb-title">Notebooks</div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-H">H</span>
+                <div class="nb-name">Hindi (2-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-E">E</span>
+                <div class="nb-name">English (4-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-S">S</span>
+                <div class="nb-name">Hindi (Single)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×8</div>
+                <div class="nb-price">₹320</div>
+              </div>
+            </div>
+          </div>
+          <div class="total-bar">
+            <span class="lbl">Total</span><span class="amt">₹1,450</span>
+          </div>
+        </div>
+
+        <!-- CLASS 8 | Course 510 | NB 384 | Total → 900 -->
+        <div class="card">
+          <div class="card-header">
+            <div class="class-label"><span>Class</span>8th</div>
+            <div class="class-num">8</div>
+          </div>
+          <div class="card-body">
+            <div class="row-course">
+              <div class="lbl">Course Set</div>
+              <div class="amt">₹510</div>
+            </div>
+            <div class="nb-title">Notebooks</div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-H">H</span>
+                <div class="nb-name">Hindi (2-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-E">E</span>
+                <div class="nb-name">English (4-Line)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×1</div>
+                <div class="nb-price">₹32</div>
+              </div>
+            </div>
+            <div class="nb-row">
+              <div class="nb-left">
+                <span class="nb-mark mark-S">S</span>
+                <div class="nb-name">Hindi (Single)</div>
+              </div>
+              <div class="nb-right">
+                <div class="nb-qty">×8</div>
+                <div class="nb-price">₹320</div>
+              </div>
+            </div>
+          </div>
+          <div class="total-bar">
+            <span class="lbl">Total</span><span class="amt">₹900</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        <div class="note">
+          * Prices per piece. Totals = Course Set + All Notebooks. Minor
+          rounding applied to grand totals.
+        </div>
+        <div class="sig">Authorised Signature: ________________</div>
+      </div>
+    </div>
+  </body>
+</html>
