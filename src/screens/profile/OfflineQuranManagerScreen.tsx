@@ -1,16 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  AppState,
-  type AppStateStatus,
-  FlatList,
-  ListRenderItem,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { ActivityIndicator, FlatList, ListRenderItem, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -40,6 +29,7 @@ import { useThemePalette } from '../../theme/useThemePalette';
 import { radius } from '../../theme/radius';
 import { spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
+import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
 
 type Nav = NativeStackNavigationProp<ProfileStackParamList, 'OfflineQuran'>;
 
@@ -154,16 +144,6 @@ export function OfflineQuranManagerScreen() {
     }
   }, [job, qc, refetchManifest]);
 
-  useEffect(() => {
-    const onChange = (next: AppStateStatus) => {
-      if (next === 'background' || next === 'inactive') {
-        pauseDownload();
-      }
-    };
-    const sub = AppState.addEventListener('change', onChange);
-    return () => sub.remove();
-  }, [pauseDownload]);
-
   const globalPctSurahs = Math.round(Math.min(1, Math.max(0, progress01)) * 100);
   const bytesProgress = Math.min(1, storageBytes / ESTIMATED_FULL_OFFLINE_BYTES);
   const ringProgress = Math.max(bytesProgress, surahsCompleted > 0 ? progress01 : 0);
@@ -274,12 +254,12 @@ export function OfflineQuranManagerScreen() {
 
   const confirmDelete = () => {
     if (runnerBusy || job === 'running') {
-      Alert.alert('Download active', 'Pause the download, then try deleting again.');
+      AppAlert.show('Download active', 'Pause the download, then try deleting again.', undefined, { variant: 'info' });
       return;
     }
-    Alert.alert(
+    AppAlert.show(
       'Delete offline Quran?',
-      'Removes every downloaded surah, audio, and metadata from this device.',
+      'Removes every downloaded surah (text, translation, audio URLs) and metadata from this device.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
@@ -292,6 +272,7 @@ export function OfflineQuranManagerScreen() {
             }),
         },
       ],
+      { variant: 'destructive' }
     );
   };
 
@@ -299,7 +280,7 @@ export function OfflineQuranManagerScreen() {
     void (async () => {
       const health = await getOfflineQuranHealth();
       if (health.needsUpdate) {
-        Alert.alert(
+        AppAlert.show(
           'Update required',
           'Your saved copy uses an older format. This clears old files. Continue?',
           [
@@ -314,6 +295,7 @@ export function OfflineQuranManagerScreen() {
                 }),
             },
           ],
+          { variant: 'confirmation' }
         );
         return;
       }
@@ -545,13 +527,13 @@ export function OfflineQuranManagerScreen() {
         <View style={{ flex: 1, minWidth: 0 }}>
           <Text style={[styles.dangerTitle, { color: c.onSurface }]}>Delete all offline data</Text>
           <Text style={[styles.dangerHint, { color: c.onSurfaceVariant }]}>
-            Removes text, audio, and your download queue from this device.
+            Removes text, translation, audio URLs, and your download queue from this device.
           </Text>
         </View>
       </Pressable>
       <Text style={[styles.footnote, { color: c.onSurfaceVariant }]}>
-        Leaving the app pauses downloads. Open this screen and tap Resume all to continue. Saved
-        surahs open instantly in the reader.
+        Downloads may pause if the system suspends the app; open this screen and tap Resume to
+        continue. Saved surahs open instantly; audio streams when online.
       </Text>
     </View>
   );

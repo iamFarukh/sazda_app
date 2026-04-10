@@ -29,10 +29,10 @@ import { useThemePalette } from '../../theme/useThemePalette';
 import { spacing } from '../../theme/spacing';
 import { useNavigateMainTab } from '../../navigation/useNavigateMainTab';
 import { useNavigateToToolsScreen } from '../../navigation/useNavigateToToolsScreen';
-import { fontFamilies, platformFontWeight } from '../../theme/typography';
+import { fontFamilies, getFontConfig } from '../../theme/typography';
 import { usePrayerTimesHome } from '../../hooks/usePrayerTimesHome';
+import { usePrayerStreak } from '../../hooks/usePrayerStreak';
 import { usePrayerWidgetSnapshot } from '../../hooks/usePrayerWidgetSnapshot';
-import { PrayerWidgetGlance } from '../../components/organisms/PrayerWidgetGlance/PrayerWidgetGlance';
 import { HomeLocationBar } from '../../components/molecules/HomeLocationBar/HomeLocationBar';
 import { LocationSettingsSheet } from '../../components/molecules/LocationSettingsSheet/LocationSettingsSheet';
 import { fetchGregorianToHijri } from '../../services/hijriCalendarApi';
@@ -136,6 +136,8 @@ export function HomeScreen() {
     ? `${hijriToday.hijriDay} ${hijriToday.hijriMonthEn} ${hijriToday.hijriYear} AH`
     : null;
 
+  const prayerStreak = usePrayerStreak();
+
   const activeSalahRow: DailyPrayerName | null = useMemo(() => {
     const r = hero?.currentSalahRow;
     if (!r || !FIVE_SALAH_KEYS.has(r)) return null;
@@ -221,6 +223,7 @@ export function HomeScreen() {
               prayerPeriodNote={prayerPeriodNote}
               methodNote={methodNote}
               locationLine={locationLine}
+              streakCount={prayerStreak}
               palette={c}
               scheme={scheme}
               styles={dualHeroStyles}
@@ -352,15 +355,6 @@ export function HomeScreen() {
             palette={c}
             scheme={scheme}
           />
-        ) : null}
-
-        {todayTimings &&
-        coords &&
-        !permissionDenied &&
-        !locationError &&
-        !locationPending &&
-        !prayerError ? (
-          <PrayerWidgetGlance snapshot={prayerWidgetSnapshot} />
         ) : null}
 
         {/* Daily verse */}
@@ -560,10 +554,10 @@ function createHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
       marginBottom: spacing.sm,
     },
     prayerPageTitle: {
+      ...getFontConfig(fontFamilies.headline, '800'),
       fontSize: 34,
       lineHeight: 40,
       letterSpacing: -0.6,
-      fontWeight: platformFontWeight('800'),
     },
     greetingCompact: {
       opacity: 0.78,
@@ -577,7 +571,7 @@ function createHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
       marginTop: spacing.xs,
     },
     dateRowText: {
-      fontWeight: platformFontWeight('600'),
+      ...getFontConfig(fontFamilies.body, '600'),
       opacity: 0.88,
     },
     dateDot: {
@@ -634,7 +628,7 @@ function createHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
       borderRadius: radius.full,
     },
     prayerActionBtnLabel: {
-      fontWeight: platformFontWeight('700'),
+      ...getFontConfig(fontFamilies.body, '700'),
     },
     prayerLoadingBlock: {
       alignItems: 'center',

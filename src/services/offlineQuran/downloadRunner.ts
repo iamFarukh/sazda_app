@@ -1,5 +1,4 @@
-import RNFS from 'react-native-fs';
-import { fetchSurahReaderData } from '../quranApi';
+import { fetchSurahReaderDataWithRetry } from '../quranApi';
 import {
   OFFLINE_EDITION_AUDIO,
   OFFLINE_EDITION_TEXT,
@@ -7,7 +6,6 @@ import {
 } from './constants';
 import { clearSurahOfflineData } from './clearSurah';
 import { deleteAllOfflineQuranData } from './deleteAll';
-import { ensureDir } from './fsUtils';
 import {
   countCompleteSurahs,
   createEmptyManifest,
@@ -17,68 +15,12 @@ import {
   readManifest,
   writeManifest,
 } from './manifest';
-import { getAyahAudioAbsPath, getAyahAudioRelPath, getOfflineQuranRoot } from './paths';
+import { getOfflineQuranRoot } from './paths';
 import { writeSurahPayload } from './surahFile';
 import type { OfflineQuranManifest, StoredAyahRow } from './types';
 import { getOfflineQuranHealth } from './reader';
 import { sumDirectoryBytes } from './fsUtils';
-
-const PAUSED_ERR = 'PAUSED';
-const CANCELLED_ERR = 'CANCELLED';
-
-async function downloadFileWithRetry(
-  url: string,
-  toFile: string,
-  onBytes: (n: number) => void,
-  shouldPause: () => boolean,
-  shouldCancel: () => boolean,
-): Promise<void> {
-  const attempts = 4;
-  for (let i = 0; i < attempts; i++) {
-    if (shouldCancel()) throw new Error(CANCELLED_ERR);
-    if (shouldPause()) throw new Error(PAUSED_ERR);
-    try {
-      const dir = toFile.slice(0, Math.max(0, toFile.lastIndexOf('/')));
-      await ensureDir(dir);
-      if (await RNFS.exists(toFile)) {
-        await RNFS.unlink(toFile);
-      }
-      const res = await RNFS.downloadFile({ fromUrl: url, toFile }).promise;
-      const code = res.statusCode ?? 0;
-      const ok = code >= 200 && code < 300;
-      if (ok) {
-        const st = await RNFS.stat(toFile);
-        const sz = Number(st.size ?? 0);
-        if (sz > 0) {
-          onBytes(sz);
-          return;
-        }
-      }
-    } catch (e) {
-      if (e instanceof Error && (e.message === PAUSED_ERR || e.message === CANCELLED_ERR)) {
-        throw e;
-      }
-    }
-    await new Promise<void>(resolve => setTimeout(resolve, 500 * (i + 1)));
-  }
-  throw new Error('Audio download failed');
-}
-
-async function validateSurahAudioOnDisk(
-  surahNumber: number,
-  rows: StoredAyahRow[],
-): Promise<boolean> {
-  const root = getOfflineQuranRoot();
-  for (const r of rows) {
-    if (!r.remoteAudioUrl || !r.localAudioRel) continue;
-    const abs = `${root}/${r.localAudioRel}`;
-    const ex = await RNFS.exists(abs);
-    if (!ex) return false;
-    const st = await RNFS.stat(abs);
-    if (Number(st.size ?? 0) <= 0) return false;
-  }
-  return true;
-}
+import { validateSurahPayload } from './validatePayload';
 
 export type DownloadRunnerPatch = {
   job?: 'running' | 'paused' | 'completed' | 'error' | 'idle';
@@ -95,7 +37,8 @@ export type DownloadRunnerPatch = {
 export type SingleSurahResult = 'ok' | 'paused' | 'cancelled' | 'error';
 
 /**
- * Download one surah (text + all ayah audio). Skips work if already complete unless forced.
+ * Download one surah: Arabic + translation + per-ayah audio **URLs** (JSON only).
+ * Audio files are not stored; playback streams from URLs. Validates before marking complete.
  */
 export async function downloadSingleSurahFull(
   surahNumber: number,
@@ -122,96 +65,42 @@ export async function downloadSingleSurahFull(
   apply({
     currentSurah: surahNumber,
     statusLine: `Downloading Surah ${surahNumber}…`,
-    activeSurahProgress01: 0.02,
+    activeSurahProgress01: 0.15,
   });
 
   if (shouldCancel()) return 'cancelled';
   if (shouldPause()) return 'paused';
 
-  const { surah, ayahs } = await fetchSurahReaderData(surahNumber);
+  const { surah, ayahs } = await fetchSurahReaderDataWithRetry(surahNumber);
+
   const storedAyahs: StoredAyahRow[] = ayahs.map(a => ({
     numberInSurah: a.numberInSurah,
     arabic: a.arabic,
     translation: a.translation,
-    remoteAudioUrl: a.audioUrl,
-    localAudioRel: a.audioUrl ? getAyahAudioRelPath(surahNumber, a.numberInSurah, a.audioUrl) : null,
+    remoteAudioUrl: a.audioUrl ?? null,
+    localAudioRel: null,
   }));
 
-  await writeSurahPayload(surahNumber, { surah, ayahs: storedAyahs });
-  manifest.surahs[String(surahNumber)] = {
-    textComplete: true,
-    audioComplete: false,
-    expectedAyahs: surah.numberOfAyahs,
-    ayahsWithAudio: storedAyahs.filter(x => x.remoteAudioUrl).length,
-  };
-  await writeManifest(manifest);
-
-  const withAudio = storedAyahs.filter(x => x.remoteAudioUrl && x.localAudioRel);
-  let audioDone = 0;
-  const nAudio = Math.max(1, withAudio.length);
-
-  for (const row of withAudio) {
-    if (shouldCancel()) return 'cancelled';
-    if (shouldPause()) return 'paused';
-
-    const url = row.remoteAudioUrl!;
-    const abs = getAyahAudioAbsPath(surahNumber, row.numberInSurah, url);
-    const ex = await RNFS.exists(abs);
-    if (ex) {
-      const st = await RNFS.stat(abs);
-      if (Number(st.size ?? 0) > 0) {
-        audioDone += 1;
-        const frac = 0.02 + 0.98 * (audioDone / nAudio);
-        apply({
-          activeSurahProgress01: frac,
-          statusLine: `Surah ${surahNumber}: audio ${audioDone}/${withAudio.length}`,
-        });
-        continue;
-      }
-    }
-    try {
-      await downloadFileWithRetry(
-        url,
-        abs,
-        bt => {
-          bytesTotal += bt;
-          apply({ bytesDownloaded: bytesTotal });
-        },
-        shouldPause,
-        shouldCancel,
-      );
-    } catch (e) {
-      if (e instanceof Error && e.message === CANCELLED_ERR) return 'cancelled';
-      if (e instanceof Error && e.message === PAUSED_ERR) return 'paused';
-      throw e;
-    }
-    audioDone += 1;
-    bytesTotal = await sumDirectoryBytes(getOfflineQuranRoot());
+  const payload = { surah, ayahs: storedAyahs };
+  const validation = validateSurahPayload(payload);
+  if (!validation.ok) {
     apply({
-      activeSurahProgress01: 0.02 + 0.98 * (audioDone / nAudio),
-      statusLine: `Surah ${surahNumber}: audio ${audioDone}/${withAudio.length}`,
-      bytesDownloaded: bytesTotal,
-      storageBytes: bytesTotal,
-    });
-  }
-
-  const audioOk = await validateSurahAudioOnDisk(surahNumber, storedAyahs);
-  manifest = (await readManifest()) ?? manifest;
-  manifest.surahs[String(surahNumber)] = {
-    textComplete: true,
-    audioComplete: audioOk,
-    expectedAyahs: surah.numberOfAyahs,
-    ayahsWithAudio: withAudio.length,
-  };
-  await writeManifest(manifest);
-
-  if (!audioOk) {
-    apply({
-      lastError: `Validation failed for surah ${surahNumber}. Tap retry to try again.`,
+      lastError: validation.reason,
       storageBytes: await sumDirectoryBytes(getOfflineQuranRoot()),
     });
     return 'error';
   }
+
+  await writeSurahPayload(surahNumber, payload);
+
+  manifest = (await readManifest()) ?? manifest;
+  manifest.surahs[String(surahNumber)] = {
+    textComplete: true,
+    audioComplete: true,
+    expectedAyahs: surah.numberOfAyahs,
+    ayahsWithAudio: storedAyahs.filter(x => x.remoteAudioUrl).length,
+  };
+  await writeManifest(manifest);
 
   bytesTotal = await sumDirectoryBytes(getOfflineQuranRoot());
   apply({
@@ -229,7 +118,6 @@ export async function runOfflineDownloadQueue(opts: {
   getQueue: () => number[];
   setQueue: (next: number[]) => void;
   apply: (patch: DownloadRunnerPatch) => void;
-  /** Reset UI cancel flag after a cancelled surah is removed from the queue. */
   onCancelProcessed?: () => void;
   onFinally?: () => void;
 }): Promise<void> {
@@ -498,24 +386,17 @@ export async function runFullOfflineDownload(opts: {
     });
   } catch (e) {
     const msg = e instanceof Error ? e.message : String(e);
-    if (msg === PAUSED_ERR) {
-      apply({
-        job: 'paused',
-        statusLine: 'Download paused.',
-        storageBytes: await sumDirectoryBytes(getOfflineQuranRoot()),
-      });
-    } else {
-      apply({
-        job: 'error',
-        lastError: msg || 'Download failed',
-        storageBytes: await sumDirectoryBytes(getOfflineQuranRoot()),
-      });
-    }
+    apply({
+      job: 'error',
+      lastError: msg || 'Download failed',
+      storageBytes: await sumDirectoryBytes(getOfflineQuranRoot()),
+    });
   } finally {
     onFinally?.();
   }
 }
 
+/** Re-download and validate one surah (e.g. after corruption). */
 export async function repairSurahAudioOnly(
   surahNumber: number,
   shouldPause: () => boolean,
@@ -531,10 +412,10 @@ export async function repairSurahAudioOnly(
     skipIfComplete: false,
     apply,
   });
-  const audioOk = r === 'ok';
+  const ok = r === 'ok';
   apply({
     job: 'idle',
-    statusLine: audioOk ? `Surah ${surahNumber} repaired.` : 'Repair incomplete.',
+    statusLine: ok ? `Surah ${surahNumber} repaired.` : 'Repair incomplete.',
     storageBytes: await sumDirectoryBytes(getOfflineQuranRoot()),
   });
 }

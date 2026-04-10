@@ -138,6 +138,20 @@ export function ProfileSettingsScreen() {
 
         <Text style={[styles.sectionLabel, { color: c.onSurfaceVariant }]}>Notifications</Text>
         <Pressable
+          onPress={() => navigation.navigate('NotificationPreferences')}
+          style={({ pressed }) => [
+            styles.card,
+            styles.linkCard,
+            { backgroundColor: c.surfaceContainerLow },
+            pressed && { opacity: 0.92 },
+          ]}>
+          <Text style={[styles.rowTitle, { color: c.onSurface }]}>Reminders & Ramadan</Text>
+          <Text style={[styles.rowHint, { color: c.onSurfaceVariant }]}>
+            Streak check-ins, Quran nudge, and seasonal Ramadan helpers — default sound only.
+          </Text>
+        </Pressable>
+
+        <Pressable
           onPress={() => {
             navigation.navigate('AdhanSettings');
           }}
@@ -147,9 +161,9 @@ export function ProfileSettingsScreen() {
             { backgroundColor: c.surfaceContainerLow },
             pressed && { opacity: 0.92 },
           ]}>
-          <Text style={[styles.rowTitle, { color: c.onSurface }]}>Adhan Settings</Text>
+          <Text style={[styles.rowTitle, { color: c.onSurface }]}>Adhan (prayer times)</Text>
           <Text style={[styles.rowHint, { color: c.onSurfaceVariant }]}>
-            Customize your call to prayer notifications and alerts.
+            Five daily prayer alerts with Adhan audio and per-prayer sound options.
           </Text>
         </Pressable>
 
@@ -164,9 +178,9 @@ export function ProfileSettingsScreen() {
             { backgroundColor: c.surfaceContainerLow },
             pressed && { opacity: 0.92 },
           ]}>
-          <Text style={[styles.rowTitle, { color: c.onSurface }]}>Prayer reminders</Text>
+          <Text style={[styles.rowTitle, { color: c.onSurface }]}>Prayer tracker</Text>
           <Text style={[styles.rowHint, { color: c.onSurfaceVariant }]}>
-            Open the prayer tracker to configure salah alerts and quiet hours.
+            Mark prayers and see your streak on the Tools tab.
           </Text>
         </Pressable>
 
@@ -189,9 +203,14 @@ export function ProfileSettingsScreen() {
           </Text>
         </Pressable>
 
-        <Text style={[styles.muted, { color: c.onSurfaceVariant }]}>
-          Sazda v{APP_VERSION}
-        </Text>
+        <View style={styles.brandingMutedGroup}>
+          <Text style={[styles.muted, { color: c.onSurfaceVariant, marginTop: 0 }]}>
+            Sazda v{APP_VERSION}
+          </Text>
+          <Text style={[styles.muted, { color: c.onSurfaceVariant, marginTop: 4, opacity: 0.7 }]}>
+            App developed by farukhchenda
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -270,10 +289,13 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     backgroundColor: 'rgba(186, 26, 26, 0.08)',
   },
+  brandingMutedGroup: {
+    alignItems: 'center',
+    marginTop: spacing.lg,
+  },
   muted: {
     fontFamily: fontFamilies.body,
     fontSize: 12,
     textAlign: 'center',
-    marginTop: spacing.lg,
   },
 });

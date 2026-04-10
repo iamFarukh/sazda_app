@@ -80,7 +80,6 @@ class SazdaCustomNotificationModule(private val reactContext: ReactApplicationCo
         .setContentIntent(contentPending)
         .setPriority(NotificationCompat.PRIORITY_HIGH)
         .setCategory(NotificationCompat.CATEGORY_ALARM)
-        .setStyle(NotificationCompat.DecoratedCustomViewStyle())
         .setCustomContentView(remoteViews)
         .setCustomBigContentView(remoteViews)
         .build()

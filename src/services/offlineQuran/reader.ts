@@ -1,5 +1,5 @@
 import RNFS from 'react-native-fs';
-import { fetchSurahReaderData, type AyahReaderRow } from '../quranApi';
+import { fetchSurahReaderDataWithRetry, type AyahReaderRow } from '../quranApi';
 import { getOfflineQuranRoot } from './paths';
 import {
   isSurahFullyOffline,
@@ -8,6 +8,8 @@ import {
   isManifestEditionOk,
 } from './manifest';
 import { readSurahPayload } from './surahFile';
+import { persistSurahOnDemandAfterFetch } from './persistOnDemand';
+import { getCachedSurahReader, setCachedSurahReader } from './surahMemoryCache';
 
 function toFileUri(absPath: string): string {
   if (absPath.startsWith('file://')) return absPath;
@@ -18,12 +20,22 @@ export async function loadSurahReaderDataOfflineFirst(surahNumber: number): Prom
   surah: import('../quranApi').QuranApiSurah;
   ayahs: AyahReaderRow[];
 }> {
+  const mem = getCachedSurahReader(surahNumber);
+  if (mem) return mem;
+
   const manifest = await readManifest();
   if (isSurahFullyOffline(manifest, surahNumber)) {
     const local = await readOfflineSurahReaderRows(surahNumber);
-    if (local) return local;
+    if (local) {
+      setCachedSurahReader(surahNumber, local);
+      return local;
+    }
   }
-  return fetchSurahReaderData(surahNumber);
+
+  const fresh = await fetchSurahReaderDataWithRetry(surahNumber);
+  setCachedSurahReader(surahNumber, fresh);
+  void persistSurahOnDemandAfterFetch(surahNumber, fresh).catch(() => {});
+  return fresh;
 }
 
 export async function readOfflineSurahReaderRows(surahNumber: number): Promise<{

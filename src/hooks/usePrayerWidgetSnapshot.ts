@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
 import { computePrayerWidgetSnapshot } from '../features/prayerWidget/engine';
+import { pushPrayerWidgetSnapshotToNative } from '../features/prayerWidget';
 import type { PrayerWidgetSnapshot } from '../features/prayerWidget/types';
 import type { PrayerTimingsDay } from '../services/prayerTimesApi';
 
@@ -30,7 +31,7 @@ export function usePrayerWidgetSnapshot(
     return () => sub.remove();
   }, []);
 
-  return useMemo(() => {
+  const snapshot = useMemo(() => {
     void minuteTick;
     if (!todayTimings || !tomorrowTimings) return null;
     if (nowBeforeFajr && waitingNightData) return null;
@@ -50,4 +51,11 @@ export function usePrayerWidgetSnapshot(
     nowBeforeFajr,
     waitingNightData,
   ]);
+
+  useEffect(() => {
+    if (!snapshot) return;
+    pushPrayerWidgetSnapshotToNative(JSON.stringify(snapshot));
+  }, [snapshot]);
+
+  return snapshot;
 }

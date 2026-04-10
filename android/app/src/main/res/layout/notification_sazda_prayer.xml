@@ -3,12 +3,9 @@
   android:layout_width="match_parent"
   android:layout_height="wrap_content"
   android:orientation="horizontal"
-  android:background="@drawable/sazda_notif_card_bg"
-  android:paddingStart="12dp"
-  android:paddingEnd="12dp"
-  android:paddingTop="10dp"
-  android:paddingBottom="10dp"
-  android:gravity="center_vertical">
+  android:padding="16dp"
+  android:gravity="center_vertical"
+  android:background="#FFFFFF">
 
   <FrameLayout
     android:id="@+id/ntf_icon_frame"
@@ -38,7 +35,6 @@
       android:layout_height="wrap_content"
       android:textSize="10sp"
       android:textAllCaps="true"
-      android:letterSpacing="0.06"
       android:textColor="#707974"
       android:fontFamily="sans-serif-medium" />
 

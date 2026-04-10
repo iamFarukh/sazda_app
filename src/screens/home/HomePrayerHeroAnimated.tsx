@@ -7,11 +7,11 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 import Svg, { Defs, Path, Pattern, Rect } from 'react-native-svg';
-import { AlertTriangle, Clock3 } from 'lucide-react-native';
+import { AlertTriangle, Award, Clock3 } from 'lucide-react-native';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import { radius } from '../../theme/radius';
 import { spacing } from '../../theme/spacing';
-import { fontFamilies, platformFontWeight } from '../../theme/typography';
+import { fontFamilies, getFontConfig } from '../../theme/typography';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
 import type { PrayerHeroState } from '../../utils/prayerSchedule';
@@ -29,6 +29,8 @@ type Props = {
   prayerPeriodNote: string | null;
   methodNote: string;
   locationLine: string;
+  /** Consecutive full days with all five fard marked prayed (see `usePrayerStreak`). */
+  streakCount: number;
   palette: AppPalette;
   scheme: ResolvedScheme;
   styles: HomeHeroStyles;
@@ -65,6 +67,7 @@ export function HomePrayerHeroAnimated({
   prayerPeriodNote,
   methodNote,
   locationLine,
+  streakCount,
   palette: c,
   scheme,
   styles: s,
@@ -235,6 +238,25 @@ export function HomePrayerHeroAnimated({
                 </SazdaText>
               </>
             )}
+            <View
+              pointerEvents="none"
+              style={s.heroStreakCorner}
+              accessibilityLabel={`Salah streak ${streakCount} full days in a row`}
+            >
+              <Award
+                size={14}
+                color={isBetweenPrayers ? c.secondary : standardAccentHex}
+                strokeWidth={2}
+              />
+              <Text
+                style={[
+                  s.heroStreakCornerNum,
+                  { color: isBetweenPrayers ? c.primary : standardAccentHex },
+                ]}
+              >
+                {streakCount}
+              </Text>
+            </View>
           </View>
         </View>
       </Animated.View>
@@ -369,6 +391,7 @@ export function createDualHeroStyles(
       paddingVertical: spacing.xs,
     },
     prayerCard: {
+      position: 'relative',
       backgroundColor: heroFill,
       borderRadius: radius.md + 8,
       padding: spacing.xl,
@@ -414,25 +437,22 @@ export function createDualHeroStyles(
       paddingHorizontal: 10,
     },
     betweenBadgeText: {
-      fontFamily: fontFamilies.body,
+      ...getFontConfig(fontFamilies.body, '800'),
       fontSize: 9,
-      fontWeight: platformFontWeight('800'),
       letterSpacing: 1.6,
       textTransform: 'uppercase',
       color: c.white,
     },
     betweenTitle: {
-      fontFamily: fontFamilies.headline,
+      ...getFontConfig(fontFamilies.headline, '800'),
       fontSize: 20,
-      fontWeight: platformFontWeight('800'),
       letterSpacing: -0.35,
       marginTop: 0,
       lineHeight: 24,
     },
     betweenTimeLine: {
-      fontFamily: fontFamilies.headline,
+      ...getFontConfig(fontFamilies.headline, '900'),
       fontSize: 17,
-      fontWeight: platformFontWeight('900'),
       letterSpacing: -0.45,
       marginTop: 0,
       lineHeight: 22,
@@ -455,23 +475,21 @@ export function createDualHeroStyles(
       gap: spacing.md,
     },
     betweenStatLabel: {
+      ...getFontConfig(fontFamilies.body, '800'),
       opacity: 0.62,
-      fontWeight: platformFontWeight('800'),
       letterSpacing: 1.6,
       fontSize: 10,
       textTransform: 'uppercase',
       marginBottom: 2,
     },
     betweenStatValue: {
-      fontFamily: fontFamilies.headline,
-      fontWeight: platformFontWeight('900'),
+      ...getFontConfig(fontFamilies.headline, '900'),
       fontSize: 17,
       letterSpacing: -0.4,
       lineHeight: 22,
     },
     betweenNextValue: {
-      fontFamily: fontFamilies.headline,
-      fontWeight: platformFontWeight('800'),
+      ...getFontConfig(fontFamilies.headline, '800'),
       fontSize: 14,
       letterSpacing: -0.25,
       textAlign: 'right',
@@ -491,6 +509,21 @@ export function createDualHeroStyles(
       textAlign: 'center',
       fontSize: 10,
       lineHeight: 14,
+    },
+    heroStreakCorner: {
+      position: 'absolute',
+      top: spacing.lg,
+      right: spacing.lg,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      zIndex: 4,
+      opacity: 0.72,
+    },
+    heroStreakCornerNum: {
+      ...getFontConfig(fontFamilies.headline, '800'),
+      fontSize: 15,
+      letterSpacing: -0.35,
     },
     prayerKicker: {
       opacity: 0.85,
@@ -529,14 +562,12 @@ export function createDualHeroStyles(
           : 'rgba(255,255,255,0.08)',
     },
     countdownText: {
-      fontFamily: fontFamilies.body,
+      ...getFontConfig(fontFamilies.body, '600'),
       fontSize: 14,
-      fontWeight: platformFontWeight('600'),
     },
     countdownHighlight: {
-      fontFamily: fontFamilies.body,
+      ...getFontConfig(fontFamilies.body, '600'),
       fontSize: 14,
-      fontWeight: platformFontWeight('600'),
     },
     prayerPeriodNote: {
       marginTop: spacing.sm,
@@ -592,13 +623,13 @@ export function createDualHeroStyles(
       borderRadius: 99,
     },
     makruhBadgeText: {
-      fontWeight: platformFontWeight('700'),
+      ...getFontConfig(fontFamilies.body, '700'),
       letterSpacing: 2.0,
       fontSize: 10,
       color: '#ffffff',
     },
     makruhTitle: {
-      fontWeight: platformFontWeight('800'),
+      ...getFontConfig(fontFamilies.headline, '800'),
       fontSize: 24,
       letterSpacing: -0.4,
       marginTop: spacing.xs,
@@ -627,20 +658,20 @@ export function createDualHeroStyles(
       alignItems: 'flex-end',
     },
     makruhStatLabel: {
+      ...getFontConfig(fontFamilies.body, '800'),
       opacity: 0.62,
-      fontWeight: platformFontWeight('800'),
       letterSpacing: 1.2,
       fontSize: 9,
       textTransform: 'uppercase',
       marginBottom: 4,
     },
     makruhStatValue: {
-      fontWeight: platformFontWeight('900'),
+      ...getFontConfig(fontFamilies.headline, '900'),
       fontSize: 19,
       letterSpacing: -0.45,
     },
     makruhNextValue: {
-      fontWeight: platformFontWeight('800'),
+      ...getFontConfig(fontFamilies.headline, '800'),
       fontSize: 16,
       letterSpacing: -0.25,
       textAlign: 'right',

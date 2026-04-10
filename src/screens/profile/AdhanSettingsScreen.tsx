@@ -1,13 +1,19 @@
-import { ScrollView, StyleSheet, Switch, Text, View, Pressable, Alert, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { ScrollView, StyleSheet, Switch, Text, View, Pressable, ActivityIndicator } from 'react-native';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ChevronLeft, Volume2, Volume1, VolumeX, Timer, Vibrate, Music, Bell } from 'lucide-react-native';
+import { ChevronLeft, Volume2, Volume1, VolumeX, Vibrate, Music, Bell } from 'lucide-react-native';
 import { useThemePalette } from '../../theme/useThemePalette';
 import { radius } from '../../theme/radius';
 import { spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
-import { useAdhanSettingsStore, type AdhanVolumeMode } from '../../store/adhanSettingsStore';
+import { useAdhanSettingsStore, type AdhanVolumeMode, type AdhanDelayMinutes } from '../../store/adhanSettingsStore';
+import {
+  REMINDER_DELAY_OPTIONS,
+  usePrayerReminderStore,
+  type ReminderDelayMinutes,
+} from '../../store/prayerReminderStore';
 import { getBuiltinAdhanDisplayName, getBuiltinAdhanBundleFile } from '../../constants/adhanBuiltInSounds';
 import { FIVE_DAILY_PRAYERS, type FiveDailyPrayer } from '../../store/prayerTrackerStore';
 import type { ProfileStackParamList } from '../../navigation/types';
@@ -19,6 +25,7 @@ import {
   scheduleTestAdhanInSeconds,
 } from '../../services/prayerReminders';
 import { playBundledAdhanPreview } from '../../services/adhanPreview';
+import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
 
 type Nav = NativeStackNavigationProp<ProfileStackParamList, 'AdhanSettings'>;
 
@@ -29,12 +36,18 @@ function getSoundLabel(soundId: string) {
 export function AdhanSettingsScreen() {
   const navigation = useNavigation<Nav>();
   const { colors: c } = useThemePalette();
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight();
   
   const masterEnabled = useAdhanSettingsStore(s => s.masterEnabled);
   const setMasterEnabled = useAdhanSettingsStore(s => s.setMasterEnabled);
   const byPrayer = useAdhanSettingsStore(s => s.byPrayer);
-  const preReminderEnabled = useAdhanSettingsStore(s => s.preReminderEnabled);
-  const setPreReminderEnabled = useAdhanSettingsStore(s => s.setPreReminderEnabled);
+  const adhanDelayMinutes = useAdhanSettingsStore(s => s.adhanDelayMinutes);
+  const setAdhanDelayMinutes = useAdhanSettingsStore(s => s.setAdhanDelayMinutes);
+  const reminderDelayMinutes = usePrayerReminderStore(s => s.reminderDelayMinutes);
+  const setReminderDelayMinutes = usePrayerReminderStore(s => s.setReminderDelayMinutes);
+  const followUpByPrayer = usePrayerReminderStore(s => s.followUpByPrayer);
+  const setFollowUpEnabled = usePrayerReminderStore(s => s.setFollowUpEnabled);
   const vibrationEnabled = useAdhanSettingsStore(s => s.vibrationEnabled);
   const setVibrationEnabled = useAdhanSettingsStore(s => s.setVibrationEnabled);
   const setPrayerVolumeMode = useAdhanSettingsStore(s => s.setPrayerVolumeMode);
@@ -46,13 +59,13 @@ export function AdhanSettingsScreen() {
     try {
       const ok = await requestNotificationPermission();
       if (!ok) {
-        Alert.alert('Permission needed', 'Allow notifications to hear and see test alerts.');
+        AppAlert.show('Permission needed', 'Allow notifications to hear and see test alerts.', undefined, { variant: 'info' });
         return;
       }
       await fn();
-      Alert.alert('Test sent', 'Check your notification shade or lock screen.');
+      AppAlert.show('Test sent', 'Check your notification shade or lock screen.', undefined, { variant: 'success' });
     } catch (e) {
-      Alert.alert('Test failed', e instanceof Error ? e.message : String(e));
+      AppAlert.show('Test failed', e instanceof Error ? e.message : String(e), undefined, { variant: 'destructive' });
     } finally {
       setTestBusy(false);
     }
@@ -83,13 +96,15 @@ export function AdhanSettingsScreen() {
         <View style={styles.iconBtn} />
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        
-        {/* Header Section */}
+      <ScrollView
+        contentContainerStyle={[
+          styles.scroll,
+          { paddingBottom: tabBarHeight + Math.max(insets.bottom, spacing.sm) + spacing.md },
+        ]}
+        showsVerticalScrollIndicator={false}>
         <Animated.View entering={FadeInDown.duration(400).delay(100)} style={styles.headerBox}>
-          <Text style={[styles.heading, { color: c.primary }]}>Adhan Settings</Text>
-          <Text style={[styles.subheading, { color: c.onSurfaceVariant }]}>
-            Customize your call to prayer notifications and alerts.
+          <Text style={[styles.leadLine, { color: c.onSurfaceVariant }]}>
+            Adhan after prayer time begins; follow-ups use the system sound.
           </Text>
         </Animated.View>
 
@@ -116,7 +131,7 @@ export function AdhanSettingsScreen() {
 
         {/* Prayer List */}
         <Animated.View entering={FadeInDown.duration(400).delay(200)} style={styles.section}>
-          <Text style={[styles.sectionLabel, { color: c.primary }]}>Prayer Timings</Text>
+          <Text style={[styles.sectionLabel, { color: c.primary }]}>Prayer sounds</Text>
           {FIVE_DAILY_PRAYERS.map((prayer, index) => {
             const currentSet = byPrayer[prayer];
             const isOn = currentSet.volumeMode !== 'SILENT';
@@ -160,8 +175,8 @@ export function AdhanSettingsScreen() {
         <Animated.View entering={FadeInDown.duration(400).delay(250)} style={styles.section}>
           <Text style={[styles.sectionLabel, { color: c.primary }]}>Notification Preferences</Text>
           
-          <View style={[styles.card, { backgroundColor: c.surfaceContainerLow, marginBottom: spacing.md }]}>
-            <Text style={[styles.rowTitle, { color: c.primary, marginBottom: spacing.md }]}>
+          <View style={[styles.card, { backgroundColor: c.surfaceContainerLow, marginBottom: spacing.sm }]}>
+            <Text style={[styles.rowTitle, { color: c.primary, marginBottom: spacing.sm }]}>
               Global Volume Mode
             </Text>
             <View style={[styles.segmentControl, { backgroundColor: c.surfaceContainer }]}>
@@ -186,27 +201,97 @@ export function AdhanSettingsScreen() {
             </View>
           </View>
 
-          <View style={[styles.preferenceRow, { backgroundColor: c.surfaceContainerLow }]}>
-            <View style={styles.rowLeft}>
-              <Timer size={24} color={c.primary} opacity={0.6} />
-              <View>
-                <Text style={[styles.rowTitle, { color: c.primary }]}>Pre-reminder</Text>
-                <Text style={[styles.rowSub, { color: c.onSurfaceVariant }]}>
-                  10 min before salah, then again at prayer time
-                </Text>
-              </View>
+          <View style={[styles.card, { backgroundColor: c.surfaceContainerLow, marginBottom: spacing.sm }]}>
+            <Text style={[styles.rowTitle, { color: c.primary, marginBottom: spacing.xs }]}>
+              Adhan timing
+            </Text>
+            <Text style={[styles.rowSub, { color: c.onSurfaceVariant, marginBottom: spacing.sm }]}>
+              Play Adhan only after prayer time begins, plus this delay (never before).
+            </Text>
+            <View style={[styles.segmentControl, { backgroundColor: c.surfaceContainer }]}>
+              {([0, 3, 5] as readonly AdhanDelayMinutes[]).map(min => (
+                <Pressable
+                  key={min}
+                  onPress={() => setAdhanDelayMinutes(min)}
+                  style={({ pressed }) => [
+                    styles.segmentBtn,
+                    pressed && { opacity: 0.8 },
+                    adhanDelayMinutes === min && { backgroundColor: c.primaryContainer },
+                  ]}>
+                  <Text
+                    style={[
+                      styles.segmentText,
+                      {
+                        color: adhanDelayMinutes === min ? c.onPrimary : c.primary,
+                        opacity: adhanDelayMinutes === min ? 1 : 0.7,
+                      },
+                    ]}>
+                    {min === 0 ? '0m' : `+${min}m`}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
-            <Switch
-              value={preReminderEnabled}
-              onValueChange={setPreReminderEnabled}
-              trackColor={{ false: c.surfaceContainerHighest, true: c.primary }}
-              thumbColor={c.onPrimary}
-            />
           </View>
 
-          <View style={[styles.preferenceRow, { backgroundColor: c.surfaceContainerLow }]}>
+          <View style={[styles.card, { backgroundColor: c.surfaceContainerLow, marginBottom: spacing.sm }]}>
+            <Text style={[styles.rowTitle, { color: c.primary, marginBottom: spacing.xs }]}>
+              Follow-up reminder
+            </Text>
+            <Text style={[styles.rowSub, { color: c.onSurfaceVariant, marginBottom: spacing.sm }]}>
+              After Adhan, wait then send a gentle reminder (system sound only) if you have not marked the prayer.
+            </Text>
+            <View style={[styles.segmentControl, { backgroundColor: c.surfaceContainer }]}>
+              {REMINDER_DELAY_OPTIONS.map(min => (
+                <Pressable
+                  key={min}
+                  onPress={() => setReminderDelayMinutes(min as ReminderDelayMinutes)}
+                  style={({ pressed }) => [
+                    styles.segmentBtn,
+                    pressed && { opacity: 0.8 },
+                    reminderDelayMinutes === min && { backgroundColor: c.primaryContainer },
+                  ]}>
+                  <Text
+                    style={[
+                      styles.segmentText,
+                      {
+                        color: reminderDelayMinutes === min ? c.onPrimary : c.primary,
+                        opacity: reminderDelayMinutes === min ? 1 : 0.7,
+                      },
+                    ]}>
+                    {min}m
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          <View style={[styles.sectionTight, { marginBottom: spacing.xs }]}>
+            <Text style={[styles.sectionLabel, { color: c.primary }]}>Follow-up per prayer</Text>
+            {FIVE_DAILY_PRAYERS.map(prayer => (
+              <View
+                key={prayer}
+                style={[styles.preferenceRowCompact, { backgroundColor: c.surfaceContainerLow, marginBottom: spacing.xxs }]}>
+                <View style={styles.rowLeft}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.rowTitleCompact, { color: c.primary }]}>{prayer}</Text>
+                    <Text style={[styles.rowSubCompact, { color: c.onSurfaceVariant }]}>
+                      If not marked
+                    </Text>
+                  </View>
+                </View>
+                <Switch
+                  value={followUpByPrayer[prayer]}
+                  onValueChange={v => setFollowUpEnabled(prayer, v)}
+                  trackColor={{ false: c.surfaceContainerHighest, true: c.primary }}
+                  thumbColor={c.onPrimary}
+                />
+              </View>
+            ))}
+          </View>
+
+          <View style={[styles.preferenceRow, { backgroundColor: c.surfaceContainerLow, marginTop: spacing.xs }]}>
             <View style={styles.rowLeft}>
-              <Vibrate size={24} color={c.primary} opacity={0.6} />
+              <Vibrate size={22} color={c.primary} opacity={0.6} />
               <View>
                 <Text style={[styles.rowTitle, { color: c.primary }]}>Vibration</Text>
                 <Text style={[styles.rowSub, { color: c.onSurfaceVariant }]}>Haptic feedback on alerts</Text>
@@ -222,7 +307,7 @@ export function AdhanSettingsScreen() {
 
           <View style={[styles.testSection, { backgroundColor: c.surfaceContainerLow }]}>
             <View style={styles.rowLeft}>
-              <Bell size={24} color={c.primary} opacity={0.6} />
+              <Bell size={22} color={c.primary} opacity={0.6} />
               <View style={{ flex: 1 }}>
                 <Text style={[styles.rowTitle, { color: c.primary }]}>Try alerts</Text>
                 <Text style={[styles.rowSub, { color: c.onSurfaceVariant }]}>
@@ -231,34 +316,21 @@ export function AdhanSettingsScreen() {
               </View>
             </View>
             {testBusy ? (
-              <ActivityIndicator style={{ marginTop: spacing.md }} color={c.primary} />
+              <ActivityIndicator style={{ marginTop: spacing.sm }} color={c.primary} />
             ) : (
               <View style={styles.testBtnColumn}>
                 <Pressable
-                  onPress={() =>
-                    runNotificationTest(() => sendTestAdhanNotification('Fajr', 'lead'))
-                  }
+                  onPress={() => runNotificationTest(() => sendTestAdhanNotification('Fajr'))}
                   style={({ pressed }) => [
                     styles.testBtn,
                     { backgroundColor: c.primaryContainer },
                     pressed && { opacity: 0.85 },
                   ]}>
-                  <Text style={[styles.testBtnText, { color: c.onPrimaryContainer }]}>Now: before prayer</Text>
+                  <Text style={[styles.testBtnText, { color: c.onPrimaryContainer }]}>Now: Adhan preview</Text>
                 </Pressable>
                 <Pressable
                   onPress={() =>
-                    runNotificationTest(() => sendTestAdhanNotification('Fajr', 'atSalah'))
-                  }
-                  style={({ pressed }) => [
-                    styles.testBtn,
-                    { backgroundColor: c.primaryContainer },
-                    pressed && { opacity: 0.85 },
-                  ]}>
-                  <Text style={[styles.testBtnText, { color: c.onPrimaryContainer }]}>Now: prayer time</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() =>
-                    runNotificationTest(() => scheduleTestAdhanInSeconds(15, 'Fajr', 'atSalah'))
+                    runNotificationTest(() => scheduleTestAdhanInSeconds(15, 'Fajr'))
                   }
                   style={({ pressed }) => [
                     styles.testBtn,
@@ -270,9 +342,11 @@ export function AdhanSettingsScreen() {
                 <Pressable
                   onPress={async () => {
                     if (!getBuiltinAdhanBundleFile(byPrayer.Fajr.soundId)) {
-                      Alert.alert(
+                      AppAlert.show(
                         'Built-in sounds only',
                         'Preview here works for bundled adhans. For custom uploads, open Sound selection and use the play button there.',
+                        undefined,
+                        { variant: 'info' }
                       );
                       return;
                     }
@@ -307,7 +381,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
   title: {
@@ -317,27 +391,21 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.x3xl,
+    paddingTop: spacing.xxs,
   },
   headerBox: {
-    marginBottom: spacing.xl,
-    marginTop: spacing.md,
+    marginBottom: spacing.md,
+    marginTop: 0,
   },
-  heading: {
-    fontFamily: fontFamilies.headline,
-    fontSize: 32,
-    fontWeight: '800',
-    letterSpacing: -0.5,
-    marginBottom: spacing.xs,
-  },
-  subheading: {
+  leadLine: {
     fontFamily: fontFamilies.body,
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '500',
+    lineHeight: 20,
   },
   card: {
     borderRadius: radius.md,
-    padding: spacing.lg,
+    padding: spacing.md,
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -362,33 +430,38 @@ const styles = StyleSheet.create({
   },
   rowTitle: {
     fontFamily: fontFamilies.headline,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '700',
   },
   rowSub: {
     fontFamily: fontFamilies.body,
     fontSize: 13,
+    lineHeight: 18,
     marginTop: 2,
   },
   section: {
-    marginTop: spacing.xl,
+    marginTop: spacing.md,
+  },
+  sectionTight: {
+    marginTop: spacing.sm,
   },
   sectionLabel: {
     fontFamily: fontFamilies.headline,
-    fontSize: 13,
+    fontSize: 11,
     fontWeight: '700',
     textTransform: 'uppercase',
-    letterSpacing: 1.2,
-    marginBottom: spacing.md,
-    opacity: 0.6,
+    letterSpacing: 1.1,
+    marginBottom: spacing.sm,
+    opacity: 0.65,
   },
   prayerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: spacing.lg,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     borderRadius: radius.md,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   prayerRowLeft: {
     flexDirection: 'row',
@@ -400,12 +473,12 @@ const styles = StyleSheet.create({
   },
   prayerName: {
     fontFamily: fontFamilies.headline,
-    fontSize: 18,
+    fontSize: 17,
     fontWeight: '800',
   },
   divider: {
     width: 1,
-    height: 40,
+    height: 32,
     opacity: 0.1,
   },
   soundIndicator: {
@@ -422,16 +495,16 @@ const styles = StyleSheet.create({
   },
   segmentControl: {
     flexDirection: 'row',
-    padding: 4,
+    padding: 3,
     borderRadius: radius.sm,
   },
   segmentBtn: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: spacing.sm,
+    paddingVertical: spacing.xs + 2,
     borderRadius: radius.sm - 2,
-    gap: 4,
+    gap: 2,
   },
   segmentText: {
     fontFamily: fontFamilies.headline,
@@ -443,9 +516,29 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: spacing.lg,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     borderRadius: radius.md,
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
+  },
+  preferenceRowCompact: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.xs + 2,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+  },
+  rowTitleCompact: {
+    fontFamily: fontFamilies.headline,
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  rowSubCompact: {
+    fontFamily: fontFamilies.body,
+    fontSize: 12,
+    marginTop: 1,
+    opacity: 0.85,
   },
   rowLeft: {
     flexDirection: 'row',
@@ -455,16 +548,16 @@ const styles = StyleSheet.create({
   },
   testSection: {
     borderRadius: radius.md,
-    padding: spacing.lg,
-    marginTop: spacing.md,
+    padding: spacing.md,
+    marginTop: spacing.sm,
   },
   testBtnColumn: {
-    marginTop: spacing.md,
+    marginTop: spacing.sm,
     gap: spacing.sm,
   },
   testBtn: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
     borderRadius: radius.md,
     alignItems: 'center',
   },

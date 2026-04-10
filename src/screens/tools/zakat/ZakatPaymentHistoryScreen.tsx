@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Alert, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRoute, type RouteProp } from '@react-navigation/native';
@@ -20,6 +20,7 @@ import { radius } from '../../../theme/radius';
 import { spacing } from '../../../theme/spacing';
 import { fontFamilies } from '../../../theme/typography';
 import { useThemePalette } from '../../../theme/useThemePalette';
+import { AppAlert } from '../../../components/organisms/AppAlert/AppAlert';
 
 type R = RouteProp<ToolsStackParamList, 'ZakatPaymentHistory'>;
 
@@ -66,7 +67,7 @@ export function ZakatPaymentHistoryScreen() {
     if (!editing) return;
     const r = parseRupeesInput(editAmount);
     if (r == null) {
-      Alert.alert('Invalid amount');
+      AppAlert.show('Invalid amount', undefined, undefined, { variant: 'info' });
       return;
     }
     const res = updatePayment(editing.id, {
@@ -75,15 +76,15 @@ export function ZakatPaymentHistoryScreen() {
       paidAtIso: editDay,
       note: editNote,
     });
-    if (!res.ok) Alert.alert('Error', res.error);
+    if (!res.ok) AppAlert.show('Error', res.error, undefined, { variant: 'destructive' });
     else setEditing(null);
   };
 
   const confirmDelete = (p: ZakatPayment) => {
-    Alert.alert('Delete payment?', 'This cannot be undone.', [
+    AppAlert.show('Delete payment?', 'This cannot be undone.', [
       { text: 'Cancel', style: 'cancel' },
       { text: 'Delete', style: 'destructive', onPress: () => void deletePayment(p.id, uid) },
-    ]);
+    ], { variant: 'destructive' });
   };
 
   return (

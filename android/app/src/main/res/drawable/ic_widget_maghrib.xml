@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Sunset icon for Maghrib -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="20dp"
+    android:height="20dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Half sun -->
+    <path
+        android:fillColor="#003527"
+        android:pathData="M12,14a4,4 0,0 0,4 -4a4,4 0,0 0,-8 0a4,4 0,0 0,4 4z" />
+    <!-- Horizon line and rays -->
+    <path
+        android:strokeColor="#003527"
+        android:strokeWidth="1.8"
+        android:strokeLineCap="round"
+        android:pathData="M3,17L21,17M12,3L12,5.5M5.3,7.3L7.1,9.1M18.7,7.3L16.9,9.1" />
+</vector>

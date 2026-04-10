@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/widget_card_bg"
+    android:padding="14dp">
+
+    <!-- Title row -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="6dp">
+
+        <TextView
+            android:id="@+id/flow_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Daily Flow"
+            android:textColor="#003527"
+            android:textSize="16sp"
+            android:textStyle="bold|italic"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/flow_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textColor="#66003527"
+            android:textSize="12sp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true" />
+    </RelativeLayout>
+
+    <!-- Status line: shows "Now: Asr" or "Makruh time" etc. -->
+    <TextView
+        android:id="@+id/flow_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text=""
+        android:textColor="#003527"
+        android:textSize="12sp"
+        android:textStyle="bold" />
+
+    <!-- 5 prayer cards in a row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:baselineAligned="false">
+
+        <!-- Fajr -->
+        <LinearLayout
+            android:id="@+id/flow_item_fajr"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_flow_item_bg"
+            android:padding="8dp"
+            android:layout_marginRight="4dp">
+
+            <ImageView
+                android:id="@+id/flow_icon_fajr"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_widget_fajr"
+                android:contentDescription="Fajr" />
+
+            <TextView
+                android:id="@+id/flow_name_fajr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="FAJR"
+                android:textColor="#003527"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/flow_time_fajr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="--"
+                android:textColor="#88003527"
+                android:textSize="9sp" />
+        </LinearLayout>
+
+        <!-- Dhuhr -->
+        <LinearLayout
+            android:id="@+id/flow_item_dhuhr"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_flow_item_bg"
+            android:padding="8dp"
+            android:layout_marginRight="4dp">
+
+            <ImageView
+                android:id="@+id/flow_icon_dhuhr"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_widget_sun"
+                android:contentDescription="Dhuhr" />
+
+            <TextView
+                android:id="@+id/flow_name_dhuhr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="DHUHR"
+                android:textColor="#003527"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/flow_time_dhuhr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="--"
+                android:textColor="#88003527"
+                android:textSize="9sp" />
+        </LinearLayout>
+
+        <!-- Asr -->
+        <LinearLayout
+            android:id="@+id/flow_item_asr"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_flow_item_bg"
+            android:padding="8dp"
+            android:layout_marginRight="4dp">
+
+            <ImageView
+                android:id="@+id/flow_icon_asr"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_widget_sun"
+                android:contentDescription="Asr" />
+
+            <TextView
+                android:id="@+id/flow_name_asr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="ASR"
+                android:textColor="#003527"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/flow_time_asr"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="--"
+                android:textColor="#88003527"
+                android:textSize="9sp" />
+        </LinearLayout>
+
+        <!-- Maghrib -->
+        <LinearLayout
+            android:id="@+id/flow_item_maghrib"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_flow_item_bg"
+            android:padding="8dp"
+            android:layout_marginRight="4dp">
+
+            <ImageView
+                android:id="@+id/flow_icon_maghrib"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_widget_maghrib"
+                android:contentDescription="Maghrib" />
+
+            <TextView
+                android:id="@+id/flow_name_maghrib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="MAGHRIB"
+                android:textColor="#003527"
+                android:textSize="7sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/flow_time_maghrib"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="--"
+                android:textColor="#88003527"
+                android:textSize="9sp" />
+        </LinearLayout>
+
+        <!-- Isha -->
+        <LinearLayout
+            android:id="@+id/flow_item_isha"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/widget_flow_item_bg"
+            android:padding="8dp">
+
+            <ImageView
+                android:id="@+id/flow_icon_isha"
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/ic_widget_moon"
+                android:contentDescription="Isha" />
+
+            <TextView
+                android:id="@+id/flow_name_isha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="ISHA"
+                android:textColor="#003527"
+                android:textSize="8sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/flow_time_isha"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="--"
+                android:textColor="#88003527"
+                android:textSize="9sp" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Bottom branding -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:gravity="center"
+        android:text="Sazda"
+        android:textColor="#40003527"
+        android:textSize="9sp" />
+</LinearLayout>

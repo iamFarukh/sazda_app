@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Pressable,
@@ -8,15 +8,28 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ArrowRight, BookOpen, Bookmark, Lightbulb, Search } from 'lucide-react-native';
+import {
+  ArrowRight,
+  BookOpen,
+  Bookmark,
+  CloudDownload,
+  Lightbulb,
+  BookText,
+  Search,
+} from 'lucide-react-native';
 import { TabLandingHeader } from '../../components/organisms/TabLandingHeader';
 import { TextInput } from '../../components/atoms/TextInput/TextInput';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import { fetchAllSurahs, type QuranApiSurah } from '../../services/quranApi';
 import type { QuranStackParamList } from '../../navigation/types';
 import { useQuranProgressStore } from '../../store/quranProgressStore';
+import {
+  scheduleOfflineQuranBootstrapIfNeeded,
+  useOfflineQuranDownloadStore,
+} from '../../store/offlineQuranDownloadStore';
+import { useMushafReaderStore } from '../../store/mushafReaderStore';
 import { radius } from '../../theme/radius';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
@@ -35,6 +48,20 @@ export function QuranHomeScreen() {
   const [query, setQuery] = useState('');
   const lastRead = useQuranProgressStore(s => s.lastRead);
   const recentSurahs = useQuranProgressStore(s => s.recentSurahs);
+
+  const odBootstrap = useOfflineQuranDownloadStore(s => s.bootstrap);
+  const odJob = useOfflineQuranDownloadStore(s => s.job);
+  const odProgress = useOfflineQuranDownloadStore(s => s.progress01);
+  const odStatus = useOfflineQuranDownloadStore(s => s.statusLine);
+  const odCompleted = useOfflineQuranDownloadStore(s => s.surahsCompleted);
+  const mushafLastPage = useMushafReaderStore(s => s.lastReadPage);
+
+  useFocusEffect(
+    useCallback(() => {
+      void odBootstrap();
+      scheduleOfflineQuranBootstrapIfNeeded();
+    }, [odBootstrap]),
+  );
 
   const { data: surahs, isPending, isError, refetch } = useQuery({
     queryKey: ['quran', 'surahs'],
@@ -72,23 +99,48 @@ export function QuranHomeScreen() {
 
   const lastReadMeta = lastRead ? surahByNumber.get(lastRead.surahNumber) : undefined;
 
+  const showOfflinePrep =
+    (odJob === 'running' || odJob === 'paused') && odCompleted < 114 && odProgress < 0.999;
+  const offlinePct = Math.round(Math.min(100, Math.max(0, odProgress * 100)));
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled">
-        <TabLandingHeader />
+        <TabLandingHeader denseBottom />
 
-        <TextInput
-          value={query}
-          onChangeText={setQuery}
-          placeholder="Search Surah, Juz, or Ayah..."
-          returnKeyType="search"
-          onSubmitEditing={openList}
-          left={<Search size={22} color={c.outline} strokeWidth={2} />}
-          containerStyle={styles.searchInput}
-        />
+        <View style={styles.searchWrap}>
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search Surah, Juz, or Ayah..."
+            returnKeyType="search"
+            onSubmitEditing={openList}
+            density="compact"
+            left={<Search size={20} color={c.outline} strokeWidth={2} />}
+          />
+        </View>
+
+        {showOfflinePrep ? (
+          <View style={styles.offlineBanner} accessibilityRole="progressbar">
+            <View style={styles.offlineBannerTop}>
+              <CloudDownload size={20} color={c.primary} strokeWidth={2} />
+              <SazdaText variant="bodyMedium" color="primary" style={styles.offlineBannerText}>
+                Preparing Quran for offline use… {offlinePct}%
+              </SazdaText>
+            </View>
+            {odStatus ? (
+              <SazdaText variant="caption" color="onSurfaceVariant" numberOfLines={1}>
+                {odStatus}
+              </SazdaText>
+            ) : null}
+            <View style={styles.offlineTrack}>
+              <View style={[styles.offlineFill, { width: `${offlinePct}%` }]} />
+            </View>
+          </View>
+        ) : null}
 
         {isPending ? (
           <ActivityIndicator style={styles.loader} color={c.primary} />
@@ -218,6 +270,27 @@ export function QuranHomeScreen() {
           </SazdaText>
         </Pressable>
 
+        <Pressable
+          onPress={() => navigation.navigate('MushafReader', {})}
+          style={({ pressed }) => [styles.mushafHero, pressed && styles.pressed]}>
+          <View style={styles.mushafHeroGlow} pointerEvents="none" />
+          <View style={styles.mushafHeroRow}>
+            <View style={styles.mushafIconWrap}>
+              <BookText size={26} color={c.onPrimaryContainer} strokeWidth={2.2} />
+            </View>
+            <View style={styles.mushafHeroText}>
+              <SazdaText variant="titleSm" color="onPrimaryContainer" style={styles.mushafHeroTitle}>
+                Mushaf Mode
+              </SazdaText>
+              <SazdaText variant="caption" color="onPrimaryContainer" style={styles.mushafHeroSub}>
+                Page-by-page reading · 604 pages
+                {mushafLastPage ? ` · Last page ${mushafLastPage}` : ''}
+              </SazdaText>
+            </View>
+            <ArrowRight size={22} color={c.secondary} strokeWidth={2.5} />
+          </View>
+        </Pressable>
+
         {/* Bento */}
         <View style={styles.bentoRow}>
           <Pressable
@@ -282,11 +355,31 @@ function createQuranHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
   scroll: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.x3xl + spacing.xl,
-    gap: spacing.xl,
+    gap: spacing.lg,
   },
-  searchInput: {
-    minHeight: 52,
-    borderRadius: radius.md + 8,
+  searchWrap: {
+    marginTop: -spacing.xxs,
+  },
+  offlineBanner: {
+    backgroundColor: scheme === 'dark' ? 'rgba(142,207,178,0.12)' : 'rgba(142, 207, 178, 0.28)',
+    borderRadius: radius.md + 6,
+    padding: spacing.md,
+    gap: spacing.sm,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,53,39,0.12)',
+  },
+  offlineBannerTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  offlineBannerText: { flex: 1, fontWeight: '600' },
+  offlineTrack: {
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(0,53,39,0.12)',
+    overflow: 'hidden',
+  },
+  offlineFill: {
+    height: '100%',
+    borderRadius: 2,
+    backgroundColor: c.primary,
   },
   loader: { marginVertical: spacing.lg },
   errorBox: { padding: spacing.lg },
@@ -420,6 +513,40 @@ function createQuranHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
     alignSelf: 'center',
     paddingVertical: spacing.xs,
   },
+  mushafHero: {
+    borderRadius: radius.xl,
+    overflow: 'hidden',
+    backgroundColor: c.primaryContainer,
+    padding: spacing.lg,
+    borderWidth: 1,
+    borderColor: scheme === 'dark' ? 'rgba(11,81,63,0.5)' : 'rgba(6,78,59,0.2)',
+    shadowColor: 'rgba(6, 78, 59, 0.2)',
+    shadowOpacity: 1,
+    shadowRadius: 20,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 6,
+  },
+  mushafHeroGlow: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: c.secondary,
+    opacity: 0.08,
+  },
+  mushafHeroRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
+  },
+  mushafIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: radius.md + 4,
+    backgroundColor: 'rgba(0,0,0,0.15)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  mushafHeroText: { flex: 1, minWidth: 0 },
+  mushafHeroTitle: { fontWeight: '800', letterSpacing: 0.2 },
+  mushafHeroSub: { marginTop: 4, opacity: 0.92, lineHeight: 18 },
 });
 }
 

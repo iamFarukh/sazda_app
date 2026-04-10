@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -18,6 +18,7 @@ import { spacing } from '../../theme/spacing';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
 import { useThemePalette } from '../../theme/useThemePalette';
+import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
 
 type Nav = NativeStackNavigationProp<ToolsStackParamList, 'ZakatCalculator'>;
 
@@ -37,15 +38,15 @@ export function ZakatCalculatorScreen() {
 
   const applyToCycle = () => {
     if (!activeCycleId || !cyclesById[activeCycleId]) {
-      Alert.alert('No active cycle', 'Open Zakat from Tools and pick a cycle first.');
+      AppAlert.show('No active cycle', 'Open Zakat from Tools and pick a cycle first.', undefined, { variant: 'info' });
       return;
     }
     if (zakatPaise == null || zakatPaise < 0) {
-      Alert.alert('Enter wealth', 'Enter a valid zakatable amount in ₹.');
+      AppAlert.show('Enter wealth', 'Enter a valid zakatable amount in ₹.', undefined, { variant: 'info' });
       return;
     }
     const cid = activeCycleId;
-    Alert.alert(
+    AppAlert.show(
       'Update zakat for this cycle?',
       `Set obligation to ${formatInrPaise(zakatPaise)} (2.5% of ${formatInrPaise(wealthPaise!)}). Past payments stay the same; remaining balance updates automatically.`,
       [
@@ -61,6 +62,7 @@ export function ZakatCalculatorScreen() {
           },
         },
       ],
+      { variant: 'confirmation' }
     );
   };
 

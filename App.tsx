@@ -7,6 +7,7 @@ import { AppProviders } from './src/app/AppProviders';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { useThemePalette } from './src/theme/useThemePalette';
 import { AnimatedSplashScreen } from './src/components/AnimatedSplashScreen';
+import { AppAlertManager } from './src/components/organisms/AppAlert/AppAlertManager';
 
 function ThemedStatusBar() {
   const { scheme } = useThemePalette();
@@ -20,6 +21,7 @@ function AppContent() {
     <View style={StyleSheet.absoluteFill}>
       <ThemedStatusBar />
       <RootNavigator />
+      <AppAlertManager />
       {!isAppReady && (
         <View style={[StyleSheet.absoluteFill, { zIndex: 9999, elevation: 9999 }]}>
           <AnimatedSplashScreen onAnimationEnd={() => setIsAppReady(true)} />

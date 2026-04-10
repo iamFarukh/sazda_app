@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View, Pressable, Alert } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import DocumentPicker from 'react-native-document-picker';
@@ -11,6 +11,7 @@ import { spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
 import { useAdhanSettingsStore } from '../../store/adhanSettingsStore';
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
+import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
 
 export function CustomSoundUploadScreen() {
   const navigation = useNavigation();
@@ -32,9 +33,8 @@ export function CustomSoundUploadScreen() {
 
       if (!res.uri || !res.name) return;
       
-      // Basic size limit check ~ 5MB
       if (res.size && res.size > 5 * 1024 * 1024) {
-        Alert.alert('File too large', 'Please select an audio file smaller than 5MB.');
+        AppAlert.show('File too large', 'Please select an audio file smaller than 5MB.', undefined, { variant: 'info' });
         return;
       }
 
@@ -56,7 +56,7 @@ export function CustomSoundUploadScreen() {
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
         console.error('DocumentPicker error:', err);
-        Alert.alert('Upload Failed', 'There was an error accessing the audio file.');
+        AppAlert.show('Upload Failed', 'There was an error accessing the audio file.', undefined, { variant: 'destructive' });
       }
     } finally {
       setIsUploading(false);
@@ -67,7 +67,7 @@ export function CustomSoundUploadScreen() {
     // Check if the sound is currenly in use by any prayer
     const inUseBy = Object.entries(byPrayer).filter(([prayer, settings]) => settings.soundId === id);
     if (inUseBy.length > 0) {
-      Alert.alert(
+      AppAlert.show(
         'Sound in Use',
         `This sound is currently active for ${inUseBy.map(x => x[0]).join(', ')}. Removing it will reset them to default. Continue?`,
         [
@@ -77,7 +77,8 @@ export function CustomSoundUploadScreen() {
             style: 'destructive',
             onPress: () => performDelete(id, uri)
           }
-        ]
+        ],
+        { variant: 'confirmation' }
       );
     } else {
       performDelete(id, uri);

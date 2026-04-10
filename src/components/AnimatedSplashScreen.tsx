@@ -98,6 +98,11 @@ export function AnimatedSplashScreen({ onAnimationEnd }: Props) {
         <Text style={[styles.title, { color: logoColor }]}>Sazda</Text>
         <Text style={[styles.tagline, { color: logoColor }]}>{splash.message}</Text>
         <View style={[styles.divider, { backgroundColor: `${logoColor}40` }]} />
+        
+        <View style={styles.brandingContainer}>
+          <Text style={[styles.developedBy, { color: logoColor }]}>App developed by</Text>
+          <Text style={[styles.developerName, { color: logoColor }]}>farukhchenda</Text>
+        </View>
       </Animated.View>
 
       <Animated.View style={[styles.loadingContainer, animatedStyle]}>
@@ -164,5 +169,22 @@ const styles = StyleSheet.create({
     width: 6,
     height: 6,
     borderRadius: 3,
+  },
+  brandingContainer: {
+    marginTop: 24,
+    alignItems: 'center',
+  },
+  developedBy: {
+    fontFamily: 'Plus Jakarta Sans',
+    fontSize: 12,
+    fontWeight: '500',
+    opacity: 0.7,
+  },
+  developerName: {
+    fontFamily: 'Plus Jakarta Sans',
+    fontSize: 15,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+    marginTop: 2,
   },
 });

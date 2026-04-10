@@ -12,6 +12,7 @@ import { FIVE_DAILY_PRAYERS, type FiveDailyPrayer } from '../store/prayerTracker
 import { formatHhmmTo12h } from '../utils/prayerTimesDisplay';
 import { useAdhanSettingsStore } from '../store/adhanSettingsStore';
 import { usePrayerReminderStore } from '../store/prayerReminderStore';
+import { usePrayerTrackerStore } from '../store/prayerTrackerStore';
 import type { PrayerTimingsDay } from './prayerTimesApi';
 import {
   showAndroidCustomPrayerNotification,
@@ -19,15 +20,16 @@ import {
 } from '../native/sazdaCustomNotificationAndroid';
 import { getIOSNotificationSoundFilename } from '../constants/adhanBuiltInSounds';
 import type { CustomSound } from '../store/adhanSettingsStore';
+import { ensureGeneralNotificationChannel } from './notifications/channels';
 
-/** Fires at salah − 10m when pre-reminder is on (prepare / adhan-style heads-up). */
-function notificationIdLead(prayer: FiveDailyPrayer): string {
+/** Adhan audio — fires after prayer time + configured delay. */
+function notificationIdAdhan(prayer: FiveDailyPrayer): string {
   return `sazda-adhan-${prayer}`;
 }
 
-/** Fires at exact salah when pre-reminder is on; unused when pre-reminder is off. */
-function notificationIdAtSalah(prayer: FiveDailyPrayer): string {
-  return `sazda-salah-${prayer}`;
+/** System default sound — fires after Adhan + reminder delay, only if not marked prayed (reschedule drops when done). */
+function notificationIdFollowUp(prayer: FiveDailyPrayer): string {
+  return `sazda-adhan-followup-${prayer}`;
 }
 
 function buildIosSoundForAdhan(
@@ -37,28 +39,40 @@ function buildIosSoundForAdhan(
 ): string | undefined {
   if (volumeMode === 'SILENT') return undefined;
   if (soundId === 'default') return 'default';
-  const customSound = customSounds.find((c) => c.id === soundId);
+  const customSound = customSounds.find(c => c.id === soundId);
   if (customSound?.uri) {
     return customSound.uri.split('/').pop() || 'default';
   }
   return getIOSNotificationSoundFilename(soundId) ?? 'default';
 }
 
-/** Copy aligned with Stitch notification preview (meta, headline, body). */
-export function buildSazdaNotificationCopy(
+/** Adhan notification copy (custom Adhan sound only). */
+export function buildAdhanNotificationCopy(
   prayer: FiveDailyPrayer,
   timingsHhmm: string,
-  preReminderEnabled: boolean,
+  adhanDelayMinutes: number,
 ): { meta: string; headline: string; detail: string } {
   const atLabel = formatHhmmTo12h(timingsHhmm);
-  const meta = preReminderEnabled ? 'SAZDA • REMINDER' : 'SAZDA • NOW';
-  const headline = preReminderEnabled
-    ? `${prayer} in 10 minutes`
-    : `${prayer} Time - ${atLabel}`;
-  const detail = preReminderEnabled
-    ? `Prepare for your prayer. Begins at ${atLabel}.`
-    : `It is time for ${prayer} prayer.`;
+  const meta = 'SAZDA • ADHAN';
+  const headline = `${prayer}`;
+  const detail =
+    adhanDelayMinutes === 0
+      ? `Prayer time begins at ${atLabel}.`
+      : `${adhanDelayMinutes} min after prayer began (${atLabel}).`;
   return { meta, headline, detail };
+}
+
+/** Follow-up reminder — system default sound only. */
+export function buildFollowUpNotificationCopy(prayer: FiveDailyPrayer): {
+  meta: string;
+  headline: string;
+  detail: string;
+} {
+  return {
+    meta: 'SAZDA • REMINDER',
+    headline: `Still time for ${prayer}`,
+    detail: 'If you have not prayed yet, this is a gentle reminder.',
+  };
 }
 
 function adhanAndroidStyle(meta: string, headline: string, detail: string) {
@@ -84,8 +98,15 @@ export async function requestNotificationPermission(): Promise<boolean> {
   );
 }
 
-// Android channel generation based on sound and volume mode
-async function getOrCreateChannel(soundId: string, volumeMode: 'LOUD' | 'SOFT' | 'SILENT', vibrationEnabled: boolean): Promise<string> {
+/**
+ * Adhan / prayer-time notifications ONLY. Custom sound + high importance.
+ * Do not use for follow-up reminders.
+ */
+export async function getOrCreateAdhanChannel(
+  soundId: string,
+  volumeMode: 'LOUD' | 'SOFT' | 'SILENT',
+  vibrationEnabled: boolean,
+): Promise<string> {
   if (Platform.OS !== 'android') return 'default';
 
   if (volumeMode === 'SILENT') {
@@ -106,7 +127,6 @@ async function getOrCreateChannel(soundId: string, volumeMode: 'LOUD' | 'SOFT' |
     return id;
   }
 
-  // New id prefix whenever raw sounds / rules change — Android channel sound cannot be updated in place.
   const id = `sazda2-adhan-${soundId}-${volumeMode.toLowerCase()}`;
   const legacyId = `sazda-adhan-${soundId}-${volumeMode.toLowerCase()}`;
   let soundPath = 'default';
@@ -114,9 +134,9 @@ async function getOrCreateChannel(soundId: string, volumeMode: 'LOUD' | 'SOFT' |
   if (soundId !== 'default') {
     const customSound = useAdhanSettingsStore.getState().customSounds.find(c => c.id === soundId);
     if (customSound && customSound.uri) {
-      soundPath = customSound.uri; // file://...
+      soundPath = customSound.uri;
     } else {
-      soundPath = soundId; // raw basename without extension, e.g. makkah, fajar, adan_tune
+      soundPath = soundId;
     }
   }
 
@@ -133,7 +153,7 @@ async function getOrCreateChannel(soundId: string, volumeMode: 'LOUD' | 'SOFT' |
     sound: soundPath,
     vibration: vibrationEnabled,
     visibility: AndroidVisibility.PUBLIC,
-    bypassDnd: volumeMode === 'LOUD', // Loud skips DND
+    bypassDnd: volumeMode === 'LOUD',
   });
 
   return id;
@@ -148,25 +168,35 @@ function parseHhMm(hhmm: string): { h: number; m: number } | null {
   return { h, m };
 }
 
-/** Next local trigger time for salah at `h:m`, shifted earlier by `subtractMs` (e.g. 10 min for pre-adhan). */
-function nextSalahTriggerMs(h: number, m: number, subtractMs: number): number {
+/** Next local occurrence of prayer clock time (today or a future day), strictly after now. */
+function nextPrayerWallTimeMs(h: number, m: number): number {
   const now = Date.now();
   const d = new Date();
   d.setHours(h, m, 0, 0);
   d.setMilliseconds(0);
-  d.setTime(d.getTime() - subtractMs);
   while (d.getTime() <= now) {
     d.setDate(d.getDate() + 1);
   }
   return d.getTime();
 }
 
+function todaysDateKeyYmd(): string {
+  const d = new Date();
+  const y = d.getFullYear();
+  const mo = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${mo}-${day}`;
+}
+
 export async function cancelAllAdhanReminders(): Promise<void> {
   for (const p of FIVE_DAILY_PRAYERS) {
     try {
-      await notifee.cancelTriggerNotification(notificationIdLead(p));
-      await notifee.cancelTriggerNotification(notificationIdAtSalah(p));
-    } catch {}
+      await notifee.cancelTriggerNotification(notificationIdAdhan(p));
+      await notifee.cancelTriggerNotification(notificationIdFollowUp(p));
+      await notifee.cancelTriggerNotification(`sazda-salah-${p}`);
+    } catch {
+      /* legacy ids */
+    }
   }
 }
 
@@ -179,7 +209,7 @@ export async function displayWelcomeContextNotification(payload: {
 }): Promise<void> {
   const state = useAdhanSettingsStore.getState();
   const nid = `sazda-welcome-context-${Date.now()}`;
-  const channelId = await getOrCreateChannel('default', 'LOUD', state.vibrationEnabled);
+  const channelId = await ensureGeneralNotificationChannel(state.vibrationEnabled);
 
   const usedNative = await showAndroidCustomPrayerNotification({
     id: nid,
@@ -212,9 +242,9 @@ export async function displayWelcomeContextNotification(payload: {
 }
 
 /**
- * Schedules daily salah alerts from API times.
- * - Pre-reminder ON: notify at salah−10m (prepare before adhan/salah), then again at exact salah.
- * - Pre-reminder OFF: single notify at exact salah only.
+ * Schedules:
+ * 1) Adhan — only after prayer time + adhanDelay (custom Adhan sound).
+ * 2) Follow-up — adhan time + reminderDelay, default sound, only if prayer not marked completed (skipped on reschedule when done).
  */
 export async function rescheduleAdhanReminders(timings: PrayerTimingsDay): Promise<void> {
   await cancelAllAdhanReminders();
@@ -222,79 +252,102 @@ export async function rescheduleAdhanReminders(timings: PrayerTimingsDay): Promi
   const state = useAdhanSettingsStore.getState();
   if (!state.masterEnabled) return;
 
-  const reminderPrefs = usePrayerReminderStore.getState().byPrayer;
+  const prStore = usePrayerReminderStore.getState();
+  const prayerEnabled = prStore.byPrayer;
+  const followUpEnabled = prStore.followUpByPrayer;
+  const reminderDelayMs = prStore.reminderDelayMinutes * 60_000;
+  const adhanDelayMs = state.adhanDelayMinutes * 60_000;
+
+  const dateKey = todaysDateKeyYmd();
 
   for (const prayer of FIVE_DAILY_PRAYERS) {
-    if (!reminderPrefs[prayer]) {
-      continue;
-    }
-    const pSettings = state.byPrayer[prayer];
+    if (!prayerEnabled[prayer]) continue;
 
     const parsed = parseHhMm(timings[prayer]);
     if (!parsed) continue;
 
-    const channelId = await getOrCreateChannel(pSettings.soundId, pSettings.volumeMode, state.vibrationEnabled);
-    const iosSound = buildIosSoundForAdhan(pSettings.volumeMode, pSettings.soundId, state.customSounds);
+    const pSettings = state.byPrayer[prayer];
+    const channelAdhan = await getOrCreateAdhanChannel(
+      pSettings.soundId,
+      pSettings.volumeMode,
+      state.vibrationEnabled,
+    );
+    const iosAdhanSound = buildIosSoundForAdhan(pSettings.volumeMode, pSettings.soundId, state.customSounds);
 
-    const scheduleOne = async (
-      id: string,
-      timestamp: number,
-      preReminderStyle: boolean,
-    ) => {
-      const { meta, headline, detail } = buildSazdaNotificationCopy(
-        prayer,
-        timings[prayer],
-        preReminderStyle,
-      );
+    const prayerStartMs = nextPrayerWallTimeMs(parsed.h, parsed.m);
+    const adhanTs = prayerStartMs + adhanDelayMs;
+
+    const { meta, headline, detail } = buildAdhanNotificationCopy(
+      prayer,
+      timings[prayer],
+      state.adhanDelayMinutes,
+    );
+
+    await notifee.createTriggerNotification(
+      {
+        id: notificationIdAdhan(prayer),
+        title: headline,
+        subtitle: meta,
+        body: detail,
+        android: {
+          channelId: channelAdhan,
+          category: AndroidCategory.ALARM,
+          pressAction: { id: 'default' },
+          style: adhanAndroidStyle(meta, headline, detail),
+        },
+        ios: {
+          ...(iosAdhanSound ? { sound: iosAdhanSound } : {}),
+          interruptionLevel: pSettings.volumeMode === 'LOUD' ? 'timeSensitive' : 'active',
+        },
+      },
+      {
+        type: TriggerType.TIMESTAMP,
+        timestamp: adhanTs,
+        repeatFrequency: RepeatFrequency.DAILY,
+      },
+    );
+
+    const completed = usePrayerTrackerStore.getState().byDay[dateKey]?.[prayer] === 'prayed';
+    if (followUpEnabled[prayer] && !completed) {
+      const followUpTs = adhanTs + reminderDelayMs;
+      const generalChannel = await ensureGeneralNotificationChannel(state.vibrationEnabled);
+      const f = buildFollowUpNotificationCopy(prayer);
+
       await notifee.createTriggerNotification(
         {
-          id,
-          title: headline,
-          subtitle: meta,
-          body: detail,
+          id: notificationIdFollowUp(prayer),
+          title: f.headline,
+          subtitle: f.meta,
+          body: f.detail,
           android: {
-            channelId,
-            category: AndroidCategory.ALARM,
+            channelId: generalChannel,
+            category: AndroidCategory.REMINDER,
             pressAction: { id: 'default' },
-            style: adhanAndroidStyle(meta, headline, detail),
+            style: adhanAndroidStyle(f.meta, f.headline, f.detail),
           },
           ios: {
-            ...(iosSound ? { sound: iosSound } : {}),
-            interruptionLevel: pSettings.volumeMode === 'LOUD' ? 'timeSensitive' : 'active',
+            sound: 'default',
+            interruptionLevel: 'active',
           },
         },
         {
           type: TriggerType.TIMESTAMP,
-          timestamp,
+          timestamp: followUpTs,
           repeatFrequency: RepeatFrequency.DAILY,
         },
       );
-    };
-
-    if (state.preReminderEnabled) {
-      const leadTs = nextSalahTriggerMs(parsed.h, parsed.m, 10 * 60_000);
-      const atTs = nextSalahTriggerMs(parsed.h, parsed.m, 0);
-      await scheduleOne(notificationIdLead(prayer), leadTs, true);
-      await scheduleOne(notificationIdAtSalah(prayer), atTs, false);
-    } else {
-      const atTs = nextSalahTriggerMs(parsed.h, parsed.m, 0);
-      await scheduleOne(notificationIdLead(prayer), atTs, false);
     }
   }
 }
 
-/** Immediate on-screen test (same channels/sounds as real alerts). */
-export async function sendTestAdhanNotification(
-  prayer: FiveDailyPrayer = 'Fajr',
-  kind: 'lead' | 'atSalah' = 'lead',
-): Promise<void> {
+/** Immediate on-screen test (Adhan channel + sound only). */
+export async function sendTestAdhanNotification(prayer: FiveDailyPrayer = 'Fajr'): Promise<void> {
   const state = useAdhanSettingsStore.getState();
   const pSettings = state.byPrayer[prayer];
   const sampleTime = '05:30';
-  const preStyle = kind === 'lead';
-  const { meta, headline, detail } = buildSazdaNotificationCopy(prayer, sampleTime, preStyle);
+  const { meta, headline, detail } = buildAdhanNotificationCopy(prayer, sampleTime, state.adhanDelayMinutes);
 
-  const channelId = await getOrCreateChannel(pSettings.soundId, pSettings.volumeMode, state.vibrationEnabled);
+  const channelId = await getOrCreateAdhanChannel(pSettings.soundId, pSettings.volumeMode, state.vibrationEnabled);
   const iosSound = buildIosSoundForAdhan(pSettings.volumeMode, pSettings.soundId, state.customSounds);
 
   const usedNative = await showAndroidCustomPrayerNotification({
@@ -327,19 +380,14 @@ export async function sendTestAdhanNotification(
   });
 }
 
-/** One-off scheduled notification in `seconds` (no repeat) — good for device testing. */
-export async function scheduleTestAdhanInSeconds(
-  secondsFromNow: number,
-  prayer: FiveDailyPrayer = 'Fajr',
-  kind: 'lead' | 'atSalah' = 'atSalah',
-): Promise<void> {
+/** One-off scheduled Adhan test in `seconds` (no repeat). */
+export async function scheduleTestAdhanInSeconds(secondsFromNow: number, prayer: FiveDailyPrayer = 'Fajr'): Promise<void> {
   const state = useAdhanSettingsStore.getState();
   const pSettings = state.byPrayer[prayer];
   const sampleTime = '05:30';
-  const preStyle = kind === 'lead';
-  const { meta, headline, detail } = buildSazdaNotificationCopy(prayer, sampleTime, preStyle);
+  const { meta, headline, detail } = buildAdhanNotificationCopy(prayer, sampleTime, state.adhanDelayMinutes);
 
-  const channelId = await getOrCreateChannel(pSettings.soundId, pSettings.volumeMode, state.vibrationEnabled);
+  const channelId = await getOrCreateAdhanChannel(pSettings.soundId, pSettings.volumeMode, state.vibrationEnabled);
   const iosSound = buildIosSoundForAdhan(pSettings.volumeMode, pSettings.soundId, state.customSounds);
   const id = `sazda-test-trigger-${Date.now()}`;
 

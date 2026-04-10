@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -9,15 +9,20 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useFocusEffect, useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
-import { ArrowLeft, Bookmark, Search } from 'lucide-react-native';
+import { ArrowLeft, Bookmark, CheckCircle2, CloudDownload, Search } from 'lucide-react-native';
 import { TextInput } from '../../components/atoms/TextInput/TextInput';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import { JUZ_START } from '../../data/juzBoundaries';
 import type { QuranStackParamList } from '../../navigation/types';
 import { fetchAllSurahs, type QuranApiSurah } from '../../services/quranApi';
+import { isSurahFullyOffline, readManifest } from '../../services/offlineQuran/manifest';
+import {
+  scheduleOfflineQuranBootstrapIfNeeded,
+  useOfflineQuranDownloadStore,
+} from '../../store/offlineQuranDownloadStore';
 import { useQuranProgressStore } from '../../store/quranProgressStore';
 import { radius } from '../../theme/radius';
 import type { AppPalette } from '../../theme/useThemePalette';
@@ -44,6 +49,29 @@ export function SurahListScreen() {
 
   const bookmarks = useQuranProgressStore(s => s.bookmarks);
   const lastRead = useQuranProgressStore(s => s.lastRead);
+
+  const odBootstrap = useOfflineQuranDownloadStore(s => s.bootstrap);
+  const odJob = useOfflineQuranDownloadStore(s => s.job);
+  const odProgress = useOfflineQuranDownloadStore(s => s.progress01);
+  const odStatus = useOfflineQuranDownloadStore(s => s.statusLine);
+  const odCompleted = useOfflineQuranDownloadStore(s => s.surahsCompleted);
+  const odQueue = useOfflineQuranDownloadStore(s => s.queue);
+  const odCurrent = useOfflineQuranDownloadStore(s => s.currentSurah);
+
+  const { data: manifest, refetch: refetchManifest } = useQuery({
+    queryKey: ['offlineQuran', 'manifest'],
+    queryFn: readManifest,
+    staleTime: 2000,
+    refetchInterval: odJob === 'running' ? 1200 : false,
+  });
+
+  useFocusEffect(
+    useCallback(() => {
+      void odBootstrap();
+      void refetchManifest();
+      scheduleOfflineQuranBootstrapIfNeeded();
+    }, [odBootstrap, refetchManifest]),
+  );
 
   useEffect(() => {
     if (route.params?.initialTab) setTab(route.params.initialTab);
@@ -79,14 +107,33 @@ export function SurahListScreen() {
     navigation.navigate('SurahReader', { surahNumber, ayahNumber });
   };
 
+  const showOfflinePrep =
+    tab === 'surah' &&
+    (odJob === 'running' || odJob === 'paused') &&
+    odCompleted < 114 &&
+    odProgress < 0.999;
+  const offlinePct = Math.round(Math.min(100, Math.max(0, odProgress * 100)));
+
   const renderSurahRow = ({ item: s }: { item: QuranApiSurah }) => {
     const bookmarked = bookmarks.some(b => b.surahNumber === s.number);
+    const offlineReady = isSurahFullyOffline(manifest ?? null, s.number);
+    const isDownloading = odJob === 'running' && odCurrent === s.number;
+    const inQueue = odQueue.includes(s.number) && !offlineReady;
     return (
       <Pressable
         onPress={() => openReader(s.number, 1)}
-        style={({ pressed }) => [styles.surahCard, pressed && styles.pressed]}>
+        style={({ pressed }) => [
+          styles.surahCard,
+          pressed && styles.pressed,
+          inQueue && !isDownloading ? styles.surahQueued : null,
+        ]}>
         <View style={styles.diamondWrap}>
           <View style={styles.diamond} />
+          {offlineReady ? (
+            <View style={styles.offlineBadge} accessibilityLabel="Available offline">
+              <CheckCircle2 size={14} color={c.onPrimary} strokeWidth={2.5} />
+            </View>
+          ) : null}
           <SazdaText variant="titleSm" color="primary" style={styles.diamondNum}>
             {s.number}
           </SazdaText>
@@ -102,9 +149,16 @@ export function SurahListScreen() {
             {s.englishNameTranslation.toUpperCase()} • {s.numberOfAyahs} Verses
           </SazdaText>
         </View>
-        <SazdaText variant="headlineMedium" color="secondary" style={styles.surahAr} rtl numberOfLines={1}>
-          {shortArabic(s.name)}
-        </SazdaText>
+        <View style={styles.surahRight}>
+          {isDownloading ? (
+            <ActivityIndicator size="small" color={c.primary} />
+          ) : inQueue ? (
+            <CloudDownload size={22} color={c.outline} strokeWidth={2} />
+          ) : null}
+          <SazdaText variant="headlineMedium" color="secondary" style={styles.surahAr} rtl numberOfLines={1}>
+            {shortArabic(s.name)}
+          </SazdaText>
+        </View>
       </Pressable>
     );
   };
@@ -167,6 +221,30 @@ export function SurahListScreen() {
               renderItem={renderSurahRow}
               contentContainerStyle={styles.listContent}
               showsVerticalScrollIndicator={false}
+              initialNumToRender={14}
+              maxToRenderPerBatch={12}
+              windowSize={7}
+              extraData={{ manifest, odJob, odCurrent, odQueue }}
+              ListHeaderComponent={
+                showOfflinePrep ? (
+                  <View style={styles.offlineBanner}>
+                    <View style={styles.offlineBannerTop}>
+                      <CloudDownload size={20} color={c.primary} strokeWidth={2} />
+                      <SazdaText variant="bodyMedium" color="primary" style={styles.offlineBannerText}>
+                        Preparing Quran for offline use… {offlinePct}%
+                      </SazdaText>
+                    </View>
+                    {odStatus ? (
+                      <SazdaText variant="caption" color="onSurfaceVariant" numberOfLines={2}>
+                        {odStatus}
+                      </SazdaText>
+                    ) : null}
+                    <View style={styles.offlineTrack}>
+                      <View style={[styles.offlineFill, { width: `${offlinePct}%` }]} />
+                    </View>
+                  </View>
+                ) : null
+              }
               ListFooterComponent={
                 lastRead ? (
                   <View style={styles.resumeBanner}>
@@ -251,7 +329,7 @@ function shortArabic(fullName: string) {
   return p.length > 1 ? p[p.length - 1] : fullName;
 }
 
-function createSurahListStyles(c: AppPalette, _scheme: ResolvedScheme) {
+function createSurahListStyles(c: AppPalette, scheme: ResolvedScheme) {
   return StyleSheet.create({
   safe: { flex: 1, backgroundColor: c.surface },
   headerBlock: {
@@ -340,6 +418,49 @@ function createSurahListStyles(c: AppPalette, _scheme: ResolvedScheme) {
     height: 48,
     alignItems: 'center',
     justifyContent: 'center',
+    position: 'relative',
+  },
+  offlineBadge: {
+    position: 'absolute',
+    top: -2,
+    left: -2,
+    zIndex: 2,
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    backgroundColor: c.primary,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  surahRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+    maxWidth: '44%',
+    justifyContent: 'flex-end',
+  },
+  surahQueued: { opacity: 0.78 },
+  offlineBanner: {
+    marginBottom: spacing.md,
+    backgroundColor: scheme === 'dark' ? 'rgba(142,207,178,0.12)' : 'rgba(142, 207, 178, 0.28)',
+    borderRadius: radius.md + 6,
+    padding: spacing.md,
+    gap: spacing.sm,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: 'rgba(0,53,39,0.12)',
+  },
+  offlineBannerTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  offlineBannerText: { flex: 1, fontWeight: '600' },
+  offlineTrack: {
+    height: 4,
+    borderRadius: 2,
+    backgroundColor: 'rgba(0,53,39,0.12)',
+    overflow: 'hidden',
+  },
+  offlineFill: {
+    height: '100%',
+    borderRadius: 2,
+    backgroundColor: c.primary,
   },
   diamond: {
     position: 'absolute',

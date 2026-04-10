@@ -2,8 +2,11 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   Pressable,
+  StatusBar,
   StyleSheet,
+  Text,
   View,
   type ViewToken,
 } from 'react-native';
@@ -12,18 +15,26 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
-import { ArrowLeft, BookOpen, Bookmark, Languages, Volume2 } from 'lucide-react-native';
+import {
+  ArrowLeft,
+  BookOpen,
+  Bookmark,
+  ChevronDown,
+  ChevronUp,
+  Languages,
+  Settings,
+  Volume2,
+} from 'lucide-react-native';
 import { QuranAudioBar } from '../../components/molecules/QuranAudioBar/QuranAudioBar';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import type { QuranStackParamList } from '../../navigation/types';
 import { OFFLINE_QURAN_VERSION } from '../../services/offlineQuran/constants';
 import { loadSurahReaderDataOfflineFirst } from '../../services/offlineQuran/reader';
 import type { AyahReaderRow } from '../../services/quranApi';
+import { getSurahReaderColors, type SurahReaderColors } from '../../services/quran/surahReaderAppearance';
+import type { MushafTheme } from '../../services/mushaf/mushafTheme';
 import { useQuranProgressStore } from '../../store/quranProgressStore';
 import { radius } from '../../theme/radius';
-import type { AppPalette } from '../../theme/useThemePalette';
-import type { ResolvedScheme } from '../../theme/useThemePalette';
-import { useThemePalette } from '../../theme/useThemePalette';
 import { spacing } from '../../theme/spacing';
 
 type Nav = NativeStackNavigationProp<QuranStackParamList, 'SurahReader'>;
@@ -31,7 +42,11 @@ type R = RouteProp<QuranStackParamList, 'SurahReader'>;
 
 const VIEW_CFG = { itemVisiblePercentThreshold: 55, minimumViewTime: 180 } as const;
 
-function createReaderStyles(c: AppPalette, _scheme: ResolvedScheme) {
+function createReaderStyles(c: SurahReaderColors, fontScale: number) {
+  const arabic = 22 * fontScale;
+  const trans = 15 * fontScale;
+  const badgeNum = Math.max(10, Math.round(11 * fontScale));
+
   return StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.surface },
     header: {
@@ -41,11 +56,13 @@ function createReaderStyles(c: AppPalette, _scheme: ResolvedScheme) {
       paddingVertical: spacing.sm,
       gap: spacing.sm,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: 'rgba(0,53,39,0.08)',
+      borderBottomColor: c.headerBorder,
     },
     backHit: { width: 44, height: 44, justifyContent: 'center' },
     headerTitle: { flex: 1, minWidth: 0 },
+    headerActions: { flexDirection: 'row', alignItems: 'center', gap: 2 },
     langHit: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
+    settingsHit: { width: 44, height: 44, justifyContent: 'center', alignItems: 'center' },
     loader: { marginTop: spacing.x3xl },
     errorBox: { padding: spacing.xl },
     listWrap: { flex: 1 },
@@ -61,7 +78,7 @@ function createReaderStyles(c: AppPalette, _scheme: ResolvedScheme) {
       gap: spacing.sm,
       paddingVertical: spacing.md,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: 'rgba(191, 201, 195, 0.35)',
+      borderBottomColor: c.ayahSeparator,
     },
     ayahBadge: {
       minWidth: 28,
@@ -72,16 +89,16 @@ function createReaderStyles(c: AppPalette, _scheme: ResolvedScheme) {
       justifyContent: 'center',
       marginTop: 4,
     },
-    ayahNum: { fontWeight: '800', fontSize: 11 },
+    ayahNum: { fontWeight: '800', fontSize: badgeNum },
     ayahBody: { flex: 1, minWidth: 0 },
     ayahText: {
-      fontSize: 22,
-      lineHeight: 36,
+      fontSize: arabic,
+      lineHeight: arabic * 1.45,
     },
     translation: {
       marginTop: spacing.sm,
-      lineHeight: 24,
-      fontSize: 15,
+      lineHeight: trans * 1.45,
+      fontSize: trans,
     },
     actions: {
       alignItems: 'center',
@@ -105,8 +122,9 @@ type AyahRowProps = {
   item: AyahReaderRow;
   showTranslation: boolean;
   bookmarked: boolean;
-  colors: AppPalette;
+  colors: SurahReaderColors;
   styles: ReaderStyles;
+  iconSize: number;
   onPlay: (item: AyahReaderRow) => void;
   onOpenTafsir: (ayah: number) => void;
   onToggleBookmark: () => void;
@@ -118,6 +136,7 @@ const SurahReaderAyahRow = memo(function SurahReaderAyahRow({
   bookmarked,
   colors: c,
   styles,
+  iconSize,
   onPlay,
   onOpenTafsir,
   onToggleBookmark,
@@ -125,16 +144,16 @@ const SurahReaderAyahRow = memo(function SurahReaderAyahRow({
   return (
     <View style={styles.ayahRow}>
       <View style={styles.ayahBadge}>
-        <SazdaText variant="caption" color="onPrimary" style={styles.ayahNum}>
+        <SazdaText variant="caption" color={c.onPrimary} style={styles.ayahNum}>
           {item.numberInSurah}
         </SazdaText>
       </View>
       <View style={styles.ayahBody}>
-        <SazdaText variant="verse" color="primary" align="right" rtl style={styles.ayahText}>
+        <SazdaText variant="verse" color={c.primary} align="right" rtl style={styles.ayahText}>
           {item.arabic}
         </SazdaText>
         {showTranslation && item.translation ? (
-          <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={styles.translation}>
+          <SazdaText variant="bodyMedium" color={c.onSurfaceVariant} style={styles.translation}>
             {item.translation}
           </SazdaText>
         ) : null}
@@ -146,7 +165,7 @@ const SurahReaderAyahRow = memo(function SurahReaderAyahRow({
           style={[styles.iconHit, !item.audioUrl && styles.iconDisabled]}
           accessibilityLabel="Play recitation">
           <Volume2
-            size={20}
+            size={iconSize}
             color={item.audioUrl ? c.primaryContainer : c.outlineVariant}
             strokeWidth={2}
           />
@@ -155,14 +174,14 @@ const SurahReaderAyahRow = memo(function SurahReaderAyahRow({
           onPress={() => onOpenTafsir(item.numberInSurah)}
           style={styles.iconHit}
           accessibilityLabel="Tafsir">
-          <BookOpen size={20} color={c.secondary} strokeWidth={2} />
+          <BookOpen size={iconSize} color={c.secondary} strokeWidth={2} />
         </Pressable>
         <Pressable
           onPress={onToggleBookmark}
           style={styles.iconHit}
           accessibilityLabel={bookmarked ? 'Remove bookmark' : 'Add bookmark'}>
           <Bookmark
-            size={20}
+            size={iconSize}
             color={bookmarked ? c.secondary : c.outline}
             fill={bookmarked ? c.secondary : undefined}
           />
@@ -173,9 +192,6 @@ const SurahReaderAyahRow = memo(function SurahReaderAyahRow({
 });
 
 export function SurahReaderScreen() {
-  const { colors: c, scheme } = useThemePalette();
-  const styles = useMemo(() => createReaderStyles(c, scheme), [c, scheme]);
-
   const navigation = useNavigation<Nav>();
   const route = useRoute<R>();
   const { surahNumber, ayahNumber = 1 } = route.params;
@@ -184,8 +200,21 @@ export function SurahReaderScreen() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const scheduleRef = useRef<(ayah: number) => void>(() => {});
 
+  const surahReaderTheme = useQuranProgressStore(s => s.surahReaderTheme ?? 'light');
+  const surahReaderFontScale = useQuranProgressStore(s => s.surahReaderFontScale ?? 1);
+  const setSurahReaderTheme = useQuranProgressStore(s => s.setSurahReaderTheme);
+  const setSurahReaderFontScale = useQuranProgressStore(s => s.setSurahReaderFontScale);
+
+  const readerColors = useMemo(() => getSurahReaderColors(surahReaderTheme), [surahReaderTheme]);
+  const styles = useMemo(
+    () => createReaderStyles(readerColors, surahReaderFontScale),
+    [readerColors, surahReaderFontScale],
+  );
+  const iconSize = Math.min(22, Math.round(20 * Math.min(surahReaderFontScale, 1.12)));
+
   const [audioUri, setAudioUri] = useState<string | null>(null);
   const [audioLabel, setAudioLabel] = useState('');
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const setLastRead = useQuranProgressStore(s => s.setLastRead);
   const recordAyahEngagement = useQuranProgressStore(s => s.recordAyahEngagement);
@@ -281,8 +310,9 @@ export function SurahReaderScreen() {
         item={item}
         showTranslation={showTranslation}
         bookmarked={isBookmarked(surahNumber, item.numberInSurah)}
-        colors={c}
+        colors={readerColors}
         styles={styles}
+        iconSize={iconSize}
         onPlay={playAyah}
         onOpenTafsir={ayah =>
           navigation.navigate('Tafsir', { surahNumber, ayahNumber: ayah })
@@ -296,10 +326,11 @@ export function SurahReaderScreen() {
     ),
     [
       addBookmark,
-      c,
+      iconSize,
       isBookmarked,
       navigation,
       playAyah,
+      readerColors,
       removeBookmark,
       showTranslation,
       styles,
@@ -307,45 +338,67 @@ export function SurahReaderScreen() {
     ],
   );
 
+  const audioChrome = useMemo(
+    () => ({
+      surface: readerColors.surface,
+      primary: readerColors.primary,
+      darkReader: surahReaderTheme === 'dark',
+    }),
+    [readerColors.primary, readerColors.surface, surahReaderTheme],
+  );
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <StatusBar
+        translucent
+        backgroundColor="transparent"
+        barStyle={surahReaderTheme === 'dark' ? 'light-content' : 'dark-content'}
+      />
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()} style={styles.backHit} accessibilityLabel="Back">
-          <ArrowLeft size={24} color={c.primary} strokeWidth={2} />
+          <ArrowLeft size={24} color={readerColors.primary} strokeWidth={2} />
         </Pressable>
         <View style={styles.headerTitle}>
           {data ? (
             <>
-              <SazdaText variant="headlineMedium" color="primary" numberOfLines={1}>
+              <SazdaText variant="headlineMedium" color={readerColors.primary} numberOfLines={1}>
                 {data.surah.englishName}
               </SazdaText>
-              <SazdaText variant="caption" color="onSurfaceVariant" numberOfLines={1}>
+              <SazdaText variant="caption" color={readerColors.onSurfaceVariant} numberOfLines={1}>
                 {data.surah.englishNameTranslation} • {data.surah.numberOfAyahs} ayahs
               </SazdaText>
             </>
           ) : (
-            <SazdaText variant="headlineMedium" color="primary">
+            <SazdaText variant="headlineMedium" color={readerColors.primary}>
               Surah {surahNumber}
             </SazdaText>
           )}
         </View>
-        <Pressable
-          onPress={() => setShowTranslation(!showTranslation)}
-          style={styles.langHit}
-          accessibilityLabel={showTranslation ? 'Hide translation' : 'Show translation'}>
-          <Languages
-            size={22}
-            color={showTranslation ? c.primary : c.outline}
-            strokeWidth={2}
-          />
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable
+            onPress={() => setShowTranslation(!showTranslation)}
+            style={styles.langHit}
+            accessibilityLabel={showTranslation ? 'Hide translation' : 'Show translation'}>
+            <Languages
+              size={22}
+              color={showTranslation ? readerColors.primary : readerColors.outline}
+              strokeWidth={2}
+            />
+          </Pressable>
+          <Pressable
+            onPress={() => setSettingsOpen(true)}
+            style={styles.settingsHit}
+            accessibilityLabel="Reader appearance">
+            <Settings size={22} color={readerColors.primary} strokeWidth={2} />
+          </Pressable>
+        </View>
       </View>
 
       {isPending ? (
-        <ActivityIndicator style={styles.loader} color={c.primary} size="large" />
+        <ActivityIndicator style={styles.loader} color={readerColors.primary} size="large" />
       ) : isError ? (
         <Pressable onPress={() => refetch()} style={styles.errorBox}>
-          <SazdaText variant="bodyMedium" color="error" align="center">
+          <SazdaText variant="bodyMedium" color={readerColors.error} align="center">
             Could not load this surah. Tap to retry.
           </SazdaText>
         </Pressable>
@@ -356,9 +409,17 @@ export function SurahReaderScreen() {
             data={data!.ayahs}
             keyExtractor={a => String(a.numberInSurah)}
             renderItem={renderAyah}
-            extraData={showTranslation}
+            extraData={{
+              showTranslation,
+              surahReaderFontScale,
+              surahReaderTheme,
+            }}
             contentContainerStyle={styles.listContent}
             showsVerticalScrollIndicator={false}
+            initialNumToRender={12}
+            maxToRenderPerBatch={14}
+            windowSize={8}
+            removeClippedSubviews
             onContentSizeChange={() => tryInitialScroll()}
             onViewableItemsChanged={onViewableItemsChanged}
             viewabilityConfig={VIEW_CFG}
@@ -373,9 +434,101 @@ export function SurahReaderScreen() {
               }, 300);
             }}
           />
-          <QuranAudioBar uri={audioUri} title={audioLabel} />
+          <QuranAudioBar uri={audioUri} title={audioLabel} chrome={audioChrome} />
         </View>
       )}
+
+      <Modal visible={settingsOpen} transparent animationType="fade" onRequestClose={() => setSettingsOpen(false)}>
+        <Pressable style={modalStyles.backdrop} onPress={() => setSettingsOpen(false)}>
+          <Pressable
+            style={[modalStyles.card, { backgroundColor: readerColors.surface }]}
+            onPress={e => e.stopPropagation()}>
+            <Text style={[modalStyles.title, { color: readerColors.primary }]}>Reader appearance</Text>
+            <Text style={[modalStyles.sub, { color: readerColors.onSurfaceVariant }]}>Theme</Text>
+            <View style={modalStyles.themeRow}>
+              {(['light', 'sepia', 'dark'] as MushafTheme[]).map(t => (
+                <Pressable
+                  key={t}
+                  onPress={() => setSurahReaderTheme(t)}
+                  style={[
+                    modalStyles.themeChip,
+                    surahReaderTheme === t && {
+                      borderColor: readerColors.primaryContainer,
+                      borderWidth: 2,
+                    },
+                    { backgroundColor: readerColors.surface },
+                  ]}>
+                  <Text style={{ color: readerColors.primary }}>{t[0].toUpperCase() + t.slice(1)}</Text>
+                </Pressable>
+              ))}
+            </View>
+            <Text style={[modalStyles.sub, { color: readerColors.onSurfaceVariant }]}>Text size</Text>
+            <View style={modalStyles.sizeRow}>
+              <Pressable
+                onPress={() => setSurahReaderFontScale(surahReaderFontScale - 0.06)}
+                style={modalStyles.sizeBtn}>
+                <ChevronDown size={22} color={readerColors.primary} />
+              </Pressable>
+              <Text style={{ color: readerColors.primary }}>{Math.round(surahReaderFontScale * 100)}%</Text>
+              <Pressable
+                onPress={() => setSurahReaderFontScale(surahReaderFontScale + 0.06)}
+                style={modalStyles.sizeBtn}>
+                <ChevronUp size={22} color={readerColors.primary} />
+              </Pressable>
+            </View>
+            <Pressable style={modalStyles.close} onPress={() => setSettingsOpen(false)}>
+              <Text style={{ color: readerColors.primaryContainer, fontWeight: '700' }}>Done</Text>
+            </Pressable>
+          </Pressable>
+        </Pressable>
+      </Modal>
     </SafeAreaView>
   );
 }
+
+const modalStyles = StyleSheet.create({
+  backdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'center',
+    padding: spacing.xl,
+  },
+  card: {
+    borderRadius: radius.md,
+    padding: spacing.xl,
+    gap: spacing.md,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: '800',
+  },
+  sub: {
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  themeRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    flexWrap: 'wrap',
+  },
+  themeChip: {
+    padding: spacing.md,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  sizeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.lg,
+  },
+  sizeBtn: {
+    padding: spacing.sm,
+  },
+  close: {
+    alignSelf: 'flex-end',
+    paddingVertical: spacing.sm,
+  },
+});

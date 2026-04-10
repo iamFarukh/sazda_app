@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { mmkv } from '../services/storage';
 import { deleteAllOfflineQuranData } from '../services/offlineQuran/deleteAll';
+import { clearSurahReaderMemoryCache } from '../services/offlineQuran/surahMemoryCache';
 import { runFullOfflineDownload, runOfflineDownloadQueue } from '../services/offlineQuran/downloadRunner';
 import { sumDirectoryBytes } from '../services/offlineQuran/fsUtils';
 import {
@@ -11,6 +12,11 @@ import {
   readManifest,
 } from '../services/offlineQuran/manifest';
 import { getOfflineQuranRoot } from '../services/offlineQuran/paths';
+
+/** First-visit Quran tab auto-download queue (MMKV). */
+const OFFLINE_QURAN_BOOTSTRAP_MMKV_KEY = 'offline-quran-bootstrap-v2';
+const PRIORITY_BOOTSTRAP = [1, 36, 67, 112] as const;
+const PRIORITY_BOOTSTRAP_SET = new Set<number>(PRIORITY_BOOTSTRAP);
 
 export type OfflineDownloadJob = 'idle' | 'running' | 'paused' | 'completed' | 'error';
 
@@ -104,7 +110,7 @@ export const useOfflineQuranDownloadStore = create<State>()(
               ? 'Full Quran is available offline.'
               : done > 0
                 ? `${done} surahs saved. Add more from the list below.`
-                : 'Choose surahs to download — Arabic, English, and audio.';
+                : 'Choose surahs to download — Arabic, English, and streaming audio URLs.';
 
         set({
           storageBytes: bytes,
@@ -124,7 +130,7 @@ export const useOfflineQuranDownloadStore = create<State>()(
 
       enqueueSurah: (surahNumber: number) => {
         if (surahNumber < 1 || surahNumber > 114) return;
-        const { queue, runnerBusy, job } = get();
+        const { queue } = get();
         if (queue.includes(surahNumber)) return;
         set({ queue: [...queue, surahNumber], lastError: null });
         const after = get();
@@ -220,6 +226,8 @@ export const useOfflineQuranDownloadStore = create<State>()(
       deleteAllData: async () => {
         set({ pauseRequested: true, cancelRequested: false });
         await deleteAllOfflineQuranData();
+        clearSurahReaderMemoryCache();
+        mmkv.remove(OFFLINE_QURAN_BOOTSTRAP_MMKV_KEY);
         set({
           queue: [],
           job: 'idle',
@@ -243,3 +251,52 @@ export const useOfflineQuranDownloadStore = create<State>()(
     },
   ),
 );
+
+export function resetOfflineQuranBootstrapFlag(): void {
+  mmkv.remove(OFFLINE_QURAN_BOOTSTRAP_MMKV_KEY);
+}
+
+/** On first Quran tab visit: enqueue priority surahs then the rest (idempotent). */
+export function scheduleOfflineQuranBootstrapIfNeeded(): void {
+  if (mmkv.getBoolean(OFFLINE_QURAN_BOOTSTRAP_MMKV_KEY)) return;
+
+  void (async () => {
+    try {
+      const m = await readManifest();
+      if (isFullQuranOffline(m)) {
+        mmkv.set(OFFLINE_QURAN_BOOTSTRAP_MMKV_KEY, true);
+        return;
+      }
+
+      const ordered: number[] = [];
+      for (const p of PRIORITY_BOOTSTRAP) {
+        if (!isSurahFullyOffline(m, p)) ordered.push(p);
+      }
+      for (let s = 1; s <= 114; s++) {
+        if (PRIORITY_BOOTSTRAP_SET.has(s)) continue;
+        if (!isSurahFullyOffline(m, s)) ordered.push(s);
+      }
+
+      if (ordered.length === 0) {
+        mmkv.set(OFFLINE_QURAN_BOOTSTRAP_MMKV_KEY, true);
+        return;
+      }
+
+      const store = useOfflineQuranDownloadStore.getState();
+      const seen = new Set(store.queue);
+      const merged = [...store.queue];
+      for (const n of ordered) {
+        if (!seen.has(n)) {
+          merged.push(n);
+          seen.add(n);
+        }
+      }
+
+      useOfflineQuranDownloadStore.setState({ queue: merged, lastError: null });
+      store.startQueueProcessor();
+      mmkv.set(OFFLINE_QURAN_BOOTSTRAP_MMKV_KEY, true);
+    } catch {
+      /* Retry on next visit */
+    }
+  })();
+}

@@ -1,7 +1,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -27,6 +27,8 @@ import {
   MapPin,
   RefreshCw,
 } from 'lucide-react-native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { CompassGridBackground } from '../../components/atoms/CompassGridBackground/CompassGridBackground';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import { TabLandingHeader } from '../../components/organisms/TabLandingHeader';
@@ -34,6 +36,7 @@ import { useCompassHeadingWhileFocused } from '../../hooks/useCompassHeadingWhil
 import { usePrayerTimesHome } from '../../hooks/usePrayerTimesHome';
 import type { PrayerTimingsDay } from '../../services/prayerTimesApi';
 import { radius } from '../../theme/radius';
+import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
 import { useThemePalette } from '../../theme/useThemePalette';
@@ -125,7 +128,8 @@ export function QiblaScreen() {
     todayTimings,
   } = usePrayerTimesHome();
 
-  const { heading, compassError } = useCompassHeadingWhileFocused(1);
+  // 0.5 Update rate balances ultra-smooth UI tracking. Android is aggressively throttled to 2.0 to prevent event bridge glutter.
+  const { heading, compassError } = useCompassHeadingWhileFocused(Platform.OS === 'android' ? 2.0 : 0.5);
 
   const bearing = useMemo(
     () => (coords ? bearingToKaaba(coords.lat, coords.lon) : null),
@@ -157,12 +161,12 @@ export function QiblaScreen() {
     continuousHeadingRef.current += diff;
     prevHeadingRef.current = heading;
 
-    // Apply native spring physics for ultra-smooth buttery inertia
+    // Apply a tighter, more responsive native spring curve for instant, smooth orientation tracking
     headingSv.value = withSpring(continuousHeadingRef.current, {
-      damping: 45,
-      stiffness: 280,
-      mass: 0.7,
-      overshootClamping: true,
+      damping: 35,
+      stiffness: 450,
+      mass: 0.4,
+      overshootClamping: false, // allow minimal natural swing for realism
     });
   }, [heading, headingSv]);
 
@@ -210,37 +214,66 @@ export function QiblaScreen() {
   }, [compassError, deltaDeg, locationOk, aligned]);
 
   useEffect(() => {
-    alignedSv.value = withTiming(aligned ? 1 : 0, {
-      duration: aligned ? 380 : 220,
-      easing: Easing.out(Easing.cubic),
+    // Drop animation using spring for satisfying bounce when matching Qibla
+    alignedSv.value = withSpring(aligned ? 1 : 0, {
+      damping: 14,
+      stiffness: 150,
+      mass: 0.6,
     });
     if (aligned) {
       hapticSuccess();
     }
   }, [aligned, alignedSv]);
 
-  const alignedBadgeStyle = useAnimatedStyle(() => ({
-    opacity: alignedSv.value,
-    transform: [{ translateY: (1 - alignedSv.value) * 6 }, { scale: 0.98 + alignedSv.value * 0.04 }],
-  }));
+  const alignedBadgeStyle = useAnimatedStyle(() => {
+    // Quick fade on opacity to avoid weird spring opacities, use spring value for beautiful 'drop' scale/translate
+    const opacity = withTiming(alignedSv.value > 0.05 ? 1 : 0, { duration: 150 });
+    return {
+      opacity,
+      transform: [
+        { translateY: (1 - alignedSv.value) * -16 }, // Drop down from top
+        { scale: 0.85 + alignedSv.value * 0.15 },
+      ],
+    };
+  });
 
-  const alignedFillStyle = useAnimatedStyle(() => ({
-    opacity: alignedSv.value * 0.12,
-  }));
+  const alignedFillStyle = useAnimatedStyle(() => {
+    const opacity = withTiming(alignedSv.value > 0.05 ? 0.12 : 0, { duration: 150 });
+    return {
+      opacity,
+      transform: [{ scale: 0.6 + alignedSv.value * 0.4 }], // Pop / scale in effect
+    };
+  });
+
+  const fullScreenGlowStyle = useAnimatedStyle(() => {
+    // A calm, smooth fade-in that washes the entire screen indicating alignment success
+    const opacity = withTiming(alignedSv.value > 0.05 ? 1 : 0, {
+      duration: 500,
+      easing: Easing.out(Easing.cubic),
+    });
+    return {
+      opacity,
+      backgroundColor: scheme === 'dark' ? 'rgba(254, 214, 91, 0.05)' : 'rgba(254, 214, 91, 0.18)',
+    };
+  });
 
   const onCalibrate = () => {
     requestLocation().catch(() => {
       /* permission / GPS errors surfaced via hook state */
     });
     refetchPrayers();
-    Alert.alert(
+    AppAlert.show(
       'Calibrate compass',
       'Move your phone slowly in a figure-∞ pattern away from metal and magnets, then hold it flat.',
+      undefined,
+      { variant: 'info' }
     );
   };
 
+  const navigation = useNavigation<NativeStackNavigationProp<any>>();
+
   const onArView = () => {
-    Alert.alert('AR view', 'Augmented reality Qibla is planned for a future update.');
+    navigation.navigate('QiblaAR');
   };
 
   const currentPrayerKey = hero?.currentSalahRow ?? null;
@@ -248,6 +281,7 @@ export function QiblaScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      <Animated.View style={[StyleSheet.absoluteFillObject, fullScreenGlowStyle]} pointerEvents="none" />
       <CompassGridBackground />
 
       <View style={[styles.headerLift, styles.headerPad]}>
@@ -811,6 +845,7 @@ function createQiblaStyles(c: AppPalette, scheme: ResolvedScheme) {
   },
   alignedFill: {
     ...StyleSheet.absoluteFillObject,
+    borderRadius: CENTER_READOUT / 2,
   },
   degText: {
     fontSize: 36,

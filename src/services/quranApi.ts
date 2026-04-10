@@ -62,6 +62,34 @@ export async function fetchSurahAyahs(surahNumber: number): Promise<{
 /**
  * Arabic (Uthmani) + English (Sahih International) + per-ayah audio (Mishary Alafasy).
  */
+function sleep(ms: number): Promise<void> {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * Fetches surah reader data with exponential backoff (offline download + on-demand open).
+ */
+export async function fetchSurahReaderDataWithRetry(
+  surahNumber: number,
+  opts?: { maxAttempts?: number },
+): Promise<{
+  surah: QuranApiSurah;
+  ayahs: AyahReaderRow[];
+}> {
+  const maxAttempts = opts?.maxAttempts ?? 5;
+  let last: unknown;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      return await fetchSurahReaderData(surahNumber);
+    } catch (e) {
+      last = e;
+      const backoff = Math.min(8000, 400 * 2 ** attempt);
+      await sleep(backoff);
+    }
+  }
+  throw last instanceof Error ? last : new Error('fetchSurahReaderData failed');
+}
+
 export async function fetchSurahReaderData(surahNumber: number): Promise<{
   surah: QuranApiSurah;
   ayahs: AyahReaderRow[];

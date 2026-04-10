@@ -19,12 +19,15 @@ export type QuranStackParamList = {
       }
     | undefined;
   SurahReader: { surahNumber: number; ayahNumber?: number };
+  /** Madinah Mushaf page mode (604 pages). */
+  MushafReader: { initialPage?: number; surahNumber?: number; ayahNumber?: number } | undefined;
   Tafsir: { surahNumber: number; ayahNumber: number };
 };
 
 export type ToolsStackParamList = {
   ToolsMain: undefined;
   Qibla: undefined;
+  QiblaAR: undefined;
   Tasbeeh: undefined;
   /** Zakat hub — cycles, progress, links to calculator & payments. */
   ZakatHome: undefined;
@@ -40,11 +43,14 @@ export type ToolsStackParamList = {
 
 export type QiblaStackParamList = {
   QiblaMain: undefined;
+  QiblaAR: undefined;
 };
 
 export type ProfileStackParamList = {
   ProfileMain: undefined;
   ProfileSettings: undefined;
+  /** Streak, Quran, Ramadan — system default sound only (never Adhan). */
+  NotificationPreferences: undefined;
   AdhanSettings: undefined;
   SoundSelection: { prayer: string };
   CustomSoundUpload: undefined;

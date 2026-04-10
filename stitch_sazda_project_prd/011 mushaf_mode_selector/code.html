@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Al-Mushaf - Select Mode</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#95d3ba",
+                        "outline-variant": "#bfc9c3",
+                        "surface-tint": "#2b6954",
+                        "surface-container-highest": "#e4e4cc",
+                        "surface-bright": "#fbfbe2",
+                        "on-primary-fixed-variant": "#0b513d",
+                        "surface": "#fbfbe2",
+                        "primary-fixed": "#b0f0d6",
+                        "primary-container": "#064e3b",
+                        "surface-container-high": "#eaead1",
+                        "surface-container-low": "#f5f5dc",
+                        "surface-variant": "#e4e4cc",
+                        "error-container": "#ffdad6",
+                        "secondary-fixed": "#ffe088",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#1b1d0e",
+                        "error": "#ba1a1a",
+                        "inverse-primary": "#95d3ba",
+                        "on-secondary-fixed-variant": "#574500",
+                        "tertiary-container": "#554127",
+                        "on-tertiary-container": "#c9ae8c",
+                        "on-secondary-container": "#745c00",
+                        "on-primary-fixed": "#002117",
+                        "on-primary-container": "#80bea6",
+                        "tertiary": "#3d2b13",
+                        "on-surface-variant": "#404944",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#dfc29f",
+                        "on-error-container": "#93000a",
+                        "outline": "#707974",
+                        "secondary-fixed-dim": "#e9c349",
+                        "inverse-on-surface": "#f2f2d9",
+                        "secondary-container": "#fed65b",
+                        "on-secondary": "#ffffff",
+                        "primary": "#003527",
+                        "on-surface": "#1b1d0e",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface-variant": "#404944",
+                        "surface-container": "#efefd7",
+                        "inverse-surface": "#303221",
+                        "surface-dim": "#dbdcc3",
+                        "tertiary-fixed": "#fcdeba",
+                        "on-tertiary-fixed-variant": "#574329",
+                        "on-secondary-fixed": "#241a00",
+                        "secondary": "#735c00",
+                        "on-tertiary-fixed": "#281903",
+                        "background": "#fbfbe2"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "1rem",
+                        "lg": "2rem",
+                        "xl": "3rem",
+                        "full": "9999px"
+                    },
+                    "fontFamily": {
+                        "headline": ["Manrope"],
+                        "body": ["Plus Jakarta Sans"],
+                        "label": ["Plus Jakarta Sans"]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #fbfbe2;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .text-arabic {
+            font-family: 'Traditional Arabic', serif;
+        }
+        .tonal-shift-based {
+            background-color: rgba(251, 251, 226, 0.8);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-6 py-4 w-full shadow-[0_12px_40px_rgba(6,78,59,0.06)]">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-emerald-900 cursor-pointer">menu</span>
+<h1 class="font-manrope font-extrabold text-emerald-900 text-lg tracking-tight">Al-Mushaf</h1>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-emerald-900 cursor-pointer">settings</span>
+</div>
+</header>
+<main class="flex-grow pt-24 pb-32 px-6 max-w-2xl mx-auto w-full space-y-10">
+<!-- Header Section -->
+<section class="space-y-2">
+<h2 class="text-4xl font-headline font-extrabold text-primary tracking-tight">Quran</h2>
+<p class="text-on-surface-variant font-medium opacity-70">Choose your preferred reading experience</p>
+</section>
+<!-- Continue Reading Section (Bento Style) -->
+<section class="space-y-4">
+<div class="flex items-center justify-between">
+<h3 class="font-headline font-bold text-lg text-primary">Continue Reading</h3>
+<span class="text-sm font-semibold text-secondary">View History</span>
+</div>
+<div class="bg-surface-container-lowest rounded-xl p-6 shadow-[0_12px_40px_rgba(6,78,59,0.04)] flex items-center gap-6 relative overflow-hidden group">
+<div class="absolute right-0 top-0 w-32 h-full opacity-5 pointer-events-none transform translate-x-4">
+<img alt="Islamic geometry" class="object-cover h-full" data-alt="Intricate traditional Islamic geometric pattern carved in light stone with soft ambient shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBDVENowBD3EVtNWfm-aW5Uqu_Wn3zcuJ3XghH60kGfNn30LAq6A3HcG8_rtZpBBYXaEdEBViptYpdfg0b88pBiU3dwLz70wOjP16w_-3qJ0es6Q7-byDFBO89lOLh3p0TrlcE-bK0ckzYXhkPJx_iP5aMvTKII3tbM1N6qql-_ITW_e4F6sFcKBxoEGQ3GI7X6YV6xbpjmpjU-kFLGzdFCfuiDNys-H-nI06PVNgFVSRikQe2mUn0ee78PL3-leSTtdIkJHx3hvEw"/>
+</div>
+<div class="w-16 h-16 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container shrink-0">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+</div>
+<div class="flex-grow space-y-1">
+<div class="flex items-center gap-2">
+<span class="text-xs font-bold uppercase tracking-widest text-secondary">Surah Al-Kahf</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="text-xs font-bold uppercase tracking-widest text-on-surface-variant">Ayah 45</span>
+</div>
+<div class="text-2xl font-headline font-bold text-primary">The Cave</div>
+<div class="text-sm text-on-surface-variant font-medium">Page 298 • Juz 15</div>
+</div>
+<div class="shrink-0">
+<button class="w-12 h-12 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container shadow-lg hover:scale-105 transition-transform">
+<span class="material-symbols-outlined">play_arrow</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Mode Selection Cards -->
+<section class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<!-- Reader Mode -->
+<div class="bg-surface-container-low rounded-xl p-8 flex flex-col items-start gap-6 hover:bg-white transition-all duration-300 group cursor-pointer border border-transparent hover:border-emerald-100 shadow-[0_4px_20px_rgba(6,78,59,0.02)]">
+<div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+<span class="material-symbols-outlined text-3xl">list_alt</span>
+</div>
+<div class="space-y-2">
+<h4 class="text-xl font-headline font-extrabold text-primary">Reader Mode</h4>
+<p class="text-sm text-on-surface-variant leading-relaxed">Read with translation, audio tools, and verse-by-verse analysis.</p>
+</div>
+<div class="mt-auto flex items-center gap-2 text-primary font-bold text-sm">
+                    Open Reader
+                    <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</div>
+</div>
+<!-- Mushaf Mode (Premium/Highlighted) -->
+<div class="relative bg-primary-container rounded-xl p-8 flex flex-col items-start gap-6 hover:shadow-2xl transition-all duration-300 group cursor-pointer overflow-hidden border border-primary">
+<!-- Background Decoration -->
+<div class="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-emerald-800/20 blur-2xl"></div>
+<!-- Gold Badge -->
+<div class="absolute top-6 right-6 px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold uppercase tracking-widest rounded-full flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[12px]" style="font-variation-settings: 'FILL' 1;">star</span>
+                    Premium
+                </div>
+<div class="w-14 h-14 rounded-2xl bg-emerald-800 flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-3xl" style="font-variation-settings: 'FILL' 1;">menu_book</span>
+</div>
+<div class="space-y-2 relative z-10">
+<h4 class="text-xl font-headline font-extrabold text-white">Mushaf Mode</h4>
+<p class="text-sm text-on-primary-container leading-relaxed opacity-90">Experience the classic page-by-page view of the Madinah Mushaf.</p>
+</div>
+<div class="mt-auto flex items-center gap-2 text-secondary-fixed font-bold text-sm relative z-10">
+                    Enter Sanctuary
+                    <span class="material-symbols-outlined text-sm">auto_awesome</span>
+</div>
+</div>
+</section>
+<!-- Features Teaser -->
+<section class="bg-surface-container-high/50 rounded-xl p-6 border border-white/40">
+<h5 class="text-xs font-bold uppercase tracking-widest text-primary mb-4">What's New</h5>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-secondary-fixed-dim/20 flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined text-xl">palette</span>
+</div>
+<div class="text-sm">
+<span class="font-bold text-primary">Custom Themes:</span> Now choose between Sepia, Dark, and Night modes for the digital Mushaf.
+                </div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-8 pb-8 pt-4 bg-surface/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_-12px_40px_rgba(6,78,59,0.06)] rounded-t-[3rem] z-50">
+<div class="flex items-center justify-center text-emerald-900/40 dark:text-emerald-500/40 hover:scale-110 transition-transform duration-300 cursor-pointer">
+<span class="material-symbols-outlined text-2xl" data-icon="menu_book">menu_book</span>
+</div>
+<div class="flex items-center justify-center bg-emerald-800 dark:bg-emerald-500 text-white dark:text-emerald-950 rounded-full w-12 h-12 hover:scale-110 transition-transform duration-300 cursor-pointer">
+<span class="material-symbols-outlined text-2xl" data-icon="auto_stories" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+</div>
+<div class="flex items-center justify-center text-emerald-900/40 dark:text-emerald-500/40 hover:scale-110 transition-transform duration-300 cursor-pointer">
+<span class="material-symbols-outlined text-2xl" data-icon="bookmark">bookmark</span>
+</div>
+<div class="flex items-center justify-center text-emerald-900/40 dark:text-emerald-500/40 hover:scale-110 transition-transform duration-300 cursor-pointer">
+<span class="material-symbols-outlined text-2xl" data-icon="person">person</span>
+</div>
+</nav>
+</body></html>

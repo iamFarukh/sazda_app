@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, type RouteProp } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -17,6 +17,7 @@ import { radius } from '../../../theme/radius';
 import { spacing } from '../../../theme/spacing';
 import { fontFamilies } from '../../../theme/typography';
 import { useThemePalette } from '../../../theme/useThemePalette';
+import { AppAlert } from '../../../components/organisms/AppAlert/AppAlert';
 
 type Nav = NativeStackNavigationProp<ToolsStackParamList, 'ZakatAddPayment'>;
 type R = RouteProp<ToolsStackParamList, 'ZakatAddPayment'>;
@@ -43,11 +44,11 @@ export function ZakatAddPaymentScreen() {
 
   const save = () => {
     if (!cycle) {
-      Alert.alert('No cycle', 'Select a zakat cycle first.');
+      AppAlert.show('No cycle', 'Select a zakat cycle first.', undefined, { variant: 'info' });
       return;
     }
     if (paise == null) {
-      Alert.alert('Amount', 'Enter a valid amount in ₹.');
+      AppAlert.show('Amount', 'Enter a valid amount in ₹.', undefined, { variant: 'info' });
       return;
     }
     const res = addPayment({
@@ -58,7 +59,7 @@ export function ZakatAddPaymentScreen() {
       note,
     });
     if (!res.ok) {
-      Alert.alert('Cannot save', res.error);
+      AppAlert.show('Cannot save', res.error, undefined, { variant: 'destructive' });
       return;
     }
     navigation.goBack();

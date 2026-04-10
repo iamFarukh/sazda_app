@@ -1,20 +1,12 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Subcollections are not covered by the parent document rule — each path must be allowed.
-    match /users/{userId}/bookmarks/{bookmarkId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    match /users/{userId}/zakatCycles/{cycleId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    match /users/{userId}/zakatPayments/{paymentId} {
+    /**
+     * User-scoped data: profile doc and every subcollection (zakatCycles, zakatPayments,
+     * bookmarks, etc.). Recursive wildcard avoids missing a subcollection in rules —
+     * Firestore does not inherit parent read/write to child paths.
+     */
+    match /users/{userId}/{document=**} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }

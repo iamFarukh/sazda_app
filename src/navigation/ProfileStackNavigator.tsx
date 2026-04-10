@@ -1,6 +1,7 @@
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { ProfileScreen } from '../screens/profile/ProfileScreen';
 import { ProfileSettingsScreen } from '../screens/profile/ProfileSettingsScreen';
+import { NotificationPreferencesScreen } from '../screens/profile/NotificationPreferencesScreen';
 import { AdhanSettingsScreen } from '../screens/profile/AdhanSettingsScreen';
 import { SoundSelectionScreen } from '../screens/profile/SoundSelectionScreen';
 import { CustomSoundUploadScreen } from '../screens/profile/CustomSoundUploadScreen';
@@ -16,6 +17,7 @@ export function ProfileStackNavigator() {
     <Stack.Navigator screenOptions={screenOptions}>
       <Stack.Screen name="ProfileMain" component={ProfileScreen} />
       <Stack.Screen name="ProfileSettings" component={ProfileSettingsScreen} />
+      <Stack.Screen name="NotificationPreferences" component={NotificationPreferencesScreen} />
       <Stack.Screen name="AdhanSettings" component={AdhanSettingsScreen} />
       <Stack.Screen name="SoundSelection" component={SoundSelectionScreen} />
       <Stack.Screen name="CustomSoundUpload" component={CustomSoundUploadScreen} />

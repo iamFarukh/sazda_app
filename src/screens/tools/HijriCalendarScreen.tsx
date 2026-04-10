@@ -47,7 +47,12 @@ export function HijriCalendarScreen() {
     return () => clearInterval(id);
   }, []);
 
-  const { data: todayInfo, isError: todayErr, refetch: refetchToday, isFetching: todayFetching } = useQuery({
+  const {
+    data: todayInfo,
+    isError: todayErr,
+    refetch: refetchToday,
+    isFetching: todayFetching,
+  } = useQuery({
     queryKey: ['hijri', 'today', todayDdMmYyyy],
     queryFn: () => fetchGregorianToHijri(todayDdMmYyyy),
     staleTime: 60_000,
@@ -68,7 +73,13 @@ export function HijriCalendarScreen() {
     }
   }, [todayErr, cursor]);
 
-  const { data: monthDays, isPending, isError, refetch, isFetching } = useQuery({
+  const {
+    data: monthDays,
+    isPending,
+    isError,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ['hijri', 'month', cursor?.m, cursor?.y],
     queryFn: () => fetchHijriMonth(cursor!.m, cursor!.y),
     enabled: cursor !== null,
@@ -92,7 +103,8 @@ export function HijriCalendarScreen() {
   }, []);
 
   const goThisMonth = useCallback(() => {
-    if (todayInfo) setCursor({ m: todayInfo.hijriMonth, y: todayInfo.hijriYear });
+    if (todayInfo)
+      setCursor({ m: todayInfo.hijriMonth, y: todayInfo.hijriYear });
   }, [todayInfo]);
 
   const headerTitle = monthDays?.[0]?.hijriMonthEn ?? '…';
@@ -106,7 +118,10 @@ export function HijriCalendarScreen() {
 
   const events = useMemo(() => {
     if (!monthDays?.length) return [];
-    return buildIslamicEventsFromMonth(monthDays, todayDdMmYyyy).slice(0, MAX_EVENTS);
+    return buildIslamicEventsFromMonth(monthDays, todayDdMmYyyy).slice(
+      0,
+      MAX_EVENTS,
+    );
   }, [monthDays, todayDdMmYyyy]);
 
   const isViewingCurrentMonth =
@@ -118,8 +133,8 @@ export function HijriCalendarScreen() {
   const subheaderSubtitle = todayErr
     ? 'Could not load today — showing a sample month. Pull to refresh when online.'
     : todayInfo
-      ? `Today · ${todayInfo.hijriDay} ${todayInfo.hijriMonthEn} ${todayInfo.hijriYear} AH · ${todayInfo.gregorianReadable}`
-      : 'Live Hijri & Gregorian · Aladhan';
+    ? `Today · ${todayInfo.hijriDay} ${todayInfo.hijriMonthEn} ${todayInfo.hijriYear} AH · ${todayInfo.gregorianReadable}`
+    : 'Live Hijri & Gregorian · Aladhan';
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -140,7 +155,8 @@ export function HijriCalendarScreen() {
             }}
             tintColor={c.primary}
           />
-        }>
+        }
+      >
         {todayErr ? (
           <Pressable onPress={() => refetchToday()} style={styles.errorBanner}>
             <SazdaText variant="bodyMedium" color="error" align="center">
@@ -151,24 +167,40 @@ export function HijriCalendarScreen() {
 
         <View style={styles.heroRow}>
           <View style={styles.heroText}>
-            <SazdaText variant="headlineLarge" color="primary" style={styles.heroMonth}>
+            <SazdaText
+              variant="headlineLarge"
+              color="primary"
+              style={styles.heroMonth}
+            >
               {isPending && !monthDays ? '…' : headerTitle}
             </SazdaText>
-            <SazdaText variant="headlineMedium" color="secondary" style={styles.heroYear}>
+            <SazdaText
+              variant="headlineMedium"
+              color="secondary"
+              style={styles.heroYear}
+            >
               {headerYear ? `${headerYear} AH` : ''}
             </SazdaText>
           </View>
           <View style={styles.heroNav}>
             <Pressable
               onPress={goPrev}
-              style={({ pressed }) => [styles.navBtn, pressed && styles.navBtnPressed]}
-              accessibilityLabel="Previous Hijri month">
+              style={({ pressed }) => [
+                styles.navBtn,
+                pressed && styles.navBtnPressed,
+              ]}
+              accessibilityLabel="Previous Hijri month"
+            >
               <ChevronLeft size={22} color={c.primary} strokeWidth={2.25} />
             </Pressable>
             <Pressable
               onPress={goNext}
-              style={({ pressed }) => [styles.navBtn, pressed && styles.navBtnPressed]}
-              accessibilityLabel="Next Hijri month">
+              style={({ pressed }) => [
+                styles.navBtn,
+                pressed && styles.navBtnPressed,
+              ]}
+              accessibilityLabel="Next Hijri month"
+            >
               <ChevronRight size={22} color={c.primary} strokeWidth={2.25} />
             </Pressable>
           </View>
@@ -176,7 +208,11 @@ export function HijriCalendarScreen() {
 
         {!isViewingCurrentMonth && todayInfo ? (
           <Pressable onPress={goThisMonth} style={styles.jumpToday}>
-            <SazdaText variant="caption" color="secondary" style={styles.jumpTodayText}>
+            <SazdaText
+              variant="caption"
+              color="secondary"
+              style={styles.jumpTodayText}
+            >
               Jump to this month
             </SazdaText>
           </Pressable>
@@ -185,7 +221,11 @@ export function HijriCalendarScreen() {
         <View style={styles.bleed} pointerEvents="none" />
 
         {!cursor || isPending ? (
-          <ActivityIndicator style={styles.loader} color={c.primary} size="large" />
+          <ActivityIndicator
+            style={styles.loader}
+            color={c.primary}
+            size="large"
+          />
         ) : isError ? (
           <Pressable onPress={() => refetch()} style={styles.errorBanner}>
             <SazdaText variant="bodyMedium" color="error" align="center">
@@ -193,12 +233,19 @@ export function HijriCalendarScreen() {
             </SazdaText>
           </Pressable>
         ) : (
-          <Animated.View key={`${cursor?.m}-${cursor?.y}`} entering={FadeIn.duration(320)}>
+          <Animated.View
+            key={`${cursor?.m}-${cursor?.y}`}
+            entering={FadeIn.duration(320)}
+          >
             <View style={styles.gridCard}>
               <View style={styles.weekRow}>
                 {WEEKDAYS.map(w => (
                   <View key={w} style={styles.weekCell}>
-                    <SazdaText variant="label" color="primary" style={styles.weekLabel}>
+                    <SazdaText
+                      variant="label"
+                      color="primary"
+                      style={styles.weekLabel}
+                    >
                       {w}
                     </SazdaText>
                   </View>
@@ -227,13 +274,21 @@ export function HijriCalendarScreen() {
           <SazdaText variant="titleSm" color="primary">
             Islamic events
           </SazdaText>
-          <SazdaText variant="caption" color="secondary" style={styles.eventsKicker}>
+          <SazdaText
+            variant="caption"
+            color="secondary"
+            style={styles.eventsKicker}
+          >
             This month · API
           </SazdaText>
         </View>
 
         {events.length === 0 && monthDays?.length ? (
-          <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={styles.emptyEvents}>
+          <SazdaText
+            variant="bodyMedium"
+            color="onSurfaceVariant"
+            style={styles.emptyEvents}
+          >
             No marked holidays this month on the Umm al-Qura calendar.
           </SazdaText>
         ) : (
@@ -245,9 +300,19 @@ export function HijriCalendarScreen() {
         )}
 
         <View style={styles.quoteCard}>
-          <Quote size={28} color={c.secondaryContainer} strokeWidth={1.75} style={styles.quoteIcon} />
-          <SazdaText variant="bodyMedium" color="onPrimaryContainer" style={styles.quoteText}>
-            “The best among you are those who have the best manners and character.”
+          <Quote
+            size={28}
+            color={c.secondaryContainer}
+            strokeWidth={1.75}
+            style={styles.quoteIcon}
+          />
+          <SazdaText
+            variant="bodyMedium"
+            color="onPrimaryContainer"
+            style={styles.quoteText}
+          >
+            “The best among you are those who have the best manners and
+            character.”
           </SazdaText>
           <View style={styles.quoteRule} />
           <View style={styles.quoteDeco} pointerEvents="none" />
@@ -273,7 +338,20 @@ function DayCell({
   const isToday = day.gregorianDdMmYyyy === todayDdMmYyyy;
   const sub = useMemo(() => {
     const [d, m] = day.gregorianDdMmYyyy.split('-').map(Number);
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     return `${d} ${months[m - 1] ?? ''}`;
   }, [day.gregorianDdMmYyyy]);
 
@@ -290,17 +368,20 @@ function DayCell({
             shadowOffset: { width: 0, height: 2 },
             elevation: isToday ? 3 : 0,
           },
-        ]}>
+        ]}
+      >
         <SazdaText
           variant="titleSm"
           color={isToday ? 'onSecondaryContainer' : 'primary'}
-          style={styles.dayNum}>
+          style={styles.dayNum}
+        >
           {day.hijriDay}
         </SazdaText>
         <SazdaText
           variant="caption"
           color={isToday ? 'onSecondaryContainer' : 'outline'}
-          style={[styles.daySub, isToday && { opacity: 0.85 }]}>
+          style={[styles.daySub, isToday && { opacity: 0.85 }]}
+        >
           {sub}
         </SazdaText>
       </View>
@@ -321,22 +402,41 @@ function EventCard({
     ev.accent === 'muted'
       ? `${colors.outline}55`
       : ev.accent === 'secondary'
-        ? colors.secondary
-        : colors.primary;
+      ? colors.secondary
+      : colors.primary;
   const muted = ev.accent === 'muted';
 
   return (
-    <View style={[styles.eventCard, { borderLeftColor: borderColor }, muted && styles.eventCardMuted]}>
+    <View
+      style={[
+        styles.eventCard,
+        { borderLeftColor: borderColor },
+        muted && styles.eventCardMuted,
+      ]}
+    >
       <View style={[styles.eventBadge, muted && { opacity: 0.65 }]}>
-        <SazdaText variant="caption" color="secondary" style={styles.eventBadgeDay}>
+        <SazdaText
+          variant="caption"
+          color="secondary"
+          style={styles.eventBadgeDay}
+        >
           {ev.hijriLabel.split(' ')[0]}
         </SazdaText>
-        <SazdaText variant="label" color="secondary" style={styles.eventBadgeMon}>
+        <SazdaText
+          variant="label"
+          color="secondary"
+          style={styles.eventBadgeMon}
+        >
           {ev.hijriLabel.split(' ').slice(1).join(' ') || ' '}
         </SazdaText>
       </View>
       <View style={styles.eventMid}>
-        <SazdaText variant="titleSm" color="primary" style={muted ? { opacity: 0.62 } : undefined} numberOfLines={3}>
+        <SazdaText
+          variant="titleSm"
+          color="primary"
+          style={muted ? { opacity: 0.62 } : undefined}
+          numberOfLines={3}
+        >
           {ev.title}
         </SazdaText>
         <SazdaText variant="caption" color="onSurfaceVariant" numberOfLines={2}>
@@ -344,7 +444,11 @@ function EventCard({
         </SazdaText>
       </View>
       <View style={styles.eventRight}>
-        <SazdaText variant="caption" color="primary" style={muted ? { opacity: 0.55 } : undefined}>
+        <SazdaText
+          variant="caption"
+          color="primary"
+          style={muted ? { opacity: 0.55 } : undefined}
+        >
           {ev.gregorianLine}
         </SazdaText>
         <SazdaText variant="caption" color="outline" style={{ fontSize: 10 }}>
@@ -355,9 +459,9 @@ function EventCard({
   );
 }
 
-
 function createStyles(c: AppPalette, scheme: ResolvedScheme) {
-  const hairline = scheme === 'dark' ? 'rgba(142,207,178,0.12)' : 'rgba(0, 53, 39, 0.06)';
+  const hairline =
+    scheme === 'dark' ? 'rgba(142,207,178,0.12)' : 'rgba(0, 53, 39, 0.06)';
   return StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.surface },
     padH: { paddingHorizontal: spacing.md },
@@ -374,7 +478,11 @@ function createStyles(c: AppPalette, scheme: ResolvedScheme) {
       marginTop: spacing.sm,
     },
     heroText: { flex: 1, minWidth: 0, paddingRight: spacing.sm },
-    heroMonth: { letterSpacing: -0.8, fontSize: 40, lineHeight: 44 },
+    heroMonth: {
+      letterSpacing: -0.8,
+      fontSize: 40,
+      lineHeight: 44,
+    },
     heroYear: { marginTop: 4, opacity: 0.88 },
     heroNav: { flexDirection: 'row', gap: spacing.sm, marginBottom: 4 },
     navBtn: {

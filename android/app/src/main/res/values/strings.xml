@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Sazda</string>
+    <string name="widget_today_desc">Shows all five daily prayer times with countdown to the next prayer.</string>
+    <string name="widget_flow_desc">Compact daily flow showing all prayer times at a glance.</string>
 </resources>

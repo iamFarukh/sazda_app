@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Alert,
   Linking,
   Platform,
   Pressable,
@@ -46,6 +45,7 @@ import {
   PRAYERS_PER_DAY,
 } from '../../utils/prayerTrackerStats';
 import { getNextSalahFromTodayTimings, getSuggestedLogPrayer } from '../../utils/prayerNextFromTimings';
+import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
 
 const DISPLAY_NAMES: Record<FiveDailyPrayer, string> = {
   Fajr: 'Fajr',
@@ -168,7 +168,7 @@ export function PrayerTrackerScreen() {
 
   const onResetDay = () => {
     const label = dayjs(selectedKey).format('MMM D');
-    Alert.alert(
+    AppAlert.show(
       `Reset ${label}?`,
       'Clears all ✓ / ✗ marks for this day.',
       [
@@ -179,6 +179,7 @@ export function PrayerTrackerScreen() {
           onPress: () => resetDay(selectedKey),
         },
       ],
+      { variant: 'confirmation' }
     );
   };
 
@@ -186,7 +187,7 @@ export function PrayerTrackerScreen() {
     if (value) {
       const ok = await requestNotificationPermission();
       if (!ok) {
-        Alert.alert(
+        AppAlert.show(
           'Notifications off',
           'Allow notifications for Sazda in system settings to get salah reminders.',
           [
@@ -196,6 +197,7 @@ export function PrayerTrackerScreen() {
               onPress: () => Linking.openSettings(),
             },
           ],
+          { variant: 'info' }
         );
         return;
       }

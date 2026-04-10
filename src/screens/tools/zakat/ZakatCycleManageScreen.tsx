@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Alert, FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useNavigation } from '@react-navigation/native';
@@ -21,6 +21,7 @@ import { radius } from '../../../theme/radius';
 import { spacing } from '../../../theme/spacing';
 import { fontFamilies } from '../../../theme/typography';
 import { useThemePalette } from '../../../theme/useThemePalette';
+import { AppAlert } from '../../../components/organisms/AppAlert/AppAlert';
 
 type Nav = NativeStackNavigationProp<ToolsStackParamList, 'ZakatCycleManage'>;
 
@@ -66,13 +67,13 @@ export function ZakatCycleManageScreen() {
     if (!editingDue) return;
     const rupees = parseRupeesInput(editDueTotal);
     if (rupees == null) {
-      Alert.alert('Due amount', 'Enter a valid total zakat due in ₹.');
+      AppAlert.show('Due amount', 'Enter a valid total zakat due in ₹.', undefined, { variant: 'info' });
       return;
     }
     const totalPaise = rupeesToPaise(rupees);
     const v = validateCycleTotalPaise(totalPaise);
     if (v) {
-      Alert.alert('Due amount', v);
+      AppAlert.show('Due amount', v, undefined, { variant: 'info' });
       return;
     }
     let zakatableWealthPaise: number | null;
@@ -82,7 +83,7 @@ export function ZakatCycleManageScreen() {
     } else {
       const w = parseRupeesInput(editDueWealth);
       if (w == null) {
-        Alert.alert('Wealth', 'Enter a valid zakatable wealth in ₹, or leave blank.');
+        AppAlert.show('Wealth', 'Enter a valid zakatable wealth in ₹, or leave blank.', undefined, { variant: 'info' });
         return;
       }
       zakatableWealthPaise = rupeesToPaise(w);
@@ -94,7 +95,7 @@ export function ZakatCycleManageScreen() {
   const submitNew = () => {
     const y = Number.parseInt(yearStr, 10);
     if (!Number.isFinite(y)) {
-      Alert.alert('Year', 'Enter a valid year.');
+      AppAlert.show('Year', 'Enter a valid year.', undefined, { variant: 'info' });
       return;
     }
     createCycle({
@@ -115,13 +116,14 @@ export function ZakatCycleManageScreen() {
   };
 
   const removeCycle = (item: ZakatCycle) => {
-    Alert.alert(
+    AppAlert.show(
       'Delete cycle?',
       'Deletes this cycle and all its payments from this device and cloud.',
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Delete', style: 'destructive', onPress: () => void deleteCycle(item.id, uid) },
       ],
+      { variant: 'destructive' }
     );
   };
 

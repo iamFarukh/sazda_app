@@ -1,6 +1,7 @@
 import { useEffect, useMemo } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { QiblaScreen } from '../screens/tools/QiblaScreen';
+import { QiblaARScreen } from '../screens/tools/QiblaARScreen';
 import { TasbeehScreen } from '../screens/tools/TasbeehScreen';
 import { ToolsHomeScreen } from '../screens/tools/ToolsHomeScreen';
 import { PrayerTrackerScreen } from '../screens/tools/PrayerTrackerScreen';
@@ -39,6 +40,7 @@ export function ToolsStackNavigator() {
         options={{ title: 'Tools', headerBackTitle: 'Tools', headerShown: false }}
       />
       <Stack.Screen name="Qibla" component={QiblaScreen} />
+      <Stack.Screen name="QiblaAR" component={QiblaARScreen} options={{ headerShown: false }} />
       <Stack.Screen name="Tasbeeh" component={TasbeehScreen} />
       <Stack.Screen
         name="ZakatHome"

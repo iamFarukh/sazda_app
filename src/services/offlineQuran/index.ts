@@ -32,5 +32,8 @@ export {
   loadSurahReaderDataOfflineFirst,
   readOfflineSurahReaderRows,
 } from './reader';
+export { persistSurahOnDemandAfterFetch } from './persistOnDemand';
+export { validateSurahPayload } from './validatePayload';
+export { clearSurahReaderMemoryCache } from './surahMemoryCache';
 export { readSurahPayload, writeSurahPayload } from './surahFile';
 export type { OfflineQuranManifest, StoredAyahRow, SurahOfflineEntry, SurahOfflinePayload } from './types';

@@ -35,6 +35,8 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Sazda uses your location to calculate accurate prayer times for where you are.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Sazda needs access to your camera to display the Augmented Reality Qibla viewer.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>

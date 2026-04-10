@@ -4,7 +4,7 @@ import { ChevronDown, MapPin } from 'lucide-react-native';
 import { SazdaText } from '../../atoms/SazdaText/SazdaText';
 import { radius } from '../../../theme/radius';
 import { spacing } from '../../../theme/spacing';
-import { fontFamilies, platformFontWeight } from '../../../theme/typography';
+import { fontFamilies, getFontConfig } from '../../../theme/typography';
 import type { AppPalette } from '../../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../../theme/useThemePalette';
 import { useThemePalette } from '../../../theme/useThemePalette';
@@ -63,10 +63,9 @@ function createStyles(c: AppPalette, _scheme: ResolvedScheme) {
     },
     disabled: { opacity: 0.5 },
     city: {
-      fontFamily: fontFamilies.headline,
+      ...getFontConfig(fontFamilies.headline, '700'),
       fontSize: 18,
       lineHeight: 22,
-      fontWeight: platformFontWeight('700'),
       letterSpacing: -0.35,
       flexShrink: 1,
     },

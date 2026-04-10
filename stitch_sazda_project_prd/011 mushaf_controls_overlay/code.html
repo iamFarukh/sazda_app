@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Al-Mushaf Reader</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "primary-fixed-dim": "#95d3ba",
+                      "outline-variant": "#bfc9c3",
+                      "surface-tint": "#2b6954",
+                      "surface-container-highest": "#e4e4cc",
+                      "surface-bright": "#fbfbe2",
+                      "on-primary-fixed-variant": "#0b513d",
+                      "surface": "#fbfbe2",
+                      "primary-fixed": "#b0f0d6",
+                      "primary-container": "#064e3b",
+                      "surface-container-high": "#eaead1",
+                      "surface-container-low": "#f5f5dc",
+                      "surface-variant": "#e4e4cc",
+                      "error-container": "#ffdad6",
+                      "secondary-fixed": "#ffe088",
+                      "on-tertiary": "#ffffff",
+                      "on-background": "#1b1d0e",
+                      "error": "#ba1a1a",
+                      "inverse-primary": "#95d3ba",
+                      "on-secondary-fixed-variant": "#574500",
+                      "tertiary-container": "#554127",
+                      "on-tertiary-container": "#c9ae8c",
+                      "on-secondary-container": "#745c00",
+                      "on-primary-fixed": "#002117",
+                      "on-primary-container": "#80bea6",
+                      "tertiary": "#3d2b13",
+                      "on-surface-variant": "#404944",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed-dim": "#dfc29f",
+                      "on-error-container": "#93000a",
+                      "outline": "#707974",
+                      "secondary-fixed-dim": "#e9c349",
+                      "inverse-on-surface": "#f2f2d9",
+                      "secondary-container": "#fed65b",
+                      "on-secondary": "#ffffff",
+                      "primary": "#003527",
+                      "on-surface": "#1b1d0e",
+                      "surface-container-lowest": "#ffffff",
+                      "on-primary": "#ffffff",
+                      "surface-container": "#efefd7",
+                      "inverse-surface": "#303221",
+                      "surface-dim": "#dbdcc3",
+                      "tertiary-fixed": "#fcdeba",
+                      "on-tertiary-fixed-variant": "#574329",
+                      "on-secondary-fixed": "#241a00",
+                      "secondary": "#735c00",
+                      "on-tertiary-fixed": "#281903",
+                      "background": "#fbfbe2"
+              },
+              "borderRadius": {
+                      "DEFAULT": "1rem",
+                      "lg": "2rem",
+                      "xl": "3rem",
+                      "full": "9999px"
+              },
+              "fontFamily": {
+                      "headline": ["Manrope"],
+                      "body": ["Plus Jakarta Sans"],
+                      "label": ["Plus Jakarta Sans"]
+              }
+            },
+          },
+        }
+      </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .arabic-text {
+            font-family: 'Traditional Arabic', serif;
+            line-height: 2.2;
+        }
+        .glass-overlay {
+            backdrop-filter: blur(24px);
+            background: rgba(251, 251, 226, 0.85);
+        }
+      </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface font-body min-h-screen overflow-hidden">
+<!-- Reader Background (The "Faint" Arabic Page) -->
+<div class="fixed inset-0 z-0 flex items-center justify-center p-8 opacity-40 select-none">
+<div class="max-w-2xl w-full text-center space-y-12">
+<div class="text-4xl md:text-6xl text-primary arabic-text text-right px-8">
+                بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
+            </div>
+<div class="text-3xl md:text-5xl text-on-surface-variant arabic-text text-right space-y-12 px-8">
+<p>الٓمٓ ﴿١﴾ ذَٰلِكَ ٱلۡكِتَٰبُ لَا رَيۡبَۛ فِيهِۛ هُدٗى لِّلۡمُتَّقِينَ ﴿٢﴾ ٱلَّذِينَ يُؤۡمِنُونَ بِٱلۡغَيۡبِ وَيُقِيمُونَ ٱلصَّلَوٰةَ وَمِمَّا رَزَقۡنَٰهُمۡ يُنفِقُونَ ﴿٣﴾</p>
+<p>وَٱلَّذِينَ يُؤۡمِنُونَ بِمَآ أُنزِلَ إِلَيۡكَ وَمَآ أُنزِلَ مِن قَبۡلِكَ وَبِٱلۡأٓخِرَةِ هُمۡ يُوقِنُونَ ﴿٤﴾ أُوْلَٰٓئِكَ عَلَىٰ هُدٗى مِّن رَّبِّهِمۡۖ وَأُوْلَٰٓئِكَ هُمُ ٱلۡمُفۡلِحُونَ ﴿٥﴾</p>
+</div>
+</div>
+</div>
+<!-- UI Overlay Shell -->
+<div class="relative z-10 min-h-screen flex flex-col justify-between pointer-events-none">
+<!-- TopAppBar Predicted Component -->
+<header class="fixed top-0 w-full z-50 pointer-events-auto bg-surface/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-[0_12px_40px_rgba(6,78,59,0.06)] flex justify-between items-center px-6 py-4 w-full">
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-emerald-900 hover:bg-emerald-50/50 transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+</button>
+<div class="flex flex-col">
+<h1 class="font-manrope tracking-tight font-bold text-lg text-emerald-900">Al-Baqarah</h1>
+<span class="font-label text-[10px] uppercase tracking-widest text-emerald-900/60">The Cow • 286 Verses</span>
+</div>
+</div>
+<div class="absolute left-1/2 -translate-x-1/2 text-center hidden md:block">
+<div class="bg-primary-container px-6 py-1.5 rounded-full shadow-lg">
+<span class="font-headline font-extrabold text-white text-sm">Page 2</span>
+</div>
+</div>
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-emerald-900/60 hover:bg-emerald-50/50 transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="share">share</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full text-emerald-900 hover:bg-emerald-50/50 transition-colors duration-300">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+</div>
+</header>
+<!-- Main Content Area (Spacers) -->
+<main class="flex-grow"></main>
+<!-- Bottom Reader Controls -->
+<nav class="fixed bottom-0 left-0 w-full z-50 pointer-events-auto">
+<!-- Floating Navigation Bar -->
+<div class="max-w-xl mx-auto mb-10 px-6">
+<div class="bg-surface/80 backdrop-blur-xl rounded-[3rem] shadow-[0_-12px_40px_rgba(6,78,59,0.06)] px-8 py-6 flex justify-around items-center relative overflow-hidden">
+<!-- Glass Shine -->
+<div class="absolute inset-0 bg-gradient-to-tr from-white/20 to-transparent pointer-events-none"></div>
+<!-- Translation Toggle (Active State example) -->
+<div class="flex flex-col items-center gap-1 group">
+<button class="flex items-center justify-center text-emerald-900/40 hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined" data-icon="translate">translate</span>
+</button>
+<span class="font-label uppercase tracking-widest text-[9px] text-emerald-900/40 font-bold">Translate</span>
+</div>
+<!-- Page Jump -->
+<div class="flex flex-col items-center gap-1 group">
+<button class="flex items-center justify-center bg-emerald-800 text-white rounded-full w-12 h-12 shadow-lg shadow-emerald-900/20 hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined" data-icon="import_contacts">import_contacts</span>
+</button>
+<span class="font-label uppercase tracking-widest text-[9px] text-emerald-800 font-bold">Jump</span>
+</div>
+<!-- Typography Settings (Aa) -->
+<div class="flex flex-col items-center gap-1 group">
+<button class="flex items-center justify-center text-emerald-900/40 hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined" data-icon="text_format">text_format</span>
+</button>
+<span class="font-label uppercase tracking-widest text-[9px] text-emerald-900/40 font-bold">Appearance</span>
+</div>
+<!-- Bookmark -->
+<div class="flex flex-col items-center gap-1 group">
+<button class="flex items-center justify-center text-emerald-900/40 hover:scale-110 transition-transform duration-300">
+<span class="material-symbols-outlined" data-icon="bookmark">bookmark</span>
+</button>
+<span class="font-label uppercase tracking-widest text-[9px] text-emerald-900/40 font-bold">Save</span>
+</div>
+</div>
+</div>
+<!-- Page Number for Mobile (If not visible in top) -->
+<div class="md:hidden w-full flex justify-center pb-6">
+<div class="bg-surface-container-highest px-4 py-1 rounded-full text-primary font-headline font-bold text-xs">
+                    PAGE 2
+                 </div>
+</div>
+</nav>
+</div>
+<!-- Quick Navigation Drawer (Predicted Component Placeholder Hidden) -->
+<div class="fixed inset-y-0 left-0 w-80 bg-surface shadow-2xl z-[60] transform -translate-x-full transition-transform duration-500 rounded-r-[3rem] p-6 flex flex-col gap-2">
+<h2 class="font-manrope font-bold text-emerald-900 text-xl mb-6">Quick Navigation</h2>
+<div class="bg-emerald-100 text-emerald-900 font-bold px-6 py-3 rounded-full flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="list_alt">list_alt</span>
+<span class="font-manrope text-base">Surah Index</span>
+</div>
+<div class="text-emerald-900/70 px-6 py-3 hover:bg-emerald-50 rounded-full transition-colors flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="grid_view">grid_view</span>
+<span class="font-manrope text-base">Juz Index</span>
+</div>
+<div class="text-emerald-900/70 px-6 py-3 hover:bg-emerald-50 rounded-full transition-colors flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="bookmark_heart">bookmark_heart</span>
+<span class="font-manrope text-base">Bookmarks</span>
+</div>
+<div class="text-emerald-900/70 px-6 py-3 hover:bg-emerald-50 rounded-full transition-colors flex items-center gap-3">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span class="font-manrope text-base">Reading History</span>
+</div>
+<div class="mt-auto p-4 bg-surface-container-low rounded-xl">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 bg-secondary-container rounded-lg flex items-center justify-center text-secondary">
+<span class="material-symbols-outlined" data-icon="military_tech">military_tech</span>
+</div>
+<div>
+<p class="text-xs font-bold text-primary opacity-60 uppercase tracking-tighter">Current Goal</p>
+<p class="text-sm font-headline font-bold text-primary">Daily reading: 4/10 pages</p>
+</div>
+</div>
+</div>
+</div>
+<!-- Background Pattern Decoration -->
+<div class="fixed bottom-0 right-0 w-96 h-96 opacity-10 pointer-events-none -mr-32 -mb-32">
+<div class="w-full h-full border-[20px] border-emerald-900 rounded-full"></div>
+<div class="absolute inset-10 border-[10px] border-emerald-800 rounded-full"></div>
+<div class="absolute inset-20 border-[5px] border-emerald-700 rounded-full"></div>
+</div>
+<img alt="" class="sr-only" data-alt="fine texture of antique yellowed manuscript paper with subtle grain and organic fiber details" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVIi9lIfEtNeSxX0IopBbUZDXTBjx11TLYX77o6ELiIQ4ofT0E-lZ4SiWX3_Chxg0GZrVrnNn0ekuWj7IYRRf6eDCQTrN_Bx4sa86kIH267qLThPwSFjqWrWjnbzRn5oWVl34v1CYf2qEX2Lx3RjcvTtiyEROEyK6H13RzOsKrXYsyFu7arPJkTXBvVtQ1Egn4NQ953_K7VvwyKKPau9GHlAVZ4NBdBokCR04KNRw3m28mgfSS76kud975EELpHVfwDNjxh-ppSy0"/>
+</body></html>

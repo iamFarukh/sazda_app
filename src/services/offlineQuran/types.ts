@@ -1,7 +1,9 @@
 import type { QuranApiSurah } from '../quranApi';
 
 export type SurahOfflineEntry = {
+  /** Arabic + English text stored and validated. */
   textComplete: boolean;
+  /** Per-ayah audio URLs stored in JSON (streaming; not necessarily cached on disk). */
   audioComplete: boolean;
   expectedAyahs: number;
   ayahsWithAudio: number;

@@ -6,7 +6,7 @@ import { ChevronRight, Navigation, RefreshCw } from 'lucide-react-native';
 import { SazdaText } from '../../atoms/SazdaText/SazdaText';
 import { radius } from '../../../theme/radius';
 import { spacing } from '../../../theme/spacing';
-import { fontFamilies, platformFontWeight } from '../../../theme/typography';
+import { fontFamilies, getFontConfig } from '../../../theme/typography';
 import type { AppPalette } from '../../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../../theme/useThemePalette';
 import { useThemePalette } from '../../../theme/useThemePalette';
@@ -159,8 +159,7 @@ function createStyles(c: AppPalette, _scheme: ResolvedScheme, bottomInset: numbe
       marginBottom: spacing.lg,
     },
     title: {
-      fontFamily: fontFamilies.headline,
-      fontWeight: platformFontWeight('700'),
+      ...getFontConfig(fontFamilies.headline, '700'),
       marginBottom: spacing.xs,
     },
     subtitle: {
@@ -194,8 +193,7 @@ function createStyles(c: AppPalette, _scheme: ResolvedScheme, bottomInset: numbe
       justifyContent: 'center',
     },
     primaryLabel: {
-      fontFamily: fontFamilies.body,
-      fontWeight: platformFontWeight('700'),
+      ...getFontConfig(fontFamilies.body, '700'),
       fontSize: 17,
       flex: 1,
     },
@@ -215,13 +213,13 @@ function createStyles(c: AppPalette, _scheme: ResolvedScheme, bottomInset: numbe
       paddingHorizontal: spacing.md,
       borderRadius: radius.full,
     },
-    textBtnLabel: { fontWeight: platformFontWeight('700') },
+    textBtnLabel: { ...getFontConfig(fontFamilies.body, '700') },
     cancelBtn: {
       paddingVertical: spacing.sm,
       paddingHorizontal: spacing.md,
       borderRadius: radius.full,
     },
-    cancelLabel: { fontWeight: platformFontWeight('600') },
+    cancelLabel: { ...getFontConfig(fontFamilies.body, '600') },
     pressed: { opacity: 0.85 },
   });
 }

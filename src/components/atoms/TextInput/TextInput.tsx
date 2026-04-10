@@ -18,14 +18,26 @@ type Props = Omit<RNTextInputProps, 'style'> & {
   right?: ReactNode;
   error?: string;
   containerStyle?: RNTextInputProps['style'];
+  /** Tighter vertical padding + shorter min height (e.g. landing search). */
+  density?: 'default' | 'compact';
 };
 
 /** Outer ring width + inset — kept constant so focus does not resize the field (avoids layout jump). */
 const RING = 2;
 
-export function TextInput({ left, right, error, containerStyle, onFocus, onBlur, ...props }: Props) {
+export function TextInput({
+  left,
+  right,
+  error,
+  containerStyle,
+  density = 'default',
+  onFocus,
+  onBlur,
+  ...props
+}: Props) {
   const { colors: c, scheme } = useThemePalette();
   const [focused, setFocused] = useState(false);
+  const compact = density === 'compact';
 
   const haloColor = inputFocusHaloOuter(scheme);
   const restingRing = inputFocusBorder({ primary: c.primary }, scheme);
@@ -34,11 +46,12 @@ export function TextInput({ left, right, error, containerStyle, onFocus, onBlur,
   const inputStyle = useMemo(() => {
     return [
       styles.input,
+      compact && styles.inputCompact,
       { color: c.onSurface },
       containerStyle,
       props.editable === false ? styles.disabled : null,
     ];
-  }, [containerStyle, props.editable, c.onSurface]);
+  }, [compact, containerStyle, props.editable, c.onSurface]);
 
   return (
     <View>
@@ -55,10 +68,11 @@ export function TextInput({ left, right, error, containerStyle, onFocus, onBlur,
         <View
           style={[
             styles.container,
+            compact && styles.containerCompact,
             {
               borderRadius: radius.full,
               backgroundColor: c.surfaceContainerLow,
-              minHeight: 48,
+              minHeight: compact ? 40 : 48,
             },
           ]}>
           {left ? <View style={styles.side}>{left}</View> : null}
@@ -98,12 +112,22 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
   },
+  containerCompact: {
+    paddingHorizontal: spacing.sm,
+    paddingVertical: spacing.xxs,
+  },
   input: {
     flex: 1,
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.xs,
     backgroundColor: 'transparent',
     ...typography.body,
+  },
+  inputCompact: {
+    paddingVertical: 2,
+    minHeight: 34,
+    fontSize: 15,
+    lineHeight: 20,
   },
   side: {
     marginHorizontal: spacing.xs,

@@ -1,4 +1,4 @@
-import { InteractionManager, Platform } from 'react-native';
+import { Platform } from 'react-native';
 import Geolocation from '@react-native-community/geolocation';
 
 /**
@@ -25,13 +25,18 @@ function formatGeolocationError(err: GeoErr): string {
 }
 
 /**
- * Android: try fast approximate / cached fix first, then high-accuracy (GPS / fused).
- * iOS: single high-accuracy request (existing behavior).
+ * Schedule work after the current JS frame is idle.
+ * Uses `requestIdleCallback` where available (newer RN), falls back to `setTimeout`.
  */
-function runAfterInteractions(fn: () => void): void {
-  InteractionManager.runAfterInteractions(() => {
-    setTimeout(fn, Platform.OS === 'android' ? 120 : 0);
-  });
+function runWhenIdle(fn: () => void): void {
+  const delay = Platform.OS === 'android' ? 120 : 0;
+  const scheduled = () => setTimeout(fn, delay);
+
+  if (typeof globalThis.requestIdleCallback === 'function') {
+    globalThis.requestIdleCallback(scheduled);
+  } else {
+    setTimeout(scheduled, 0);
+  }
 }
 
 export function requestDevicePosition(
@@ -47,7 +52,7 @@ export function requestDevicePosition(
         err => {
           if (err.code === 1 && allowPermissionRetry) {
             // Right after Allow, native stack sometimes still returns PERMISSION_DENIED once.
-            runAfterInteractions(() => {
+            runWhenIdle(() => {
               tryLowThenHigh(false);
             });
             return;
@@ -74,7 +79,7 @@ export function requestDevicePosition(
       );
     };
 
-    runAfterInteractions(() => tryLowThenHigh(true));
+    runWhenIdle(() => tryLowThenHigh(true));
     return;
   }
 

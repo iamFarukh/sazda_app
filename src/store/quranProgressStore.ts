@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import type { FirestoreQuranPayload } from '../services/firebase/userDocument';
 import { writeUserBookmark, deleteUserBookmark } from '../services/firebase/userDocument';
+import type { MushafTheme } from '../services/mushaf/mushafTheme';
 import { useAuthStore } from './authStore';
 import { mmkv } from '../services/storage';
 
@@ -31,6 +32,10 @@ type QuranProgressState = {
   bookmarks: QuranBookmark[];
   /** Show English translation under Arabic in the reader. */
   showTranslation: boolean;
+  /** Surah list reader: Arabic + translation size multiplier (persisted locally). */
+  surahReaderFontScale: number;
+  /** Surah list reader: paper theme (light / sepia / dark). */
+  surahReaderTheme: MushafTheme;
   /** Rough engagement metric: distinct ayah “visits” while reading (debounced in reader). */
   ayahsEngagedTotal: number;
   /** Last successful Firestore quran write or remote merge (for conflict ordering). */
@@ -40,6 +45,8 @@ type QuranProgressState = {
   recordAyahEngagement: (surahNumber: number, ayahNumber: number) => void;
   touchRecentSurah: (surahNumber: number) => void;
   setShowTranslation: (value: boolean) => void;
+  setSurahReaderFontScale: (n: number) => void;
+  setSurahReaderTheme: (t: MushafTheme) => void;
   addBookmark: (surahNumber: number, ayahNumber: number) => void;
   removeBookmark: (surahNumber: number, ayahNumber: number) => void;
   isBookmarked: (surahNumber: number, ayahNumber: number) => boolean;
@@ -63,6 +70,8 @@ export const useQuranProgressStore = create<QuranProgressState>()(
       recentSurahs: [],
       bookmarks: [],
       showTranslation: true,
+      surahReaderFontScale: 1,
+      surahReaderTheme: 'light',
       ayahsEngagedTotal: 0,
       lastFirestoreWriteMs: 0,
       _lastCountedAyahKey: null,
@@ -84,6 +93,11 @@ export const useQuranProgressStore = create<QuranProgressState>()(
       },
 
       setShowTranslation: value => set({ showTranslation: value }),
+
+      setSurahReaderFontScale: n =>
+        set({ surahReaderFontScale: Math.min(1.38, Math.max(0.82, n)) }),
+
+      setSurahReaderTheme: t => set({ surahReaderTheme: t }),
 
       applyRemoteQuran: remote =>
         set(s => {
@@ -192,6 +206,8 @@ export const useQuranProgressStore = create<QuranProgressState>()(
         showTranslation: s.showTranslation,
         ayahsEngagedTotal: s.ayahsEngagedTotal,
         lastFirestoreWriteMs: s.lastFirestoreWriteMs,
+        surahReaderFontScale: s.surahReaderFontScale,
+        surahReaderTheme: s.surahReaderTheme,
       }),
     },
   ),
