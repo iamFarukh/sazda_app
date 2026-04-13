@@ -76,24 +76,70 @@ class TodayPrayerWidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(R.id.widget_next_label, "Next in")
 
                     // Subtitle lines — mode-aware
-                    val subtitlePrimary = when (mode) {
+                    var currentHighlight = highlight
+                    var finalNextName = nextName
+                    var finalSubtitlePrimary = when (mode) {
                         "makruh" -> "⚠ Makruh time"
                         "night" -> "🌙 Next: $nextName"
                         "between" -> "Next: $nextName"
                         else -> "Next: $nextName"
                     }
-                    views.setTextViewText(R.id.widget_subtitle, subtitlePrimary)
-                    views.setTextViewText(R.id.widget_subtitle2, subtitle)
-
-                    // Color the subtitle for makruh
-                    val subtitleColor = when (mode) {
+                    var subtitleColor = when (mode) {
                         "makruh" -> Color.parseColor("#8B6508")
                         else -> Color.parseColor(GREEN)
                     }
-                    views.setTextColor(R.id.widget_subtitle, subtitleColor)
 
                     // Schedule rows
                     val schedule = json.optJSONArray("schedule")
+                    if (schedule != null) {
+                        val now = System.currentTimeMillis()
+                        val updated = prefs.getLong(PrayerWidgetModule.KEY_UPDATED, now)
+
+                        if (now - updated > 120_000) {
+                            var computedCurrent = ""
+                            var computedNext = "Fajr"
+                            var computedNextTime = 0L
+
+                            for (i in 0 until schedule.length().coerceAtMost(5)) {
+                                val entry = schedule.getJSONObject(i)
+                                val t = entry.optLong("timeMillis", 0L)
+                                if (now >= t) {
+                                    computedCurrent = entry.optString("name", "")
+                                    if (i + 1 < schedule.length()) {
+                                        computedNext = schedule.getJSONObject(i + 1).optString("name", "Fajr")
+                                        computedNextTime = schedule.getJSONObject(i + 1).optLong("timeMillis", 0L)
+                                    } else {
+                                        computedNext = "Fajr"
+                                    }
+                                }
+                            }
+                            
+                            currentHighlight = computedCurrent
+                            finalNextName = computedNext
+                            
+                            if (computedCurrent.isNotEmpty()) {
+                                finalSubtitlePrimary = "Next: $computedNext" 
+                                subtitleColor = Color.parseColor(GREEN)
+                            } else {
+                                finalSubtitlePrimary = "Next: Fajr"
+                                subtitleColor = Color.parseColor(GREEN)
+                            }
+
+                            if (computedNextTime > now) {
+                                val diff = computedNextTime - now
+                                val min = diff / 60000 % 60
+                                val h = diff / 3600000
+                                views.setTextViewText(R.id.widget_countdown, if (h > 0) "${h}h ${min}m" else "${min}m")
+                            } else {
+                                views.setTextViewText(R.id.widget_countdown, "--")
+                            }
+                        }
+                    }
+
+                    views.setTextViewText(R.id.widget_subtitle, finalSubtitlePrimary)
+                    views.setTextViewText(R.id.widget_subtitle2, subtitle)
+                    views.setTextColor(R.id.widget_subtitle, subtitleColor)
+
                     if (schedule != null) {
                         for (i in 0 until schedule.length().coerceAtMost(5)) {
                             val entry = schedule.getJSONObject(i)
@@ -104,7 +150,7 @@ class TodayPrayerWidgetProvider : AppWidgetProvider() {
                             views.setTextViewText(row.nameId, name)
                             views.setTextViewText(row.timeId, time12)
 
-                            val isHighlighted = name == highlight
+                            val isHighlighted = name == currentHighlight
                             if (isHighlighted) {
                                 views.setInt(row.rowId, "setBackgroundResource", R.drawable.widget_row_highlight_bg)
                                 views.setTextColor(row.nameId, Color.parseColor(GREEN))

@@ -272,15 +272,17 @@ export function SignInScreen() {
               </SazdaText>
             ) : null}
 
-            <Pressable
-              onPress={signInAsGuest}
-              style={({ pressed }) => [styles.guestBtn, pressed && { opacity: 0.85 }]}
-              accessibilityRole="button"
-              accessibilityLabel="Continue as guest">
-              <SazdaText variant="bodyMedium" color="primary" style={styles.guestText}>
-                Continue as guest
-              </SazdaText>
-            </Pressable>
+            {__DEV__ ? (
+              <Pressable
+                onPress={signInAsGuest}
+                style={({ pressed }) => [styles.guestBtn, pressed && { opacity: 0.85 }]}
+                accessibilityRole="button"
+                accessibilityLabel="Continue as guest">
+                <SazdaText variant="bodyMedium" color="primary" style={styles.guestText}>
+                  Continue as guest
+                </SazdaText>
+              </Pressable>
+            ) : null}
           </View>
         </View>
 

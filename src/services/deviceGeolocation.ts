@@ -30,10 +30,12 @@ function formatGeolocationError(err: GeoErr): string {
  */
 function runWhenIdle(fn: () => void): void {
   const delay = Platform.OS === 'android' ? 120 : 0;
-  const scheduled = () => setTimeout(fn, delay);
+  function scheduled() {
+    setTimeout(fn, delay);
+  }
 
-  if (typeof globalThis.requestIdleCallback === 'function') {
-    globalThis.requestIdleCallback(scheduled);
+  if (typeof (globalThis as any).requestIdleCallback === 'function') {
+    (globalThis as any).requestIdleCallback(scheduled);
   } else {
     setTimeout(scheduled, 0);
   }

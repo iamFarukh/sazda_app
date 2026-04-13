@@ -1,6 +1,8 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
+import { scheduleTasbeehCloudSync } from '../services/tasbeehCloudSync';
+import type { TasbeehRemoteLog } from '../services/firebase/tasbeehFirestore';
 
 export type TasbeehPhaseId = 'subhan' | 'hamd' | 'takbir';
 
@@ -61,13 +63,11 @@ type TasbeehState = {
   tap: () => void;
   resetPhase: () => void;
   resetAll: () => void;
+
+  lastUpdatedAt?: number;
+  mergeFromRemote: (remote: TasbeehRemoteLog) => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 export const useTasbeehStore = create<TasbeehState>()(
   persist(
@@ -78,6 +78,7 @@ export const useTasbeehStore = create<TasbeehState>()(
       goalMode: 'traditional33',
       customTarget: 33,
       hapticsEnabled: true,
+      lastUpdatedAt: 0,
 
       setHapticsEnabled: v => set({ hapticsEnabled: v }),
 
@@ -110,7 +111,7 @@ export const useTasbeehStore = create<TasbeehState>()(
 
       getLabel: () => TASBEEH_LABELS[get().getPhase()],
 
-      tap: () =>
+      tap: () => {
         set(state => {
           const mode = state.goalMode;
           let target: number;
@@ -146,21 +147,37 @@ export const useTasbeehStore = create<TasbeehState>()(
           return {
             currentCount: 0,
             cycles: state.cycles + 1,
+            lastUpdatedAt: Date.now(),
           };
-        }),
+        });
+        scheduleTasbeehCloudSync();
+      },
 
-      resetPhase: () => set({ currentCount: 0 }),
+      resetPhase: () => set({ currentCount: 0, lastUpdatedAt: Date.now() }),
 
-      resetAll: () =>
+      resetAll: () => {
         set({
           phaseIndex: 0,
           currentCount: 0,
           cycles: 0,
+          lastUpdatedAt: Date.now(),
+        });
+        scheduleTasbeehCloudSync();
+      },
+
+      mergeFromRemote: (remote) =>
+        set(state => {
+          if ((state.lastUpdatedAt || 0) >= remote.updatedAt) return state;
+          // Only overwrite cycles from remote if remote is newer
+          return {
+            cycles: Math.max(state.cycles, remote.cycles),
+            lastUpdatedAt: remote.updatedAt,
+          };
         }),
     }),
     {
       name: 'sazda-tasbeeh',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       partialize: s => ({
         phaseIndex: s.phaseIndex,
         currentCount: s.currentCount,
@@ -168,6 +185,7 @@ export const useTasbeehStore = create<TasbeehState>()(
         hapticsEnabled: s.hapticsEnabled,
         goalMode: s.goalMode,
         customTarget: s.customTarget,
+        lastUpdatedAt: s.lastUpdatedAt,
       }),
     },
   ),

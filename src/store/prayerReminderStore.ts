@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
 import { FIVE_DAILY_PRAYERS, type FiveDailyPrayer } from './prayerTrackerStore';
 
 /** Minutes after Adhan notification before gentle follow-up (system sound only). */
@@ -39,11 +39,6 @@ type PrayerReminderState = {
   setFollowUpEnabled: (p: FiveDailyPrayer, v: boolean) => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 export const usePrayerReminderStore = create<PrayerReminderState>()(
   persist(
@@ -62,7 +57,7 @@ export const usePrayerReminderStore = create<PrayerReminderState>()(
     }),
     {
       name: 'sazda-prayer-reminders',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       partialize: s => ({
         masterEnabled: s.masterEnabled,
         reminderDelayMinutes: s.reminderDelayMinutes,

@@ -161,13 +161,22 @@ export function QiblaScreen() {
     continuousHeadingRef.current += diff;
     prevHeadingRef.current = heading;
 
-    // Apply a tighter, more responsive native spring curve for instant, smooth orientation tracking
-    headingSv.value = withSpring(continuousHeadingRef.current, {
-      damping: 35,
-      stiffness: 450,
-      mass: 0.4,
-      overshootClamping: false, // allow minimal natural swing for realism
-    });
+    if (Platform.OS === 'android') {
+      // Android receives throttled 2-degree chunks to save battery and bridge glutter. 
+      // linear interpolation prevents the violent spring bounce overshoots.
+      headingSv.value = withTiming(continuousHeadingRef.current, {
+        duration: 250,
+        easing: Easing.out(Easing.cubic),
+      });
+    } else {
+      // iOS has 60fps continuous heading updates, spring bounce looks perfect
+      headingSv.value = withSpring(continuousHeadingRef.current, {
+        damping: 35,
+        stiffness: 450,
+        mass: 0.4,
+        overshootClamping: false,
+      });
+    }
   }, [heading, headingSv]);
 
   useEffect(() => {

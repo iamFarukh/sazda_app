@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
 
 type AppState = {
   hasSeenOnboarding: boolean;
@@ -8,11 +8,6 @@ type AppState = {
   resetOnboarding: () => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 export const useAppStore = create<AppState>()(
   persist(
@@ -23,7 +18,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'sazda-app',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       partialize: s => ({ hasSeenOnboarding: s.hasSeenOnboarding }),
     },
   ),

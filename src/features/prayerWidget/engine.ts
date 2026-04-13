@@ -41,8 +41,8 @@ function parseDay(now: Date, today: PrayerTimingsDay) {
   return { day0, t };
 }
 
-function scheduleRows(t: ReturnType<typeof parseDay>['t']): { name: DailyPrayerName; time12: string }[] {
-  return FIVE.map(name => ({ name, time12: formatTime12h(t[name]) }));
+function scheduleRows(t: ReturnType<typeof parseDay>['t']): { name: DailyPrayerName; time12: string; timeMillis: number }[] {
+  return FIVE.map(name => ({ name, time12: formatTime12h(t[name]), timeMillis: t[name].getTime() }));
 }
 
 /**

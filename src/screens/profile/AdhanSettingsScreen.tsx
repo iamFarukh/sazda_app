@@ -1,9 +1,9 @@
-import { ScrollView, StyleSheet, Switch, Text, View, Pressable, ActivityIndicator } from 'react-native';
+import { ScrollView, StyleSheet, Switch, Text, View, Pressable } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { ChevronLeft, Volume2, Volume1, VolumeX, Vibrate, Music, Bell } from 'lucide-react-native';
+import { ChevronLeft, Volume2, Volume1, VolumeX, Vibrate, Music } from 'lucide-react-native';
 import { useThemePalette } from '../../theme/useThemePalette';
 import { radius } from '../../theme/radius';
 import { spacing } from '../../theme/spacing';
@@ -18,14 +18,7 @@ import { getBuiltinAdhanDisplayName, getBuiltinAdhanBundleFile } from '../../con
 import { FIVE_DAILY_PRAYERS, type FiveDailyPrayer } from '../../store/prayerTrackerStore';
 import type { ProfileStackParamList } from '../../navigation/types';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { useMemo, useState } from 'react';
-import {
-  requestNotificationPermission,
-  sendTestAdhanNotification,
-  scheduleTestAdhanInSeconds,
-} from '../../services/prayerReminders';
-import { playBundledAdhanPreview } from '../../services/adhanPreview';
-import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
+import { useMemo } from 'react';
 
 type Nav = NativeStackNavigationProp<ProfileStackParamList, 'AdhanSettings'>;
 
@@ -52,24 +45,7 @@ export function AdhanSettingsScreen() {
   const setVibrationEnabled = useAdhanSettingsStore(s => s.setVibrationEnabled);
   const setPrayerVolumeMode = useAdhanSettingsStore(s => s.setPrayerVolumeMode);
 
-  const [testBusy, setTestBusy] = useState(false);
 
-  const runNotificationTest = async (fn: () => Promise<void>) => {
-    setTestBusy(true);
-    try {
-      const ok = await requestNotificationPermission();
-      if (!ok) {
-        AppAlert.show('Permission needed', 'Allow notifications to hear and see test alerts.', undefined, { variant: 'info' });
-        return;
-      }
-      await fn();
-      AppAlert.show('Test sent', 'Check your notification shade or lock screen.', undefined, { variant: 'success' });
-    } catch (e) {
-      AppAlert.show('Test failed', e instanceof Error ? e.message : String(e), undefined, { variant: 'destructive' });
-    } finally {
-      setTestBusy(false);
-    }
-  };
 
   const computedGlobalMode = useMemo(() => {
     const modes = Object.values(byPrayer).map(p => p.volumeMode);
@@ -305,68 +281,6 @@ export function AdhanSettingsScreen() {
             />
           </View>
 
-          <View style={[styles.testSection, { backgroundColor: c.surfaceContainerLow }]}>
-            <View style={styles.rowLeft}>
-              <Bell size={22} color={c.primary} opacity={0.6} />
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.rowTitle, { color: c.primary }]}>Try alerts</Text>
-                <Text style={[styles.rowSub, { color: c.onSurfaceVariant }]}>
-                  Uses Fajr sound & volume. Scheduled test fires once in ~15s — put the app in background.
-                </Text>
-              </View>
-            </View>
-            {testBusy ? (
-              <ActivityIndicator style={{ marginTop: spacing.sm }} color={c.primary} />
-            ) : (
-              <View style={styles.testBtnColumn}>
-                <Pressable
-                  onPress={() => runNotificationTest(() => sendTestAdhanNotification('Fajr'))}
-                  style={({ pressed }) => [
-                    styles.testBtn,
-                    { backgroundColor: c.primaryContainer },
-                    pressed && { opacity: 0.85 },
-                  ]}>
-                  <Text style={[styles.testBtnText, { color: c.onPrimaryContainer }]}>Now: Adhan preview</Text>
-                </Pressable>
-                <Pressable
-                  onPress={() =>
-                    runNotificationTest(() => scheduleTestAdhanInSeconds(15, 'Fajr'))
-                  }
-                  style={({ pressed }) => [
-                    styles.testBtn,
-                    { backgroundColor: c.surfaceContainerHighest, borderWidth: 1, borderColor: c.outlineVariant },
-                    pressed && { opacity: 0.85 },
-                  ]}>
-                  <Text style={[styles.testBtnText, { color: c.primary }]}>Schedule test (15s)</Text>
-                </Pressable>
-                <Pressable
-                  onPress={async () => {
-                    if (!getBuiltinAdhanBundleFile(byPrayer.Fajr.soundId)) {
-                      AppAlert.show(
-                        'Built-in sounds only',
-                        'Preview here works for bundled adhans. For custom uploads, open Sound selection and use the play button there.',
-                        undefined,
-                        { variant: 'info' }
-                      );
-                      return;
-                    }
-                    setTestBusy(true);
-                    try {
-                      await playBundledAdhanPreview(byPrayer.Fajr.soundId);
-                    } finally {
-                      setTestBusy(false);
-                    }
-                  }}
-                  style={({ pressed }) => [
-                    styles.testBtn,
-                    { backgroundColor: c.surfaceContainerHighest, borderWidth: 1, borderColor: c.outlineVariant },
-                    pressed && { opacity: 0.85 },
-                  ]}>
-                  <Text style={[styles.testBtnText, { color: c.primary }]}>Play Fajr sound in app</Text>
-                </Pressable>
-              </View>
-            )}
-          </View>
 
         </Animated.View>
       </ScrollView>
@@ -546,24 +460,5 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     flex: 1,
   },
-  testSection: {
-    borderRadius: radius.md,
-    padding: spacing.md,
-    marginTop: spacing.sm,
-  },
-  testBtnColumn: {
-    marginTop: spacing.sm,
-    gap: spacing.sm,
-  },
-  testBtn: {
-    paddingVertical: spacing.sm,
-    paddingHorizontal: spacing.md,
-    borderRadius: radius.md,
-    alignItems: 'center',
-  },
-  testBtnText: {
-    fontFamily: fontFamilies.headline,
-    fontSize: 14,
-    fontWeight: '700',
-  },
+
 });

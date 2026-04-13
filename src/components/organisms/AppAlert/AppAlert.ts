@@ -56,7 +56,7 @@ class AppAlertClass {
     this.subscribers.add(callback);
     // Emit immediate current state
     callback(this.currentConfig);
-    return () => this.subscribers.delete(callback);
+    return () => { this.subscribers.delete(callback); };
   }
 
   private notify() {

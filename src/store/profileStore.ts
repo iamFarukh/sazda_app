@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
 
 export const DEFAULT_GUEST_TAGLINE = 'Journeying towards Taqwa';
 export const DEFAULT_FEATURED_DUA =
@@ -32,11 +32,6 @@ type ProfileState = {
   resetToGuestDefaults: () => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 const guestBaseline = (): Pick<
   ProfileState,
@@ -75,7 +70,7 @@ export const useProfileStore = create<ProfileState>()(
     }),
     {
       name: 'sazda-profile',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       partialize: s => ({
         displayName: s.displayName,
         photoURL: s.photoURL,

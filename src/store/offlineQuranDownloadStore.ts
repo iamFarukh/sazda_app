@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage, mmkv } from '../services/storage';
 import { deleteAllOfflineQuranData } from '../services/offlineQuran/deleteAll';
 import { clearSurahReaderMemoryCache } from '../services/offlineQuran/surahMemoryCache';
 import { runFullOfflineDownload, runOfflineDownloadQueue } from '../services/offlineQuran/downloadRunner';
@@ -51,11 +51,6 @@ type State = {
   runFullDownloadSequential: () => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 function applyPatch(
   set: (partial: Partial<State>) => void,
@@ -246,7 +241,7 @@ export const useOfflineQuranDownloadStore = create<State>()(
     }),
     {
       name: 'offline-quran-download',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       partialize: s => ({ queue: s.queue }),
     },
   ),

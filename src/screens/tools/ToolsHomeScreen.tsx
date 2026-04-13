@@ -43,6 +43,27 @@ function nextPrayerTimeLabel(
   return formatHhmmTo12h(row);
 }
 
+const DAILY_WISDOM_QUOTES = [
+  { text: 'Verily, with hardship comes ease.', ref: 'Surah Ash-Sharh 94:5' },
+  { text: 'Verily, in the remembrance of Allah do hearts find rest.', ref: 'Surah Ar-Ra\'d 13:28' },
+  { text: 'And whoever relies upon Allah - then He is sufficient for him.', ref: 'Surah At-Talaq 65:3' },
+  { text: 'So be patient. Indeed, the promise of Allah is truth.', ref: 'Surah Ar-Rum 30:60' },
+  { text: 'He knows what is within the breasts.', ref: 'Surah Al-Mulk 67:13' },
+  { text: 'And My mercy encompasses all things.', ref: 'Surah Al-A\'raf 7:156' },
+  { text: 'Allah is with the patient.', ref: 'Surah Al-Baqarah 2:153' },
+  { text: 'Call upon Me; I will respond to you.', ref: 'Surah Ghafir 40:60' },
+  { text: 'The most beloved of deeds to Allah are those that are most consistent, even if it is small.', ref: 'Sahih al-Bukhari 6464' },
+  { text: 'Richness is not having many possessions, but richness is being content with oneself.', ref: 'Sahih Muslim 1051' },
+];
+
+function getDailyWisdom(dateKey: string) {
+  let hash = 0;
+  for (let i = 0; i < dateKey.length; i++) {
+    hash = (hash * 31 + dateKey.charCodeAt(i)) % 1000;
+  }
+  return DAILY_WISDOM_QUOTES[hash % DAILY_WISDOM_QUOTES.length];
+}
+
 export function ToolsHomeScreen() {
   const navigation = useNavigation<Nav>();
   const displayName = useProfileStore(s => s.displayName.trim() || 'Guest');
@@ -72,6 +93,8 @@ export function ToolsHomeScreen() {
     todayTimings && hero && !permissionDenied ? nextPrayerLabel : '—';
   const remainingDisplay =
     todayTimings && hero && !permissionDenied ? countdownLabel : prayerLoading ? '…' : '—';
+
+  const dailyWisdom = useMemo(() => getDailyWisdom(todayDateKey), [todayDateKey]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -248,10 +271,10 @@ export function ToolsHomeScreen() {
           <View style={styles.wisdomDots} pointerEvents="none" />
           <Quote size={36} color={c.secondary} strokeWidth={1.75} style={styles.wisdomQuoteIcon} />
           <SazdaText variant="bodyMedium" color="primary" align="center" style={styles.wisdomQuote}>
-            “Verily, in the remembrance of Allah do hearts find rest.”
+            “{dailyWisdom.text}”
           </SazdaText>
           <SazdaText variant="label" color="secondary" style={styles.wisdomRef}>
-            Surah Ar-Ra&apos;d 13:28
+            {dailyWisdom.ref}
           </SazdaText>
         </View>
       </ScrollView>

@@ -11,26 +11,36 @@
  * Android: add SHA-1 in Firebase for package `com.sazda`.
  */
 
+import {
+  FIREBASE_API_KEY,
+  FIREBASE_AUTH_DOMAIN,
+  FIREBASE_PROJECT_ID,
+  FIREBASE_STORAGE_BUCKET,
+  FIREBASE_MESSAGING_SENDER_ID,
+  FIREBASE_APP_ID,
+  FIREBASE_MEASUREMENT_ID,
+  GOOGLE_WEB_CLIENT_ID,
+  GOOGLE_IOS_CLIENT_ID,
+} from '@env';
+
 export const firebasePublicConfig = {
-  apiKey: 'AIzaSyBRrjy7rnuOC7EKZT520EPCzn48PWHglP0',
-  authDomain: 'sazda-ce392.firebaseapp.com',
-  projectId: 'sazda-ce392',
-  storageBucket: 'sazda-ce392.firebasestorage.app',
-  messagingSenderId: '589686095543',
-  appId: '1:589686095543:web:4072fc713b3d6c0da1d732',
-  measurementId: 'G-YH5P64XNL4',
+  apiKey: FIREBASE_API_KEY,
+  authDomain: FIREBASE_AUTH_DOMAIN,
+  projectId: FIREBASE_PROJECT_ID,
+  storageBucket: FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: FIREBASE_MESSAGING_SENDER_ID,
+  appId: FIREBASE_APP_ID,
+  measurementId: FIREBASE_MEASUREMENT_ID,
 };
 
 /**
  * OAuth 2.0 **Web** client ID (ends with `.apps.googleusercontent.com`).
  * Required by `@react-native-google-signin/google-signin` for `idToken` → Firebase Auth.
  */
-export const googleWebClientId =
-  '589686095543-52du413vosth04mpb7inptm9gsidn39t.apps.googleusercontent.com';
+export const googleWebClientId = GOOGLE_WEB_CLIENT_ID;
 
 /** iOS OAuth client ID — must match `CLIENT_ID` in `ios/Sazda/GoogleService-Info.plist`. */
-export const googleIosClientId =
-  '589686095543-e1esqc195ghm75kh5p7tv4du2mkrhvgq.apps.googleusercontent.com';
+export const googleIosClientId = GOOGLE_IOS_CLIENT_ID;
 
 function looksLikePlaceholderWebConfig(): boolean {
   const { apiKey, projectId } = firebasePublicConfig;

@@ -73,7 +73,7 @@ export function AppAlertManager() {
   if (variant === 'destructive' || variant === 'confirmation') {
     IconComponent = variant === 'confirmation' ? LogOut : AlertCircle;
     iconColor = variant === 'confirmation' ? c.secondary : c.error;
-    iconBgColor = variant === 'confirmation' ? c.surfaceContainerLow : c.errorContainer;
+    iconBgColor = variant === 'confirmation' ? c.surfaceContainerLow : 'rgba(255, 0, 0, 0.1)';
   } else if (variant === 'success') {
     IconComponent = CheckCircle2;
     iconColor = '#ffffff'; 

@@ -23,6 +23,8 @@ import {
   type PrayerMark,
   usePrayerTrackerStore,
 } from '../../store/prayerTrackerStore';
+import { useAuthStore } from '../../store/authStore';
+import { pullAndMergePrayer, setPrayerSyncUser } from '../../services/prayerTrackerCloudSync';
 import {
   cancelAllAdhanReminders,
   requestNotificationPermission,
@@ -71,6 +73,8 @@ export function PrayerTrackerScreen() {
   useEffect(() => {
     if (selectedKey > todayKey) setSelectedKey(todayKey);
   }, [todayKey, selectedKey]);
+
+  const uid = useAuthStore(s => s.firebaseUser?.uid ?? null);
 
   const byDay = usePrayerTrackerStore(s => s.byDay);
   const markPrayer = usePrayerTrackerStore(s => s.markPrayer);
@@ -149,8 +153,10 @@ export function PrayerTrackerScreen() {
 
   useFocusEffect(
     useCallback(() => {
+      setPrayerSyncUser(uid);
+      if (uid) void pullAndMergePrayer(uid);
       syncReminders();
-    }, [syncReminders]),
+    }, [syncReminders, uid]),
   );
 
   useEffect(() => {

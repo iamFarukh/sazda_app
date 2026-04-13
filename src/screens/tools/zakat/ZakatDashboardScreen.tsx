@@ -99,10 +99,12 @@ export function ZakatDashboardScreen() {
         <Pressable
           onPress={() => navigation.navigate('ZakatCycleManage')}
           style={[styles.cycleCard, { backgroundColor: c.surfaceContainerLow }]}>
-          <Text style={[styles.cycleCardTitle, { color: c.onSurface }]}>Zakat cycle</Text>
-          <Text style={[styles.cycleCardHint, { color: c.onSurfaceVariant }]}>
-            Switch year / manage cycles
-          </Text>
+          <View style={styles.cycleCardTextContainer}>
+            <Text style={[styles.cycleCardTitle, { color: c.onSurface }]}>Zakat cycle</Text>
+            <Text style={[styles.cycleCardHint, { color: c.onSurfaceVariant }]}>
+              Switch year / manage cycles
+            </Text>
+          </View>
           <ChevronRight size={20} color={c.onSurfaceVariant} style={styles.cycleChevron} />
         </Pressable>
 
@@ -244,11 +246,18 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.lg,
     marginTop: spacing.sm,
-    position: 'relative',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cycleCardTextContainer: {
+    flex: 1,
+    minWidth: 0,
+    paddingRight: spacing.md,
   },
   cycleCardTitle: { fontSize: 16, fontWeight: '800' },
   cycleCardHint: { fontSize: 12, marginTop: 4 },
-  cycleChevron: { position: 'absolute', right: spacing.lg, top: '50%', marginTop: -10 },
+  cycleChevron: {},
   hero: {
     flexDirection: 'row',
     borderRadius: radius.md,

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
 
 export type SavedPrayerLocation = {
   latitude: number;
@@ -15,11 +15,6 @@ type State = {
   clear: () => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 export const usePrayerLocationStore = create<State>()(
   persist(
@@ -30,7 +25,7 @@ export const usePrayerLocationStore = create<State>()(
     }),
     {
       name: 'sazda-prayer-location',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       partialize: s => ({ saved: s.saved }),
     },
   ),

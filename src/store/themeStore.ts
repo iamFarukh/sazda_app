@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
 
 export type ThemePreference = 'light' | 'dark' | 'system';
 
@@ -9,11 +9,6 @@ type ThemeState = {
   setPreference: (p: ThemePreference) => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 export const useThemeStore = create<ThemeState>()(
   persist(
@@ -23,7 +18,7 @@ export const useThemeStore = create<ThemeState>()(
     }),
     {
       name: 'sazda-theme',
-      storage: mmkvStorage,
+      storage: zustandStorage,
     },
   ),
 );

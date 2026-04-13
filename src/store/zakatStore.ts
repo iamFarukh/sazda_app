@@ -1,17 +1,12 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 import { newZakatId } from '../features/zakat/ids';
 import type { ZakatCycle, ZakatPayment, ZakatPaymentCategory } from '../features/zakat/types';
 import { validateCycleTotalPaise, validatePaymentAmountPaise } from '../features/zakat/derive';
-import { mmkv } from '../services/storage';
+import { zustandStorage } from '../services/storage';
 import { deleteZakatCycleRemote, deleteZakatPaymentRemote } from '../services/firebase/zakatFirestore';
 import { scheduleZakatCloudSync } from '../services/zakatCloudSync';
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 type State = {
   /** ISO 4217 — future multi-currency; UI defaults to INR. */
@@ -269,7 +264,7 @@ export const useZakatStore = create<State>()(
     }),
     {
       name: 'sazda-zakat',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       version: 1,
       partialize: s => ({
         currency: s.currency,

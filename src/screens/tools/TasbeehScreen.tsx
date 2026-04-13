@@ -34,6 +34,9 @@ import {
   tasbeehPhraseComplete,
   tasbeehTapLight,
 } from '../../utils/tasbeehHaptics';
+import { useAuthStore } from '../../store/authStore';
+import { pullAndMergeTasbeeh, setTasbeehSyncUser } from '../../services/tasbeehCloudSync';
+import { useFocusEffect } from '@react-navigation/native';
 
 const GOAL_MODES_ROW: { mode: TasbeehGoalMode; label: string }[] = [
   { mode: 'traditional33', label: '33' },
@@ -44,6 +47,8 @@ const GOAL_MODES_ROW: { mode: TasbeehGoalMode; label: string }[] = [
 export function TasbeehScreen() {
   const { colors: c, scheme } = useThemePalette();
   const styles = useMemo(() => createTasbeehStyles(c, scheme), [c, scheme]);
+
+  const uid = useAuthStore(s => s.firebaseUser?.uid ?? null);
 
   const phase = useTasbeehStore(s => PHASE_ORDER[s.phaseIndex] ?? 'subhan');
   const currentCount = useTasbeehStore(s => s.currentCount);
@@ -108,6 +113,13 @@ export function TasbeehScreen() {
     setCustomDraft(String(useTasbeehStore.getState().customTarget));
     setCustomModalOpen(true);
   }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      setTasbeehSyncUser(uid);
+      if (uid) void pullAndMergeTasbeeh(uid);
+    }, [uid])
+  );
 
   const onSelectGoal = useCallback(
     (mode: TasbeehGoalMode) => {

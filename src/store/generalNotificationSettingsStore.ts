@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
 
 type State = {
   /** Gentle nudge if not all five prayers marked prayed (fires once in evening window). */
@@ -27,11 +27,6 @@ type State = {
   setLastTenNightsReminderEnabled: (v: boolean) => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 export const useGeneralNotificationSettingsStore = create<State>()(
   persist(
@@ -59,7 +54,7 @@ export const useGeneralNotificationSettingsStore = create<State>()(
     }),
     {
       name: 'sazda-general-notification-settings-v1',
-      storage: mmkvStorage,
+      storage: zustandStorage,
     },
   ),
 );

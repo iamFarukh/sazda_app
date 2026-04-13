@@ -24,5 +24,5 @@ export type PrayerWidgetSnapshot = {
   /** Minute-rounded label (updates on 1-min cadence in UI). */
   countdownLabelMin: string;
   periodNote?: string;
-  schedule: { name: DailyPrayerName; time12: string }[];
+  schedule: { name: DailyPrayerName; time12: string; timeMillis: number }[];
 };

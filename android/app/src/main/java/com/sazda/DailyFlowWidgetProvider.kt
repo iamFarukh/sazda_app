@@ -68,23 +68,54 @@ class DailyFlowWidgetProvider : AppWidgetProvider() {
                     views.setTextViewText(R.id.flow_title, "Daily Flow")
                     views.setTextViewText(R.id.flow_date, formatDateKey(dateKey))
 
-                    // Status line
-                    val statusText = when (mode) {
+                    val schedule = json.optJSONArray("schedule")
+                    var currentHighlight = highlight
+                    var finalStatusText = when (mode) {
                         "makruh" -> "⚠ $title · $subtitle"
                         "night" -> "🌙 $title · $subtitle"
-                        "between" -> "$title · $subtitle"
                         else -> "$title · $subtitle"
                     }
-                    views.setTextViewText(R.id.flow_status, statusText)
-
-                    val statusColor = when (mode) {
+                    var statusColor = when (mode) {
                         "makruh" -> Color.parseColor(MAKRUH_TEXT)
                         else -> Color.parseColor(GREEN)
                     }
+
+                    if (schedule != null) {
+                        val now = System.currentTimeMillis()
+                        val updated = prefs.getLong(PrayerWidgetModule.KEY_UPDATED, now)
+                        
+                        // If snapshot is stale by 2 minutes, natively calculate current & next
+                        if (now - updated > 120_000) {
+                            var computedCurrent = ""
+                            var computedNext = "Fajr"
+                            
+                            for (i in 0 until schedule.length().coerceAtMost(5)) {
+                                val entry = schedule.getJSONObject(i)
+                                val t = entry.optLong("timeMillis", 0L)
+                                if (now >= t) {
+                                    computedCurrent = entry.optString("name", "")
+                                    if (i + 1 < schedule.length()) {
+                                        computedNext = schedule.getJSONObject(i + 1).optString("name", "Fajr")
+                                    } else {
+                                        computedNext = "Fajr"
+                                    }
+                                }
+                            }
+                            currentHighlight = computedCurrent
+                            if (computedCurrent.isNotEmpty()) {
+                                finalStatusText = "Now: $computedCurrent · Next: $computedNext"
+                                statusColor = Color.parseColor(GREEN)
+                            } else {
+                                finalStatusText = "Next: Fajr"
+                                statusColor = Color.parseColor(GREEN)
+                            }
+                        }
+                    }
+
+                    views.setTextViewText(R.id.flow_status, finalStatusText)
                     views.setTextColor(R.id.flow_status, statusColor)
                     views.setViewVisibility(R.id.flow_status, View.VISIBLE)
 
-                    val schedule = json.optJSONArray("schedule")
                     if (schedule != null) {
                         for (i in 0 until schedule.length().coerceAtMost(5)) {
                             val entry = schedule.getJSONObject(i)
@@ -95,7 +126,7 @@ class DailyFlowWidgetProvider : AppWidgetProvider() {
                             views.setTextViewText(item.nameId, name.uppercase())
                             views.setTextViewText(item.timeId, time12)
 
-                            val isHighlighted = name == highlight
+                            val isHighlighted = name == currentHighlight
                             if (isHighlighted) {
                                 views.setInt(item.itemId, "setBackgroundResource", R.drawable.widget_row_highlight_bg)
                                 views.setTextColor(item.nameId, Color.parseColor(GREEN))

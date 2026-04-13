@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
 import type { MushafTheme } from '../services/mushaf/mushafTheme';
 
 export type { MushafTheme } from '../services/mushaf/mushafTheme';
@@ -12,11 +12,6 @@ export type MushafBookmark = {
   createdAt: number;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 type State = {
   lastReadPage: number;
@@ -71,7 +66,7 @@ export const useMushafReaderStore = create<State>()(
     }),
     {
       name: 'mushaf-reader-v1',
-      storage: mmkvStorage,
+      storage: zustandStorage,
     },
   ),
 );

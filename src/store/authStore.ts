@@ -3,11 +3,11 @@ import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 import { isFirebaseConfigured, isGoogleSignInConfigured } from '../config/firebasePublic';
 import { configureNativeGoogleSignIn } from '../services/configureNativeGoogleSignIn';
 import { getFirebaseApp, getFirebaseAuth } from '../services/firebase/client';
-import { mmkv } from '../services/storage';
+import { zustandStorage } from '../services/storage';
 import { useProfileStore } from './profileStore';
 
 export type FirebaseUserSnapshot = {
@@ -43,11 +43,6 @@ type AuthState = {
   signOut: () => Promise<void>;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 export const useAuthStore = create<AuthState>()(
   persist(
@@ -58,12 +53,14 @@ export const useAuthStore = create<AuthState>()(
       needsCelebration: false,
       googleSignInError: null,
 
-      signInAsGuest: () =>
+      signInAsGuest: () => {
+        if (!__DEV__) return;
         set({
           guestSession: true,
           needsCelebration: false,
           googleSignInError: null,
-        }),
+        });
+      },
 
       completeGoogleCelebration: () => set({ needsCelebration: false }),
 
@@ -136,7 +133,7 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: 'sazda-auth-session',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       partialize: s => ({
         guestSession: s.guestSession,
       }),
@@ -163,7 +160,7 @@ export function selectAppUnlocked(s: {
   firebaseUser: FirebaseUserSnapshot | null;
   needsCelebration: boolean;
 }): boolean {
-  if (s.guestSession) return true;
+  if (__DEV__ && s.guestSession) return true;
   if (s.firebaseUser && !s.needsCelebration) return true;
   return false;
 }

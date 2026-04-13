@@ -15,6 +15,8 @@ import { DailyDuasScreen } from '../screens/tools/DailyDuasScreen';
 import { HijriCalendarScreen } from '../screens/tools/HijriCalendarScreen';
 import { useAuthStore } from '../store/authStore';
 import { setZakatSyncUser } from '../services/zakatCloudSync';
+import { setPrayerSyncUser } from '../services/prayerTrackerCloudSync';
+import { setTasbeehSyncUser } from '../services/tasbeehCloudSync';
 import { getToolsSubScreenHeaderOptions } from './stackScreenOptions';
 import { useThemedStackScreenOptions } from './useThemedStackScreenOptions';
 import { useThemePalette } from '../theme/useThemePalette';
@@ -30,6 +32,8 @@ export function ToolsStackNavigator() {
 
   useEffect(() => {
     setZakatSyncUser(uid);
+    setPrayerSyncUser(uid);
+    setTasbeehSyncUser(uid);
   }, [uid]);
 
   return (

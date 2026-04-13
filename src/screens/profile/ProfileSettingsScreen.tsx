@@ -21,7 +21,9 @@ import { radius } from '../../theme/radius';
 import { spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
 
-const APP_VERSION = '0.0.1';
+import DeviceInfo from 'react-native-device-info';
+
+const APP_VERSION = DeviceInfo.getVersion();
 
 type Nav = NativeStackNavigationProp<ProfileStackParamList, 'ProfileSettings'>;
 

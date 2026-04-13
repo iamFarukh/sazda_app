@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
 
 type State = {
   /** One-time contextual welcome ping after notifications are first enabled. */
@@ -8,11 +8,6 @@ type State = {
   markWelcomeContextSent: () => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 export const useWelcomeNotificationStore = create<State>()(
   persist(
@@ -22,7 +17,7 @@ export const useWelcomeNotificationStore = create<State>()(
     }),
     {
       name: 'sazda-welcome-notification',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       partialize: s => ({ hasSentWelcomeContextNotification: s.hasSentWelcomeContextNotification }),
     },
   ),

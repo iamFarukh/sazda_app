@@ -70,11 +70,13 @@ export function SplashScreen() {
         onPress={() => navigation.navigate('SignIn')}>
         <Text style={styles.primaryBtnText}>Get started</Text>
       </Pressable>
-      <Pressable
-        style={({ pressed }) => [styles.ghostBtn, pressed && styles.pressed]}
-        onPress={signInAsGuest}>
-        <Text style={styles.ghostBtnText}>Continue as guest</Text>
-      </Pressable>
+      {__DEV__ ? (
+        <Pressable
+          style={({ pressed }) => [styles.ghostBtn, pressed && styles.pressed]}
+          onPress={signInAsGuest}>
+          <Text style={styles.ghostBtnText}>Continue as guest</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }

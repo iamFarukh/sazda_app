@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
 import { FIVE_DAILY_PRAYERS, type FiveDailyPrayer } from './prayerTrackerStore';
 
 export type AdhanVolumeMode = 'LOUD' | 'SOFT' | 'SILENT';
@@ -49,11 +49,6 @@ interface AdhanSettingsState {
   removeCustomSound: (id: string) => void;
 }
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 export const useAdhanSettingsStore = create<AdhanSettingsState>()(
   persist(
@@ -93,7 +88,7 @@ export const useAdhanSettingsStore = create<AdhanSettingsState>()(
     }),
     {
       name: 'sazda-adhan-settings',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       merge: (persisted, current) => {
         const raw = persisted as Partial<AdhanSettingsState> & { preReminderEnabled?: boolean };
         const base = { ...current, ...raw };

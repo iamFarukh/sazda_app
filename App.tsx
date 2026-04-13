@@ -8,6 +8,7 @@ import { RootNavigator } from './src/navigation/RootNavigator';
 import { useThemePalette } from './src/theme/useThemePalette';
 import { AnimatedSplashScreen } from './src/components/AnimatedSplashScreen';
 import { AppAlertManager } from './src/components/organisms/AppAlert/AppAlertManager';
+import { ErrorBoundary } from './src/components/atoms/ErrorBoundary';
 
 function ThemedStatusBar() {
   const { scheme } = useThemePalette();
@@ -33,9 +34,11 @@ function AppContent() {
 
 function App() {
   return (
-    <AppProviders>
-      <AppContent />
-    </AppProviders>
+    <ErrorBoundary>
+      <AppProviders>
+        <AppContent />
+      </AppProviders>
+    </ErrorBoundary>
   );
 }
 

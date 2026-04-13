@@ -1,10 +1,10 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
+import { persist } from 'zustand/middleware';
 import type { FirestoreQuranPayload } from '../services/firebase/userDocument';
 import { writeUserBookmark, deleteUserBookmark } from '../services/firebase/userDocument';
 import type { MushafTheme } from '../services/mushaf/mushafTheme';
 import { useAuthStore } from './authStore';
-import { mmkv } from '../services/storage';
+import { zustandStorage } from '../services/storage';
 
 export type QuranBookmark = {
   surahNumber: number;
@@ -55,11 +55,6 @@ type QuranProgressState = {
   markCloudPushed: (atMs: number) => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 const MAX_RECENT = 10;
 
@@ -198,7 +193,7 @@ export const useQuranProgressStore = create<QuranProgressState>()(
     }),
     {
       name: 'sazda-quran-progress',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       partialize: s => ({
         lastRead: s.lastRead,
         recentSurahs: s.recentSurahs,

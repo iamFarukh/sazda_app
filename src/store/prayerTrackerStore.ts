@@ -1,6 +1,8 @@
 import { create } from 'zustand';
-import { createJSONStorage, persist } from 'zustand/middleware';
-import { mmkv } from '../services/storage';
+import { persist } from 'zustand/middleware';
+import dayjs from 'dayjs';
+import { zustandStorage } from '../services/storage';
+import { schedulePrayerCloudSync } from '../services/prayerTrackerCloudSync';
 
 /** Five fard prayers tracked daily (Sunrise/Sunset excluded). */
 export const FIVE_DAILY_PRAYERS = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'] as const;
@@ -16,20 +18,17 @@ type PrayerTrackerState = {
   byDay: Record<string, DayPrayerLog>;
   markPrayer: (dateKey: string, prayer: FiveDailyPrayer, status: PrayerMark | 'clear') => void;
   resetDay: (dateKey: string) => void;
+  mergeFromRemote: (remoteByDay: Record<string, DayPrayerLog>) => void;
+  pruneOldEntries: () => void;
 };
 
-const mmkvStorage = createJSONStorage(() => ({
-  getItem: (name: string) => mmkv.getString(name) ?? null,
-  setItem: (name: string, value: string) => mmkv.set(name, value),
-  removeItem: (name: string) => mmkv.remove(name),
-}));
 
 export const usePrayerTrackerStore = create<PrayerTrackerState>()(
   persist(
     set => ({
       byDay: {},
 
-      markPrayer: (dateKey, prayer, status) =>
+      markPrayer: (dateKey, prayer, status) => {
         set(state => {
           const next = { ...state.byDay };
           const prev = next[dateKey] ? { ...next[dateKey] } : {};
@@ -44,19 +43,53 @@ export const usePrayerTrackerStore = create<PrayerTrackerState>()(
             next[dateKey] = prev;
           }
           return { byDay: next };
-        }),
+        });
+        schedulePrayerCloudSync();
+      },
 
-      resetDay: dateKey =>
+      resetDay: dateKey => {
         set(state => {
           const next = { ...state.byDay };
           delete next[dateKey];
           return { byDay: next };
+        });
+        schedulePrayerCloudSync();
+      },
+
+      mergeFromRemote: (remoteByDay) =>
+        set(state => {
+          // simple merge strategy: remote overwrites local for missing or existing
+          const merged = { ...state.byDay, ...remoteByDay };
+          return { byDay: merged };
+        }),
+
+      pruneOldEntries: () =>
+        set(state => {
+          const next = { ...state.byDay };
+          const cutoffFormat = dayjs().subtract(365, 'day').format('YYYY-MM-DD');
+          let changed = false;
+          for (const dateKey of Object.keys(next)) {
+            if (dateKey < cutoffFormat) {
+              delete next[dateKey];
+              changed = true;
+            }
+          }
+          if (changed) {
+            return { byDay: next };
+          }
+          return state;
         }),
     }),
     {
       name: 'sazda-prayer-tracker',
-      storage: mmkvStorage,
+      storage: zustandStorage,
       partialize: s => ({ byDay: s.byDay }),
+      onRehydrateStorage: () => (state) => {
+        // Runs after store hydrates from MMKV
+        requestAnimationFrame(() => {
+          state?.pruneOldEntries();
+        });
+      },
     },
   ),
 );
