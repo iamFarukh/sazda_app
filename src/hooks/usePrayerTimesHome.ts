@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
-import { fetchPrayerTimings, type PrayerTimingsDay } from '../services/prayerTimesApi';
+import {
+  fetchPrayerTimings,
+  type PrayerTimingsDay,
+} from '../services/prayerTimesApi';
 import { fetchAndPersistPrayerLocation } from '../services/prayerLocationGps';
 import { usePrayerLocationStore } from '../store/prayerLocationStore';
 import {
@@ -10,6 +13,7 @@ import {
   formatTime12h,
   type PrayerHeroState,
 } from '../utils/prayerSchedule';
+import { prayerDisplayLabel } from '../utils/prayerDisplayLabel';
 
 export type UsePrayerTimesHomeResult = {
   coords: { lat: number; lon: number } | null;
@@ -49,10 +53,7 @@ export type UsePrayerTimesHomeResult = {
 export function usePrayerTimesHome(): UsePrayerTimesHomeResult {
   const saved = usePrayerLocationStore(s => s.saved);
   const coords = useMemo(
-    () =>
-      saved
-        ? { lat: saved.latitude, lon: saved.longitude }
-        : null,
+    () => (saved ? { lat: saved.latitude, lon: saved.longitude } : null),
     [saved],
   );
 
@@ -83,13 +84,13 @@ export function usePrayerTimesHome(): UsePrayerTimesHomeResult {
     }
   }, []);
 
-  // Real-time: refresh countdown often; roll calendar day at local midnight
+  // Live hero + countdown every second (lightweight `computePrayerHeroState`); roll date at local midnight.
   useEffect(() => {
     const id = setInterval(() => {
       setTick(t => t + 1);
       const d = dayjs().format('DD-MM-YYYY');
       setDateKey(prev => (d !== prev ? d : prev));
-    }, 15_000);
+    }, 1_000);
     return () => clearInterval(id);
   }, []);
 
@@ -121,7 +122,8 @@ export function usePrayerTimesHome(): UsePrayerTimesHomeResult {
 
   const yesterdayQuery = useQuery({
     queryKey: ['prayerTimes', coords?.lat, coords?.lon, yesterdayKey, 2],
-    queryFn: () => fetchPrayerTimings(coords!.lat, coords!.lon, yesterdayKey, 2),
+    queryFn: () =>
+      fetchPrayerTimings(coords!.lat, coords!.lon, yesterdayKey, 2),
     enabled: enabled && nowBeforeFajr,
     staleTime: 1000 * 60 * 60 * 24,
   });
@@ -151,27 +153,31 @@ export function usePrayerTimesHome(): UsePrayerTimesHomeResult {
     ? hero.currentPeriod === 'Night'
       ? 'Night (after Isha)'
       : hero.currentPeriod === 'BetweenFajrDhuhr'
-        ? 'Between prayers'
-        : hero.currentPeriod === 'MakruhBeforeDhuhr'
-          ? 'Makruh time'
-          : hero.currentPeriod
+      ? 'Between prayers'
+      : hero.currentPeriod === 'MakruhBeforeDhuhr'
+      ? 'Makruh time'
+      : prayerDisplayLabel(hero.currentPeriod)
     : '—';
 
   const currentPrayerTimeLabel =
     hero && !hero.hideCurrentAdhanTime ? formatTime12h(hero.headlineTime) : '—';
 
-  const nextPrayerLabel = hero ? hero.countdownTargetName : '—';
+  const nextPrayerLabel = hero ? prayerDisplayLabel(hero.countdownTargetName) : '—';
 
   const prayerPeriodNote = hero?.periodNote ?? null;
 
   const locationCityLabel = !saved
     ? 'Set location'
     : saved.city === '…'
-      ? 'Locating…'
-      : saved.city;
+    ? 'Locating…'
+    : saved.city;
 
   const locationLine = saved
-    ? `${saved.city === '…' ? `${saved.latitude.toFixed(2)}°, ${saved.longitude.toFixed(2)}°` : saved.city} · updates every 15s`
+    ? `${
+        saved.city === '…'
+          ? `${saved.latitude.toFixed(2)}°, ${saved.longitude.toFixed(2)}°`
+          : saved.city
+      } · live countdown`
     : 'Location needed for salah times';
 
   const refetchPrayers = useCallback(() => {

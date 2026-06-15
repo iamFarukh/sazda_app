@@ -23,7 +23,7 @@ const PREVIEW_ROWS: { title: string; body: string; meta: string }[] = [
   },
   {
     meta: 'Sazda • reminder',
-    title: 'Dhuhr in 10 minutes',
+    title: 'Zohar in 10 minutes',
     body: 'Prepare for your afternoon prayer.',
   },
   {

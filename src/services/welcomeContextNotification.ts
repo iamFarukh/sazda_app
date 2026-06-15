@@ -1,4 +1,5 @@
 import { formatCountdown, type PrayerHeroState } from '../utils/prayerSchedule';
+import { prayerDisplayLabel } from '../utils/prayerDisplayLabel';
 import type { SazdaNotificationVariant } from '../native/sazdaCustomNotificationAndroid';
 
 /**
@@ -16,11 +17,14 @@ export function buildWelcomeContextNotificationPayload(hero: PrayerHeroState): {
 
   if (isMakruh) {
     let headline = 'Makruh time';
-    if (hero.currentPeriod === 'MakruhSunrise') headline = 'Makruh after sunrise';
-    if (hero.currentPeriod === 'MakruhBeforeDhuhr') headline = 'Caution before Dhuhr';
-    if (hero.currentPeriod === 'MakruhSunset') headline = 'Makruh before Maghrib';
+    if (hero.currentPeriod === 'MakruhSunrise')
+      headline = 'Makruh after sunrise';
+    if (hero.currentPeriod === 'MakruhBeforeDhuhr')
+      headline = `Caution before ${prayerDisplayLabel('Dhuhr')}`;
+    if (hero.currentPeriod === 'MakruhSunset')
+      headline = 'Makruh before Maghrib';
 
-    const detail = `Next: ${hero.countdownTargetName} in ${nextIn}. Guidance only—follow your madhhab.`;
+    const detail = `Next: ${prayerDisplayLabel(hero.countdownTargetName)} in ${nextIn}. Guidance only—follow your madhhab.`;
     return {
       meta: 'SAZDA • NOW',
       headline,
@@ -32,8 +36,8 @@ export function buildWelcomeContextNotificationPayload(hero: PrayerHeroState): {
   if (hero.currentPeriod === 'BetweenFajrDhuhr') {
     return {
       meta: 'SAZDA • NOW',
-      headline: 'Between Fajr and Dhuhr',
-      detail: `Next obligatory prayer: ${hero.countdownTargetName} in ${nextIn}.`,
+      headline: `Between Fajr and ${prayerDisplayLabel('Dhuhr')}`,
+      detail: `Next obligatory prayer: ${prayerDisplayLabel(hero.countdownTargetName)} in ${nextIn}.`,
       variant: 'prayer',
     };
   }
@@ -56,11 +60,16 @@ export function buildWelcomeContextNotificationPayload(hero: PrayerHeroState): {
     };
   }
 
-  if (hero.currentPeriod === 'Dhuhr' || hero.currentPeriod === 'Asr' || hero.currentPeriod === 'Maghrib' || hero.currentPeriod === 'Isha') {
+  if (
+    hero.currentPeriod === 'Dhuhr' ||
+    hero.currentPeriod === 'Asr' ||
+    hero.currentPeriod === 'Maghrib' ||
+    hero.currentPeriod === 'Isha'
+  ) {
     return {
       meta: 'SAZDA • NOW',
-      headline: `${hero.currentPeriod} window`,
-      detail: `Next: ${hero.countdownTargetName} in ${nextIn}.`,
+      headline: `${prayerDisplayLabel(hero.currentPeriod)} window`,
+      detail: `Next: ${prayerDisplayLabel(hero.countdownTargetName)} in ${nextIn}.`,
       variant: 'prayer',
     };
   }
@@ -68,7 +77,7 @@ export function buildWelcomeContextNotificationPayload(hero: PrayerHeroState): {
   return {
     meta: 'SAZDA • NOW',
     headline: 'Salah times',
-    detail: `Next: ${hero.countdownTargetName} in ${nextIn}.`,
+    detail: `Next: ${prayerDisplayLabel(hero.countdownTargetName)} in ${nextIn}.`,
     variant: 'prayer',
   };
 }

@@ -38,15 +38,15 @@ class PrayerWidgetModule(private val ctx: ReactApplicationContext) :
     val alarmManager = ctx.getSystemService(Context.ALARM_SERVICE) as? AlarmManager ?: return
     try {
       val json = org.json.JSONObject(jsonString)
-      val schedule = json.optJSONArray("schedule") ?: return
+      val timeline = json.optJSONArray("timeline") ?: return
       val manager = AppWidgetManager.getInstance(ctx)
 
       val todayIds = manager.getAppWidgetIds(ComponentName(ctx, TodayPrayerWidgetProvider::class.java))
       val flowIds = manager.getAppWidgetIds(ComponentName(ctx, DailyFlowWidgetProvider::class.java))
 
-      for (i in 0 until schedule.length()) {
-        val entry = schedule.getJSONObject(i)
-        val timeMillis = entry.optLong("timeMillis", 0)
+      for (i in 0 until timeline.length()) {
+        val entry = timeline.getJSONObject(i)
+        val timeMillis = entry.optLong("atMs", 0)
         
         // Only schedule if the time is in the future
         if (timeMillis > System.currentTimeMillis()) {

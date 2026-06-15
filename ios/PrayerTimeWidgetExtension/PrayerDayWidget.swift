@@ -11,53 +11,68 @@ struct PrayerDayWidgetEntryView: View {
   private let muted = SazdaWidgetPalette.muted
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      HStack {
+    let target = entry.date.addingTimeInterval(p.countdownToNextMs / 1000.0)
+    VStack(alignment: .leading, spacing: 6) {
+      HStack(alignment: .top) {
         VStack(alignment: .leading, spacing: 2) {
           Text("Today’s prayers")
-            .font(.title3)
+            .font(.headline)
             .fontWeight(.heavy)
             .foregroundColor(SazdaWidgetPalette.highlightGreen)
-          Text(formattedWidgetHeaderDate(dateKey: p.dateKey, fallback: entry.date))
-            .font(.caption)
-            .foregroundColor(muted)
+            .lineLimit(1)
+            .minimumScaleFactor(0.8)
+          WidgetCalendarHeading(font: .caption, fontWeight: .regular, foreground: muted)
+          if let city = p.city, !city.isEmpty {
+            Text(city)
+              .font(.caption2)
+              .fontWeight(.semibold)
+              .foregroundColor(muted.opacity(0.95))
+              .lineLimit(1)
+          }
         }
-        Spacer()
+        Spacer(minLength: 4)
         VStack(alignment: .trailing, spacing: 2) {
-          Text("Next in")
+          Text(
+            p.nextName.isEmpty
+              ? "Next in"
+              : "Next: \(PrayerUiCopy.displayName(forCanonical: p.nextName))")
             .font(.caption2)
             .foregroundColor(muted)
-          Text(p.countdownLabelMin)
+            .lineLimit(1)
+            .frame(maxWidth: .infinity, alignment: .trailing)
+          // Live timer display (no widget reload required).
+          Text(target, style: .timer)
             .font(.title3)
             .fontWeight(.bold)
             .foregroundColor(SazdaWidgetPalette.accentGreen)
+            .multilineTextAlignment(.trailing)
+            .frame(maxWidth: .infinity, alignment: .trailing)
         }
       }
-
-      Text(p.title)
-        .font(.subheadline)
-        .fontWeight(.bold)
-        .foregroundColor(ink)
-      Text(p.subtitle)
-        .font(.caption)
-        .foregroundColor(muted)
-        .lineLimit(2)
 
       if p.mode == "makruh" {
-        Label {
-          Text(p.periodNote ?? "Makruh period — optional salah often avoided.")
-            .font(.caption2)
-            .foregroundColor(SazdaWidgetPalette.makruhTint)
-        } icon: {
-          Image(systemName: "exclamationmark.triangle.fill")
-        }
-        .labelStyle(.titleAndIcon)
-        .font(.caption2)
-        .padding(8)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(SazdaWidgetPalette.makruhTint.opacity(0.12))
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        Text("⚠ \(PrayerUiCopy.widgetLine(p.title))")
+          .font(.subheadline)
+          .fontWeight(.bold)
+          .foregroundColor(SazdaWidgetPalette.makruhTint)
+          .padding(.top, 4)
+      } else if !p.title.isEmpty {
+        Text(PrayerUiCopy.widgetLine(p.title))
+          .font(.subheadline)
+          .fontWeight(.bold)
+          .foregroundColor(ink)
+          .padding(.top, 4)
       }
+
+      if p.isStale, let stale = p.staleLabel, !stale.isEmpty {
+        Text(stale)
+          .font(.caption2)
+          .fontWeight(.medium)
+          .foregroundColor(muted.opacity(0.9))
+          .lineLimit(1)
+      }
+
+      Spacer(minLength: 2)
 
       VStack(spacing: 0) {
         ForEach(Array(scheduleRows.enumerated()), id: \.element.name) { index, row in
@@ -67,7 +82,6 @@ struct PrayerDayWidgetEntryView: View {
           }
         }
       }
-      .padding(.top, 4)
     }
     .padding(14)
     .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
@@ -88,7 +102,7 @@ struct PrayerDayWidgetEntryView: View {
         .font(.body)
         .foregroundColor(active ? SazdaWidgetPalette.accentGreen : muted)
         .frame(width: 22)
-      Text(row.name)
+      Text(PrayerUiCopy.displayName(forCanonical: row.name))
         .font(.subheadline)
         .fontWeight(active ? .bold : .medium)
         .foregroundColor(ink)

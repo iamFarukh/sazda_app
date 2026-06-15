@@ -7,6 +7,7 @@ import { MainDrawer } from './MainDrawer';
 import { OnboardingScreen } from '../screens/onboarding/OnboardingScreen';
 import { useAppNavigationTheme } from './useAppNavigationTheme';
 import { useThemePalette } from '../theme/useThemePalette';
+import { navigationRef } from './navigationRef';
 
 export function RootNavigator() {
   const authReady = useAuthStore(s => s.authReady);
@@ -16,7 +17,7 @@ export function RootNavigator() {
   const { colors: c } = useThemePalette();
 
   return (
-    <NavigationContainer theme={theme}>
+    <NavigationContainer theme={theme} ref={navigationRef}>
       {!hasSeenOnboarding ? (
         <OnboardingScreen />
       ) : !authReady ? (

@@ -88,7 +88,7 @@ export function ToolsHomeScreen() {
     staleTime: 1000 * 60 * 60,
   });
 
-  const nextTimeDisplay = nextPrayerTimeLabel(todayTimings, hero?.countdownTargetName);
+  const nextTimeDisplay = nextPrayerTimeLabel(todayTimings, hero?.countdownTargetRow);
   const nextNameDisplay =
     todayTimings && hero && !permissionDenied ? nextPrayerLabel : '—';
   const remainingDisplay =

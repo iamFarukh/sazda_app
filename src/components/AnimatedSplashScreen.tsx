@@ -12,6 +12,7 @@ import Animated, {
 import Svg, { Defs, RadialGradient, Stop, Rect, Path } from 'react-native-svg';
 import BootSplash from 'react-native-bootsplash';
 import { useIslamicContext } from '../context/useIslamicContext';
+import { fontFamilies, getFontConfig } from '../theme/typography';
 
 const { width, height } = Dimensions.get('window');
 
@@ -136,17 +137,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    fontFamily: 'Manrope',
-    fontWeight: '900',
+    ...getFontConfig(fontFamilies.headline, '900'),
     fontStyle: 'italic',
     fontSize: 48,
     letterSpacing: -1,
   },
   tagline: {
-    fontFamily: 'Plus Jakarta Sans',
+    ...getFontConfig(fontFamilies.body, '500'),
     fontSize: 18,
     letterSpacing: 3,
-    fontWeight: '500',
     opacity: 0.9,
     marginTop: 8,
   },
@@ -175,15 +174,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   developedBy: {
-    fontFamily: 'Plus Jakarta Sans',
+    ...getFontConfig(fontFamilies.body, '500'),
     fontSize: 12,
-    fontWeight: '500',
     opacity: 0.7,
   },
   developerName: {
-    fontFamily: 'Plus Jakarta Sans',
+    ...getFontConfig(fontFamilies.body, '800'),
     fontSize: 15,
-    fontWeight: '800',
     letterSpacing: 0.5,
     marginTop: 2,
   },

@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.SystemClock
 import android.util.TypedValue
 import android.widget.RemoteViews
 import org.json.JSONObject
@@ -35,16 +36,17 @@ class TodayPrayerWidgetProvider : AppWidgetProvider() {
         private data class PrayerRow(
             val key: String,
             val rowId: Int,
+            val iconId: Int,
             val nameId: Int,
             val timeId: Int,
         )
 
         private val ROWS = listOf(
-            PrayerRow("Fajr",    R.id.widget_row_fajr,    R.id.widget_name_fajr,    R.id.widget_time_fajr),
-            PrayerRow("Dhuhr",   R.id.widget_row_dhuhr,   R.id.widget_name_dhuhr,   R.id.widget_time_dhuhr),
-            PrayerRow("Asr",     R.id.widget_row_asr,     R.id.widget_name_asr,     R.id.widget_time_asr),
-            PrayerRow("Maghrib", R.id.widget_row_maghrib, R.id.widget_name_maghrib, R.id.widget_time_maghrib),
-            PrayerRow("Isha",    R.id.widget_row_isha,    R.id.widget_name_isha,    R.id.widget_time_isha),
+            PrayerRow("Fajr",    R.id.widget_row_fajr,    R.id.widget_icon_fajr,    R.id.widget_name_fajr,    R.id.widget_time_fajr),
+            PrayerRow("Dhuhr",   R.id.widget_row_dhuhr,   R.id.widget_icon_dhuhr,   R.id.widget_name_dhuhr,   R.id.widget_time_dhuhr),
+            PrayerRow("Asr",     R.id.widget_row_asr,     R.id.widget_icon_asr,     R.id.widget_name_asr,     R.id.widget_time_asr),
+            PrayerRow("Maghrib", R.id.widget_row_maghrib, R.id.widget_icon_maghrib, R.id.widget_name_maghrib, R.id.widget_time_maghrib),
+            PrayerRow("Isha",    R.id.widget_row_isha,    R.id.widget_icon_isha,    R.id.widget_name_isha,    R.id.widget_time_isha),
         )
 
         fun updateWidget(
@@ -66,12 +68,18 @@ class TodayPrayerWidgetProvider : AppWidgetProvider() {
                     val countdown = json.optString("countdownLabelMin", "--")
                     val dateKey = json.optString("dateKey", "")
                     val mode = json.optString("mode", "active")
+                    val city = json.optString("city", "")
+                    val isStale = json.optBoolean("isStale", false)
+                    val staleLabel = json.optString("staleLabel", "")
+                    val schedule = json.optJSONArray("schedule")
 
                     // Format date from DD-MM-YYYY to readable
                     val dateFormatted = formatDateKey(dateKey)
 
                     views.setTextViewText(R.id.widget_title, "Today's prayers")
                     views.setTextViewText(R.id.widget_date, dateFormatted)
+                    views.setTextViewText(R.id.widget_city, city)
+                    views.setChronometerCountDown(R.id.widget_countdown, false)
                     views.setTextViewText(R.id.widget_countdown, countdown)
                     views.setTextViewText(R.id.widget_next_label, "Next in")
 
@@ -80,64 +88,71 @@ class TodayPrayerWidgetProvider : AppWidgetProvider() {
                     var finalNextName = nextName
                     var finalSubtitlePrimary = when (mode) {
                         "makruh" -> "⚠ Makruh time"
-                        "night" -> "🌙 Next: $nextName"
-                        "between" -> "Next: $nextName"
-                        else -> "Next: $nextName"
+                        "night" -> "🌙 Next: ${PrayerUiLabels.displayName(nextName)}"
+                        "between" -> "Next: ${PrayerUiLabels.displayName(nextName)}"
+                        else -> "Next: ${PrayerUiLabels.displayName(nextName)}"
                     }
                     var subtitleColor = when (mode) {
                         "makruh" -> Color.parseColor("#8B6508")
                         else -> Color.parseColor(GREEN)
                     }
 
-                    // Schedule rows
-                    val schedule = json.optJSONArray("schedule")
-                    if (schedule != null) {
+                    // Always resolve the most accurate state from the timeline array
+                    val timeline = json.optJSONArray("timeline")
+                    if (timeline != null && timeline.length() > 0) {
                         val now = System.currentTimeMillis()
-                        val updated = prefs.getLong(PrayerWidgetModule.KEY_UPDATED, now)
+                        var activeEntry: JSONObject? = null
 
-                        if (now - updated > 120_000) {
-                            var computedCurrent = ""
-                            var computedNext = "Fajr"
-                            var computedNextTime = 0L
+                        for (i in 0 until timeline.length()) {
+                            val entry = timeline.getJSONObject(i)
+                            val t = entry.optLong("atMs", 0L)
+                            if (now >= t) {
+                                activeEntry = entry
+                            } else {
+                                break
+                            }
+                        }
 
-                            for (i in 0 until schedule.length().coerceAtMost(5)) {
-                                val entry = schedule.getJSONObject(i)
-                                val t = entry.optLong("timeMillis", 0L)
-                                if (now >= t) {
-                                    computedCurrent = entry.optString("name", "")
-                                    if (i + 1 < schedule.length()) {
-                                        computedNext = schedule.getJSONObject(i + 1).optString("name", "Fajr")
-                                        computedNextTime = schedule.getJSONObject(i + 1).optLong("timeMillis", 0L)
-                                    } else {
-                                        computedNext = "Fajr"
-                                    }
-                                }
+                        if (activeEntry != null) {
+                            currentHighlight = activeEntry.optString("highlight", "")
+                            finalNextName = activeEntry.optString("nextName", "Fajr")
+                            val activeMode = activeEntry.optString("mode", "active")
+                            
+                            finalSubtitlePrimary = when (activeMode) {
+                                "makruh" -> "⚠ Makruh time"
+                                "night" -> "🌙 Next: ${PrayerUiLabels.displayName(finalNextName)}"
+                                "between" -> "Next: ${PrayerUiLabels.displayName(finalNextName)}"
+                                else -> "Next: ${PrayerUiLabels.displayName(finalNextName)}"
                             }
                             
-                            currentHighlight = computedCurrent
-                            finalNextName = computedNext
-                            
-                            if (computedCurrent.isNotEmpty()) {
-                                finalSubtitlePrimary = "Next: $computedNext" 
-                                subtitleColor = Color.parseColor(GREEN)
-                            } else {
-                                finalSubtitlePrimary = "Next: Fajr"
-                                subtitleColor = Color.parseColor(GREEN)
+                            subtitleColor = when (activeMode) {
+                                "makruh" -> Color.parseColor("#8B6508")
+                                else -> Color.parseColor(GREEN)
                             }
-
-                            if (computedNextTime > now) {
-                                val diff = computedNextTime - now
-                                val min = diff / 60000 % 60
-                                val h = diff / 3600000
-                                views.setTextViewText(R.id.widget_countdown, if (h > 0) "${h}h ${min}m" else "${min}m")
+                            
+                            val atMs = activeEntry.optLong("atMs", 0L)
+                            val cdMs = activeEntry.optLong("countdownToNextMs", 0L)
+                            val targetTimeMs = PrayerWidgetCountdown.segmentEndWallTimeMs(atMs, cdMs)
+                            val remainingMs = targetTimeMs - now
+                            
+                            if (remainingMs > 0L) {
+                                views.setChronometerCountDown(R.id.widget_countdown, true)
+                                views.setChronometer(
+                                    R.id.widget_countdown,
+                                    SystemClock.elapsedRealtime() + remainingMs,
+                                    null,
+                                    true,
+                                )
                             } else {
-                                views.setTextViewText(R.id.widget_countdown, "--")
+                                views.setChronometerCountDown(R.id.widget_countdown, false)
+                                val fallback = activeEntry.optString("countdownLabelMin", "").ifEmpty { "0:00" }
+                                views.setChronometer(R.id.widget_countdown, 0L, fallback, false)
                             }
                         }
                     }
 
                     views.setTextViewText(R.id.widget_subtitle, finalSubtitlePrimary)
-                    views.setTextViewText(R.id.widget_subtitle2, subtitle)
+                    views.setTextViewText(R.id.widget_subtitle2, if (isStale && staleLabel.isNotEmpty()) staleLabel else subtitle)
                     views.setTextColor(R.id.widget_subtitle, subtitleColor)
 
                     if (schedule != null) {
@@ -147,14 +162,15 @@ class TodayPrayerWidgetProvider : AppWidgetProvider() {
                             val time12 = entry.optString("time12", "--")
 
                             val row = ROWS.find { it.key == name } ?: continue
-                            views.setTextViewText(row.nameId, name)
+                            views.setTextViewText(row.nameId, PrayerUiLabels.displayName(name))
                             views.setTextViewText(row.timeId, time12)
 
                             val isHighlighted = name == currentHighlight
                             if (isHighlighted) {
                                 views.setInt(row.rowId, "setBackgroundResource", R.drawable.widget_row_highlight_bg)
-                                views.setTextColor(row.nameId, Color.parseColor(GREEN))
-                                views.setTextColor(row.timeId, Color.parseColor(GREEN))
+                                views.setTextColor(row.nameId, Color.WHITE)
+                                views.setTextColor(row.timeId, Color.WHITE)
+                                views.setInt(row.iconId, "setColorFilter", Color.WHITE)
                                 // Bold the name for current prayer
                                 views.setTextViewTextSize(row.nameId, TypedValue.COMPLEX_UNIT_SP, 15f)
                                 views.setTextViewTextSize(row.timeId, TypedValue.COMPLEX_UNIT_SP, 15f)
@@ -162,6 +178,7 @@ class TodayPrayerWidgetProvider : AppWidgetProvider() {
                                 views.setInt(row.rowId, "setBackgroundColor", Color.TRANSPARENT)
                                 views.setTextColor(row.nameId, Color.parseColor(GREEN))
                                 views.setTextColor(row.timeId, Color.parseColor(GREEN))
+                                views.setInt(row.iconId, "setColorFilter", Color.parseColor(GREEN))
                                 views.setTextViewTextSize(row.nameId, TypedValue.COMPLEX_UNIT_SP, 14f)
                                 views.setTextViewTextSize(row.timeId, TypedValue.COMPLEX_UNIT_SP, 14f)
                             }
@@ -177,7 +194,8 @@ class TodayPrayerWidgetProvider : AppWidgetProvider() {
                 views.setTextViewText(R.id.widget_title, "Today's prayers")
                 views.setTextViewText(R.id.widget_subtitle, "Open Sazda to load times")
                 views.setTextViewText(R.id.widget_subtitle2, "")
-                views.setTextViewText(R.id.widget_countdown, "--")
+                views.setChronometerCountDown(R.id.widget_countdown, false)
+                views.setChronometer(R.id.widget_countdown, 0L, "--", false)
             }
 
             // Tap opens the app

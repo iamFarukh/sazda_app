@@ -1,5 +1,6 @@
 import { memo, useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import Animated, { useAnimatedStyle } from 'react-native-reanimated';
 import { useQuery } from '@tanstack/react-query';
 import { loadMushafPagePayload } from '../../../services/mushaf/mushafPageContent';
 import type { MushafThemePalette } from '../../../services/mushaf/mushafTheme';
@@ -14,9 +15,51 @@ type Props = {
   paddingTop: number;
   paddingBottom: number;
   palette: MushafThemePalette;
-  fontScale: number;
+  liveScale: Animated.SharedValue<number>;
   showTranslation: boolean;
 };
+
+type LineProps = {
+  line: { arabic: string; translation?: string | null; ref: { surah: number; ayah: number } };
+  idx: number;
+  palette: MushafThemePalette;
+  liveScale: Animated.SharedValue<number>;
+  showTranslation: boolean;
+};
+
+const MushafLine = memo(function MushafLine({ line, idx, palette, liveScale, showTranslation }: LineProps) {
+  const arabicStyle = useAnimatedStyle(() => {
+    const s = liveScale.value;
+    const fs = 22 * s;
+    return { fontSize: fs, lineHeight: fs * 1.75 };
+  }, [liveScale]);
+
+  const transStyle = useAnimatedStyle(() => {
+    const s = liveScale.value;
+    const fs = 14 * s;
+    return { fontSize: fs, lineHeight: fs * 1.45 };
+  }, [liveScale]);
+
+  return (
+    <View key={`${line.ref.surah}-${line.ref.ayah}-${idx}`} style={styles.ayahBlock}>
+      <View style={styles.arabicRow}>
+        <Animated.Text style={[styles.arabic, { color: palette.text }, arabicStyle]}>
+          {line.arabic}
+        </Animated.Text>
+        <View style={[styles.marker, { borderColor: palette.ayahMarkerBorder, backgroundColor: palette.ayahMarkerBg }]}>
+          <Text style={[styles.markerText, { color: palette.ayahMarkerText }]}>
+            {toArabicIndicDigits(line.ref.ayah)}
+          </Text>
+        </View>
+      </View>
+      {showTranslation && line.translation ? (
+        <Animated.Text style={[styles.translation, { color: palette.textMuted }, transStyle]}>
+          {line.translation}
+        </Animated.Text>
+      ) : null}
+    </View>
+  );
+});
 
 export const MushafPageSlide = memo(function MushafPageSlide({
   page,
@@ -25,7 +68,7 @@ export const MushafPageSlide = memo(function MushafPageSlide({
   paddingTop,
   paddingBottom,
   palette,
-  fontScale,
+  liveScale,
   showTranslation,
 }: Props) {
   const { data, isPending, isError, refetch } = useQuery({
@@ -34,49 +77,19 @@ export const MushafPageSlide = memo(function MushafPageSlide({
     staleTime: 1000 * 60 * 60 * 24,
   });
 
-  const baseArabic = 22 * fontScale;
-  const baseTrans = 14 * fontScale;
-
   const body = useMemo(() => {
     if (!data?.ayahs.length) return null;
     return data.ayahs.map((line, idx) => (
-      <View
+      <MushafLine
         key={`${line.ref.surah}-${line.ref.ayah}-${idx}`}
-        style={styles.ayahBlock}>
-        <View style={styles.arabicRow}>
-          <Text
-            style={[
-              styles.arabic,
-              {
-                color: palette.text,
-                fontSize: baseArabic,
-                lineHeight: baseArabic * 1.75,
-              },
-            ]}>
-            {line.arabic}
-          </Text>
-          <View style={[styles.marker, { borderColor: palette.ayahMarkerBorder, backgroundColor: palette.ayahMarkerBg }]}>
-            <Text style={[styles.markerText, { color: palette.ayahMarkerText }]}>
-              {toArabicIndicDigits(line.ref.ayah)}
-            </Text>
-          </View>
-        </View>
-        {showTranslation && line.translation ? (
-          <Text
-            style={[
-              styles.translation,
-              {
-                color: palette.textMuted,
-                fontSize: baseTrans,
-                lineHeight: baseTrans * 1.45,
-              },
-            ]}>
-            {line.translation}
-          </Text>
-        ) : null}
-      </View>
+        line={line}
+        idx={idx}
+        palette={palette}
+        liveScale={liveScale}
+        showTranslation={showTranslation}
+      />
     ));
-  }, [data, palette, baseArabic, baseTrans, showTranslation]);
+  }, [data, liveScale, palette, showTranslation]);
 
   return (
     <View style={[styles.pageRoot, { width, height, backgroundColor: palette.background }]}>

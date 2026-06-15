@@ -21,6 +21,7 @@ export type QuranStackParamList = {
   SurahReader: { surahNumber: number; ayahNumber?: number };
   /** Madinah Mushaf page mode (604 pages). */
   MushafReader: { initialPage?: number; surahNumber?: number; ayahNumber?: number } | undefined;
+  QuranAudioPlayer: undefined;
   Tafsir: { surahNumber: number; ayahNumber: number };
 };
 

@@ -4,6 +4,7 @@ import { SurahListScreen } from '../screens/quran/SurahListScreen';
 import { MushafReaderScreen } from '../screens/quran/MushafReaderScreen';
 import { SurahReaderScreen } from '../screens/quran/SurahReaderScreen';
 import { TafsirScreen } from '../screens/quran/TafsirScreen';
+import { QuranAudioPlayerScreen } from '../screens/quran/QuranAudioPlayerScreen';
 import { useThemedStackScreenOptions } from './useThemedStackScreenOptions';
 import type { QuranStackParamList } from './types';
 
@@ -16,6 +17,11 @@ export function QuranStackNavigator() {
       <Stack.Screen name="QuranHome" component={QuranHomeScreen} />
       <Stack.Screen name="SurahList" component={SurahListScreen} />
       <Stack.Screen name="SurahReader" component={SurahReaderScreen} />
+      <Stack.Screen
+        name="QuranAudioPlayer"
+        component={QuranAudioPlayerScreen}
+        options={{ headerShown: false, animation: 'slide_from_bottom' }}
+      />
       <Stack.Screen
         name="MushafReader"
         component={MushafReaderScreen}

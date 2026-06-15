@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   Dimensions,
+  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,7 +12,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useNavigation } from '@react-navigation/native';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
-import { SazdaIcon } from '../../components/atoms/SazdaIcon/SazdaIcon';
 import { GoogleGLogo } from '../../components/atoms/GoogleGLogo';
 import { getFirebaseAuth } from '../../services/firebase/client';
 import type { AuthStackParamList } from '../../navigation/types';
@@ -104,18 +104,20 @@ export function SignInScreen() {
         },
         header: { alignItems: 'center', marginBottom: spacing.xl },
         brandIcon: {
-          width: 64,
-          height: 64,
-          borderRadius: 12,
-          backgroundColor: c.primaryContainer,
-          alignItems: 'center',
-          justifyContent: 'center',
+          width: 72,
+          height: 72,
+          borderRadius: 16,
+          overflow: 'hidden',
           marginBottom: spacing.md,
           shadowColor: '#003527',
           shadowOffset: { width: 0, height: 6 },
           shadowOpacity: 0.22,
           shadowRadius: 14,
           elevation: 8,
+        },
+        brandIconImage: {
+          width: '100%',
+          height: '100%',
         },
         hero: { alignItems: 'center', paddingHorizontal: spacing.sm, marginBottom: spacing.x3xl },
         googleBtn: {
@@ -200,8 +202,12 @@ export function SignInScreen() {
         keyboardShouldPersistTaps="handled">
         <View>
           <View style={styles.header}>
-            <View style={styles.brandIcon}>
-              <SazdaIcon name="mosque" size={36} color={c.surface} fill={1} />
+            <View style={styles.brandIcon} accessibilityRole="image" accessibilityLabel="Sazda app logo">
+              <Image
+                source={require('../../assets/images/sazda-app-icon.png')}
+                style={styles.brandIconImage}
+                resizeMode="cover"
+              />
             </View>
             <SazdaText
               variant="headlineLarge"

@@ -32,17 +32,38 @@
             android:textSize="12sp"
             android:layout_alignParentEnd="true"
             android:layout_centerVertical="true" />
+
+        <TextView
+            android:id="@+id/flow_city"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/flow_date"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="1dp"
+            android:text=""
+            android:textColor="#55003527"
+            android:textSize="10sp" />
     </RelativeLayout>
 
-    <!-- Status line: shows "Now: Asr" or "Makruh time" etc. -->
+    <!-- Subtle note under title (e.g. between-prayer context); not a warning banner -->
     <TextView
+        android:id="@+id/flow_period_note"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="4dp"
+        android:text=""
+        android:textColor="#66003527"
+        android:textSize="10sp"
+        android:visibility="gone" />
+
+    <!-- Status line: shows "Now: Asr" or "Makruh time" etc. -->
+    <Chronometer
         android:id="@+id/flow_status"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:text=""
+        android:layout_marginBottom="6dp"
         android:textColor="#003527"
-        android:textSize="12sp"
+        android:textSize="13sp"
         android:textStyle="bold" />
 
     <!-- 5 prayer cards in a row -->
@@ -62,13 +83,13 @@
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/widget_flow_item_bg"
-            android:padding="8dp"
+            android:padding="10dp"
             android:layout_marginRight="4dp">
 
             <ImageView
                 android:id="@+id/flow_icon_fajr"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:src="@drawable/ic_widget_fajr"
                 android:contentDescription="Fajr" />
 
@@ -79,7 +100,7 @@
                 android:layout_marginTop="4dp"
                 android:text="FAJR"
                 android:textColor="#003527"
-                android:textSize="8sp"
+                android:textSize="10sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -89,7 +110,8 @@
                 android:layout_marginTop="2dp"
                 android:text="--"
                 android:textColor="#88003527"
-                android:textSize="9sp" />
+                android:textSize="10sp"
+                android:maxLines="1" />
         </LinearLayout>
 
         <!-- Dhuhr -->
@@ -101,24 +123,24 @@
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/widget_flow_item_bg"
-            android:padding="8dp"
+            android:padding="10dp"
             android:layout_marginRight="4dp">
 
             <ImageView
                 android:id="@+id/flow_icon_dhuhr"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:src="@drawable/ic_widget_sun"
-                android:contentDescription="Dhuhr" />
+                android:contentDescription="Zohar" />
 
             <TextView
                 android:id="@+id/flow_name_dhuhr"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="DHUHR"
+                android:text="ZOHAR"
                 android:textColor="#003527"
-                android:textSize="8sp"
+                android:textSize="10sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -128,7 +150,8 @@
                 android:layout_marginTop="2dp"
                 android:text="--"
                 android:textColor="#88003527"
-                android:textSize="9sp" />
+                android:textSize="10sp"
+                android:maxLines="1" />
         </LinearLayout>
 
         <!-- Asr -->
@@ -140,13 +163,13 @@
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/widget_flow_item_bg"
-            android:padding="8dp"
+            android:padding="10dp"
             android:layout_marginRight="4dp">
 
             <ImageView
                 android:id="@+id/flow_icon_asr"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:src="@drawable/ic_widget_sun"
                 android:contentDescription="Asr" />
 
@@ -157,7 +180,7 @@
                 android:layout_marginTop="4dp"
                 android:text="ASR"
                 android:textColor="#003527"
-                android:textSize="8sp"
+                android:textSize="10sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -167,7 +190,8 @@
                 android:layout_marginTop="2dp"
                 android:text="--"
                 android:textColor="#88003527"
-                android:textSize="9sp" />
+                android:textSize="10sp"
+                android:maxLines="1" />
         </LinearLayout>
 
         <!-- Maghrib -->
@@ -179,13 +203,13 @@
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/widget_flow_item_bg"
-            android:padding="8dp"
+            android:padding="10dp"
             android:layout_marginRight="4dp">
 
             <ImageView
                 android:id="@+id/flow_icon_maghrib"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:src="@drawable/ic_widget_maghrib"
                 android:contentDescription="Maghrib" />
 
@@ -196,7 +220,7 @@
                 android:layout_marginTop="4dp"
                 android:text="MAGHRIB"
                 android:textColor="#003527"
-                android:textSize="7sp"
+                android:textSize="9sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -206,7 +230,8 @@
                 android:layout_marginTop="2dp"
                 android:text="--"
                 android:textColor="#88003527"
-                android:textSize="9sp" />
+                android:textSize="10sp"
+                android:maxLines="1" />
         </LinearLayout>
 
         <!-- Isha -->
@@ -218,12 +243,12 @@
             android:orientation="vertical"
             android:gravity="center"
             android:background="@drawable/widget_flow_item_bg"
-            android:padding="8dp">
+            android:padding="10dp">
 
             <ImageView
                 android:id="@+id/flow_icon_isha"
-                android:layout_width="22dp"
-                android:layout_height="22dp"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
                 android:src="@drawable/ic_widget_moon"
                 android:contentDescription="Isha" />
 
@@ -234,7 +259,7 @@
                 android:layout_marginTop="4dp"
                 android:text="ISHA"
                 android:textColor="#003527"
-                android:textSize="8sp"
+                android:textSize="10sp"
                 android:textStyle="bold" />
 
             <TextView
@@ -244,7 +269,8 @@
                 android:layout_marginTop="2dp"
                 android:text="--"
                 android:textColor="#88003527"
-                android:textSize="9sp" />
+                android:textSize="10sp"
+                android:maxLines="1" />
         </LinearLayout>
     </LinearLayout>
 

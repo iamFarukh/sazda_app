@@ -9,6 +9,7 @@ import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
 import { formatHhmmTo12h } from '../../utils/prayerTimesDisplay';
 import type { DailyPrayerName } from '../../utils/prayerSchedule';
+import { prayerDisplayLabel } from '../../utils/prayerDisplayLabel';
 
 const FIVE: DailyPrayerName[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 
@@ -116,7 +117,7 @@ function PrayerRow({
     <View style={[styles.prayerRow, active && styles.prayerRowActive]}>
       <View style={styles.prayerRowLeft}>
         <SazdaText variant="headlineMedium" color={onCard} style={styles.prayerName}>
-          {name}
+          {prayerDisplayLabel(name)}
         </SazdaText>
         <SazdaText variant="bodyMedium" color={timeColor} style={[styles.prayerTime, active && styles.prayerTimeActive]}>
           {time}
@@ -133,7 +134,7 @@ function PrayerRow({
         <Pressable
           hitSlop={12}
           style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
-          accessibilityLabel={`Reminder for ${name} (coming soon)`}>
+          accessibilityLabel={`Reminder for ${prayerDisplayLabel(name)} (coming soon)`}>
           <Bell
             size={22}
             color={active ? c.secondaryContainer : c.outline}

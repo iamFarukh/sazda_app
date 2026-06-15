@@ -267,10 +267,8 @@ export function scheduleOfflineQuranBootstrapIfNeeded(): void {
       for (const p of PRIORITY_BOOTSTRAP) {
         if (!isSurahFullyOffline(m, p)) ordered.push(p);
       }
-      for (let s = 1; s <= 114; s++) {
-        if (PRIORITY_BOOTSTRAP_SET.has(s)) continue;
-        if (!isSurahFullyOffline(m, s)) ordered.push(s);
-      }
+      // Intentionally skipping the rest of the 114 surahs to save bandwidth and storage.
+      // Users can download full Quran manually from the Offline Manager.
 
       if (ordered.length === 0) {
         mmkv.set(OFFLINE_QURAN_BOOTSTRAP_MMKV_KEY, true);

@@ -18,6 +18,13 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import Reanimated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import {
   ArrowLeft,
   Bookmark,
@@ -50,6 +57,9 @@ type R = RouteProp<QuranStackParamList, 'MushafReader'>;
 
 const PAGES = Array.from({ length: MUSHAF_TOTAL_PAGES }, (_, i) => i + 1);
 const AUTO_HIDE_MS = 2800;
+const MIN_SCALE = 0.85;
+const MAX_SCALE = 1.6;
+const SCALE_EPS = 0.01;
 
 export function MushafReaderScreen() {
   const navigation = useNavigation<Nav>();
@@ -58,6 +68,16 @@ export function MushafReaderScreen() {
   const insets = useSafeAreaInsets();
   const tabBarHeight = useBottomTabBarHeight();
   const listRef = useRef<FlatList<number>>(null);
+  const toastOpacity = useSharedValue(0);
+  const toastHideTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [toastText, setToastText] = useState<string | null>(null);
+  const toastTextRef = useRef<string | null>(null);
+
+  const baseScale = useSharedValue(1);
+  const liveScale = useSharedValue(1);
+  const lastApplied = useSharedValue(1);
+  const hitMinThisGesture = useSharedValue(false);
+  const hitMaxThisGesture = useSharedValue(false);
 
   /** Space reserved above tab bar for corner FABs (page + quick settings). */
   const fabStripHeight = 52;
@@ -98,6 +118,82 @@ export function MushafReaderScreen() {
   const [jumpText, setJumpText] = useState(String(initialPage));
 
   const palette = useMemo(() => getMushafPalette(theme), [theme]);
+
+  useEffect(() => {
+    baseScale.value = fontScale;
+    liveScale.value = fontScale;
+    lastApplied.value = fontScale;
+  }, [baseScale, fontScale, lastApplied, liveScale]);
+
+  const toastAnimStyle = useAnimatedStyle(() => {
+    return { opacity: toastOpacity.value };
+  }, [toastOpacity]);
+
+  const flashLimitToast = useCallback(
+    (text: string) => {
+      if (toastTextRef.current === text && toastText) return;
+      toastTextRef.current = text;
+      setToastText(text);
+      if (toastHideTimer.current) clearTimeout(toastHideTimer.current);
+      toastOpacity.value = 1;
+      toastHideTimer.current = setTimeout(() => {
+        toastOpacity.value = withTiming(0, { duration: 220 }, finished => {
+          if (finished) runOnJS(setToastText)(null);
+        });
+      }, 900);
+    },
+    [toastOpacity, toastText],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (toastHideTimer.current) clearTimeout(toastHideTimer.current);
+    };
+  }, []);
+
+  const clamp = (v: number, min: number, max: number) => {
+    'worklet';
+    return Math.min(max, Math.max(min, v));
+  };
+
+  const pinch = useMemo(() => {
+    return Gesture.Pinch()
+      .onBegin(() => {
+        hitMinThisGesture.value = false;
+        hitMaxThisGesture.value = false;
+      })
+      .onUpdate(e => {
+        const raw = baseScale.value * e.scale;
+        const next = clamp(raw, MIN_SCALE, MAX_SCALE);
+        if (Math.abs(next - lastApplied.value) < SCALE_EPS) return;
+        lastApplied.value = next;
+        liveScale.value = next;
+
+        if (next <= MIN_SCALE + 1e-4 && !hitMinThisGesture.value) {
+          hitMinThisGesture.value = true;
+          runOnJS(flashLimitToast)('Min zoom');
+        } else if (next >= MAX_SCALE - 1e-4 && !hitMaxThisGesture.value) {
+          hitMaxThisGesture.value = true;
+          runOnJS(flashLimitToast)('Max zoom');
+        }
+      })
+      .onEnd(e => {
+        const raw = baseScale.value * e.scale;
+        const next = clamp(raw, MIN_SCALE, MAX_SCALE);
+        baseScale.value = next;
+        liveScale.value = next;
+        lastApplied.value = next;
+        runOnJS(setFontScale)(next);
+      });
+  }, [
+    baseScale,
+    flashLimitToast,
+    hitMaxThisGesture,
+    hitMinThisGesture,
+    lastApplied,
+    liveScale,
+    setFontScale,
+  ]);
 
   useEffect(() => {
     if (__DEV__) {
@@ -195,11 +291,11 @@ export function MushafReaderScreen() {
         paddingTop={contentTopPad}
         paddingBottom={contentBottomPad}
         palette={palette}
-        fontScale={fontScale}
+        liveScale={liveScale}
         showTranslation={showTranslation}
       />
     ),
-    [width, height, contentTopPad, contentBottomPad, palette, fontScale, showTranslation],
+    [width, height, contentTopPad, contentBottomPad, palette, liveScale, showTranslation],
   );
 
   const juz = juzForMushafPage(currentPage);
@@ -236,32 +332,46 @@ export function MushafReaderScreen() {
         accessibilityLabel="Back to Quran">
         <ArrowLeft size={22} color={palette.text} strokeWidth={2.5} />
       </Pressable>
-      <FlatList
-        style={styles.list}
-        ref={listRef}
-        data={PAGES}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        keyExtractor={String}
-        initialScrollIndex={initialPage - 1}
-        getItemLayout={getItemLayout}
-        initialNumToRender={2}
-        maxToRenderPerBatch={2}
-        windowSize={3}
-        removeClippedSubviews
-        renderItem={renderItem}
-        onMomentumScrollEnd={onMomentumScrollEnd}
-        onScrollToIndexFailed={info => {
-          setTimeout(() => {
-            listRef.current?.scrollToIndex({
-              index: info.index,
-              animated: false,
-            });
-          }, 120);
-        }}
-        extraData={{ width, fontScale, theme, showTranslation }}
-      />
+      <GestureDetector gesture={pinch}>
+        <Reanimated.View style={{ flex: 1 }}>
+          <FlatList
+            style={styles.list}
+            ref={listRef}
+            data={PAGES}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={String}
+            initialScrollIndex={initialPage - 1}
+            getItemLayout={getItemLayout}
+            initialNumToRender={2}
+            maxToRenderPerBatch={2}
+            windowSize={3}
+            removeClippedSubviews
+            renderItem={renderItem}
+            onMomentumScrollEnd={onMomentumScrollEnd}
+            onScrollToIndexFailed={info => {
+              setTimeout(() => {
+                listRef.current?.scrollToIndex({
+                  index: info.index,
+                  animated: false,
+                });
+              }, 120);
+            }}
+            extraData={{ width, theme, showTranslation }}
+          />
+        </Reanimated.View>
+      </GestureDetector>
+
+      {toastText ? (
+        <Reanimated.View
+          pointerEvents="none"
+          style={[toastStyles.wrap, toastAnimStyle]}>
+          <View style={[toastStyles.pill, { backgroundColor: palette.text }]}>
+            <Text style={toastStyles.text}>{toastText}</Text>
+          </View>
+        </Reanimated.View>
+      ) : null}
 
       {/* Corner controls: page + settings — above tab bar, never over verse text */}
       {!overlayVisible ? (
@@ -616,5 +726,28 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     padding: spacing.md,
     fontSize: 16,
+  },
+});
+
+const toastStyles = StyleSheet.create({
+  wrap: {
+    position: 'absolute',
+    top: spacing.md + 8,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 60,
+    elevation: 60,
+  },
+  pill: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.sm,
+    borderRadius: 999,
+    opacity: 0.9,
+  },
+  text: {
+    color: '#fff',
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
 });

@@ -17,6 +17,7 @@ import {
   getBuiltinAdhanBundleFile,
   getBuiltinAdhanDisplayName,
 } from '../../constants/adhanBuiltInSounds';
+import { prayerDisplayLabel } from '../../utils/prayerDisplayLabel';
 
 // Ensure sounds play even when silent mode is on via OS, based on user preference
 Sound.setCategory('Playback', true);
@@ -142,7 +143,7 @@ export function SoundSelectionScreen() {
               {renderActiveName()}
             </Text>
             <Text style={[styles.heroSub, { color: c.onPrimary }]}>
-              Currently active for {prayer}
+              Currently active for {prayerDisplayLabel(prayer)}
             </Text>
           </View>
         </Animated.View>

@@ -1,5 +1,15 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  Keyboard,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useNavigation } from '@react-navigation/native';
@@ -216,6 +226,7 @@ export function ZakatCycleManageScreen() {
       onDidDismiss={onDueSheetDidDismiss}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         contentContainerStyle={styles.sheetScroll}
         showsVerticalScrollIndicator={false}>
         <View style={[styles.sheetHandle, { backgroundColor: c.surfaceContainerHighest }]} />

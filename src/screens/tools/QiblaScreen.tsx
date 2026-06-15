@@ -62,7 +62,7 @@ const CIRC = 2 * Math.PI * RING_R;
 const PRAYER_ROWS: { key: keyof PrayerTimingsDay; label: string }[] = [
   { key: 'Fajr', label: 'Fajr' },
   { key: 'Sunrise', label: 'Sunrise' },
-  { key: 'Dhuhr', label: 'Dhuhr' },
+  { key: 'Dhuhr', label: 'Zohar' },
   { key: 'Asr', label: 'Asr' },
   { key: 'Sunset', label: 'Sunset' },
   { key: 'Maghrib', label: 'Maghrib' },

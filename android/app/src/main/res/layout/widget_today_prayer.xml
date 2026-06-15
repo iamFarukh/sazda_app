@@ -35,6 +35,15 @@
                 android:text="Loading…"
                 android:textColor="#66003527"
                 android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/widget_city"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="1dp"
+                android:text=""
+                android:textColor="#55003527"
+                android:textSize="10sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -53,7 +62,7 @@
                 android:textColor="#66003527"
                 android:textSize="11sp" />
 
-            <TextView
+            <Chronometer
                 android:id="@+id/widget_countdown"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -154,7 +163,7 @@
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:src="@drawable/ic_widget_sun"
-            android:contentDescription="Dhuhr" />
+            android:contentDescription="Zohar" />
 
         <TextView
             android:id="@+id/widget_name_dhuhr"
@@ -162,7 +171,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:layout_marginStart="10dp"
-            android:text="Dhuhr"
+            android:text="Zohar"
             android:textColor="#003527"
             android:textSize="14sp" />
 

@@ -48,10 +48,11 @@ import {
 } from '../../utils/prayerTrackerStats';
 import { getNextSalahFromTodayTimings, getSuggestedLogPrayer } from '../../utils/prayerNextFromTimings';
 import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
+import { hapticLight, hapticSuccess } from '../../utils/appHaptics';
 
 const DISPLAY_NAMES: Record<FiveDailyPrayer, string> = {
   Fajr: 'Fajr',
-  Dhuhr: 'Dhuhr',
+  Dhuhr: 'Zohar',
   Asr: 'Asr',
   Maghrib: 'Maghrib',
   Isha: 'Isha',
@@ -166,8 +167,11 @@ export function PrayerTrackerScreen() {
   const onMark = (prayer: FiveDailyPrayer, status: PrayerMark) => {
     const cur = selectedLog?.[prayer];
     if (cur === status) {
+      hapticLight();
       markPrayer(selectedKey, prayer, 'clear');
     } else {
+      if (status === 'prayed') hapticSuccess();
+      else hapticLight();
       markPrayer(selectedKey, prayer, status);
     }
   };
@@ -316,10 +320,10 @@ export function PrayerTrackerScreen() {
               {nextSalah ? (
                 <>
                   <SazdaText variant="headlineMedium" color="primary" style={styles.nextTitle}>
-                    {nextSalah.name} · {nextSalah.label12h}
+                    {DISPLAY_NAMES[nextSalah.name]} · {nextSalah.label12h}
                   </SazdaText>
                   <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={styles.nextSub}>
-                    Log {nextSalah.name} after you pray — tap ✓ when you&apos;re done.
+                    Log {DISPLAY_NAMES[nextSalah.name]} after you pray — tap ✓ when you&apos;re done.
                   </SazdaText>
                 </>
               ) : (

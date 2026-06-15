@@ -1,8 +1,19 @@
 import { useMemo, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { useHeaderHeight } from '@react-navigation/elements';
 import { TextInput } from '../../components/atoms/TextInput/TextInput';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import {
@@ -24,6 +35,7 @@ type Nav = NativeStackNavigationProp<ToolsStackParamList, 'ZakatCalculator'>;
 
 export function ZakatCalculatorScreen() {
   const navigation = useNavigation<Nav>();
+  const headerHeight = useHeaderHeight();
   const [raw, setRaw] = useState('');
   const { colors: c, scheme } = useThemePalette();
   const styles = useMemo(() => createZakatStyles(c, scheme), [c, scheme]);
@@ -68,62 +80,77 @@ export function ZakatCalculatorScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['bottom']}>
-      <ScrollView contentContainerStyle={styles.pad} showsVerticalScrollIndicator={false}>
-        <SazdaText variant="headlineMedium" color="primary" style={styles.heading}>
-          Zakat calculator
-        </SazdaText>
-        <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={styles.disclaimer}>
-          Enter zakatable wealth in ₹. We apply 2.5% — same rate as before. You can apply the result
-          to your active cycle; previous payments are never changed.
-        </SazdaText>
-
-        <Text style={[styles.inrLabel, { color: c.onSurfaceVariant }]}>Amount (₹)</Text>
-        <TextInput
-          value={raw}
-          onChangeText={setRaw}
-          placeholder="e.g. 500000"
-          keyboardType="decimal-pad"
-          containerStyle={styles.input}
-        />
-
-        <View style={styles.resultCard}>
-          <SazdaText variant="caption" color="onSurfaceVariant">
-            Estimated zakāt (2.5%)
+      <KeyboardAvoidingView
+        style={styles.safe}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? headerHeight : 0}>
+        <ScrollView
+          contentContainerStyle={[styles.pad, { flexGrow: 1 }]}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}>
+          <SazdaText variant="headlineMedium" color="primary" style={styles.heading}>
+            Zakat calculator
           </SazdaText>
-          <SazdaText variant="headlineLarge" color="primary" style={styles.resultMain}>
-            {zakatPaise != null ? formatInrPaise(zakatPaise) : '—'}
+          <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={styles.disclaimer}>
+            Enter zakatable wealth in ₹. We apply 2.5% — same rate as before. You can apply the
+            result to your active cycle; previous payments are never changed.
           </SazdaText>
-          {rupees != null ? (
-            <SazdaText variant="bodyMedium" color="onSurfaceVariant">
-              On {formatInrPaise(rupeesToPaise(rupees))} entered
+
+          <Text style={[styles.inrLabel, { color: c.onSurfaceVariant }]}>Amount (₹)</Text>
+          <TextInput
+            value={raw}
+            onChangeText={setRaw}
+            placeholder="e.g. 500000"
+            keyboardType="decimal-pad"
+            containerStyle={styles.input}
+          />
+
+          <View style={styles.resultCard}>
+            <SazdaText variant="caption" color="onSurfaceVariant">
+              Estimated zakāt (2.5%)
             </SazdaText>
-          ) : (
-            <SazdaText variant="bodyMedium" color="onSurfaceVariant">
-              Enter zakatable amount in rupees
+            <SazdaText variant="headlineLarge" color="primary" style={styles.resultMain}>
+              {zakatPaise != null ? formatInrPaise(zakatPaise) : '—'}
             </SazdaText>
-          )}
-        </View>
+            {rupees != null ? (
+              <SazdaText variant="bodyMedium" color="onSurfaceVariant">
+                On {formatInrPaise(rupeesToPaise(rupees))} entered
+              </SazdaText>
+            ) : (
+              <SazdaText variant="bodyMedium" color="onSurfaceVariant">
+                Enter zakatable amount in rupees
+              </SazdaText>
+            )}
+          </View>
 
-        <Pressable
-          onPress={applyToCycle}
-          style={({ pressed }) => [
-            styles.applyBtn,
-            { backgroundColor: c.primaryContainer },
-            pressed && { opacity: 0.9 },
-          ]}>
-          <Text style={[styles.applyBtnText, { color: c.onPrimary }]}>Apply to active cycle</Text>
-        </Pressable>
+          <View style={{ flex: 1 }} />
 
-        <Pressable
-          onPress={() => setRaw('')}
-          style={({ pressed }) => [styles.clearBtn, pressed && styles.pressed]}
-          accessibilityRole="button"
-          accessibilityLabel="Clear amount">
-          <SazdaText variant="label" color="primary">
-            Clear
-          </SazdaText>
-        </Pressable>
-      </ScrollView>
+          <View style={[styles.footer, { backgroundColor: c.surface }]}>
+            <Pressable
+              onPress={applyToCycle}
+              style={({ pressed }) => [
+                styles.applyBtn,
+                { backgroundColor: c.primaryContainer },
+                pressed && { opacity: 0.9 },
+              ]}>
+              <Text style={[styles.applyBtnText, { color: c.onPrimary }]}>
+                Apply to active cycle
+              </Text>
+            </Pressable>
+
+            <Pressable
+              onPress={() => setRaw('')}
+              style={({ pressed }) => [styles.clearBtn, pressed && styles.pressed]}
+              accessibilityRole="button"
+              accessibilityLabel="Clear amount">
+              <SazdaText variant="label" color="primary">
+                Clear
+              </SazdaText>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -132,9 +159,10 @@ function createZakatStyles(c: AppPalette, scheme: ResolvedScheme) {
   const border = scheme === 'dark' ? 'rgba(142,207,178,0.12)' : 'rgba(0, 53, 39, 0.06)';
   return StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.surface },
+    body: { flex: 1 },
     pad: {
       paddingHorizontal: spacing.lg,
-      paddingBottom: spacing.x3xl,
+      paddingBottom: spacing.lg,
       gap: spacing.lg,
     },
     heading: { marginTop: spacing.sm },
@@ -169,6 +197,12 @@ function createZakatStyles(c: AppPalette, scheme: ResolvedScheme) {
       justifyContent: 'center',
     },
     applyBtnText: { fontSize: 16, fontWeight: '800' },
+    footer: {
+      paddingHorizontal: spacing.lg,
+      paddingTop: spacing.sm,
+      paddingBottom: spacing.lg,
+      gap: spacing.md,
+    },
     clearBtn: {
       alignSelf: 'flex-start',
       paddingHorizontal: spacing.lg,

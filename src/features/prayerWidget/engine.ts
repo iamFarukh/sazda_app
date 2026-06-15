@@ -1,4 +1,5 @@
 import type { PrayerTimingsDay } from '../../services/prayerTimesApi';
+import { prayerDisplayLabel } from '../../utils/prayerDisplayLabel';
 import {
   formatTime12h,
   MAKRUH_BEFORE_DHUHR_MINUTES,
@@ -8,7 +9,7 @@ import {
   type DailyPrayerName,
 } from '../../utils/prayerSchedule';
 import { formatCountdownMinutes, subtitleNextIn } from './format';
-import type { PrayerWidgetSnapshot } from './types';
+import type { PrayerWidgetSnapshot, PrayerWidgetTimelineEntry } from './types';
 
 const FIVE: DailyPrayerName[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
 const MS_BEFORE_DHUHR = MAKRUH_BEFORE_DHUHR_MINUTES * 60 * 1000;
@@ -71,7 +72,7 @@ export function computePrayerWidgetSnapshot(
   if (now < t.Fajr) {
     const countdownToNextMs = t.Fajr.getTime() - now.getTime();
     return {
-      v: 1,
+      v: 2,
       computedAtMs: now.getTime(),
       dateKey,
       mode: 'night',
@@ -90,13 +91,13 @@ export function computePrayerWidgetSnapshot(
   if (now >= t.Fajr && now < t.Sunrise) {
     const countdownToNextMs = t.Dhuhr.getTime() - now.getTime();
     return {
-      v: 1,
+      v: 2,
       computedAtMs: now.getTime(),
       dateKey,
       mode: 'makruh',
       makruhVariant: 'post_fajr',
       title: 'Makruh time',
-      subtitle: subtitleNextIn('Dhuhr', cdMin(countdownToNextMs)),
+      subtitle: subtitleNextIn(prayerDisplayLabel('Dhuhr'), cdMin(countdownToNextMs)),
       highlight: null,
       nextName: 'Dhuhr',
       countdownToNextMs,
@@ -110,13 +111,13 @@ export function computePrayerWidgetSnapshot(
   if (now >= t.Sunrise && now < makruhSunriseEnd) {
     const countdownToNextMs = t.Dhuhr.getTime() - now.getTime();
     return {
-      v: 1,
+      v: 2,
       computedAtMs: now.getTime(),
       dateKey,
       mode: 'makruh',
       makruhVariant: 'ishraq',
       title: 'Makruh time',
-      subtitle: subtitleNextIn('Dhuhr', cdMin(countdownToNextMs)),
+      subtitle: subtitleNextIn(prayerDisplayLabel('Dhuhr'), cdMin(countdownToNextMs)),
       highlight: null,
       nextName: 'Dhuhr',
       countdownToNextMs,
@@ -133,19 +134,20 @@ export function computePrayerWidgetSnapshot(
   if (hasMakruhSegment && now >= makruhStart && now < t.Dhuhr) {
     const countdownToNextMs = t.Dhuhr.getTime() - now.getTime();
     return {
-      v: 1,
+      v: 2,
       computedAtMs: now.getTime(),
       dateKey,
       mode: 'makruh',
       makruhVariant: 'zawal',
       title: 'Makruh time',
-      subtitle: subtitleNextIn('Dhuhr', cdMin(countdownToNextMs)),
+      subtitle: subtitleNextIn(prayerDisplayLabel('Dhuhr'), cdMin(countdownToNextMs)),
       highlight: null,
       nextName: 'Dhuhr',
       countdownToNextMs,
       countdownLabelMin: cdMin(countdownToNextMs),
-      periodNote:
-        'Near solar noon — optional prayer is commonly avoided before Dhuhr. Consult your scholar.',
+      periodNote: `Near solar noon — optional prayer is commonly avoided before ${prayerDisplayLabel(
+        'Dhuhr',
+      )}. Consult your scholar.`,
       schedule: baseSchedule,
     };
   }
@@ -153,12 +155,12 @@ export function computePrayerWidgetSnapshot(
   if (now < t.Dhuhr) {
     const countdownToNextMs = t.Dhuhr.getTime() - now.getTime();
     return {
-      v: 1,
+      v: 2,
       computedAtMs: now.getTime(),
       dateKey,
       mode: 'between',
-      title: 'Next: Dhuhr',
-      subtitle: subtitleNextIn('Dhuhr', cdMin(countdownToNextMs)),
+      title: `Next: ${prayerDisplayLabel('Dhuhr')}`,
+      subtitle: subtitleNextIn(prayerDisplayLabel('Dhuhr'), cdMin(countdownToNextMs)),
       highlight: null,
       nextName: 'Dhuhr',
       countdownToNextMs,
@@ -183,7 +185,7 @@ export function computePrayerWidgetSnapshot(
         if (now >= makruhSunsetStart) {
           const countdownToNextMs = t.Maghrib.getTime() - now.getTime();
           return {
-            v: 1,
+            v: 2,
             computedAtMs: now.getTime(),
             dateKey,
             mode: 'makruh',
@@ -201,12 +203,12 @@ export function computePrayerWidgetSnapshot(
       }
       const countdownToNextMs = w.end.getTime() - now.getTime();
       return {
-        v: 1,
+        v: 2,
         computedAtMs: now.getTime(),
         dateKey,
         mode: 'active',
-        title: `Now: ${w.name}`,
-        subtitle: subtitleNextIn(w.next, cdMin(countdownToNextMs)),
+        title: `Now: ${prayerDisplayLabel(w.name)}`,
+        subtitle: subtitleNextIn(prayerDisplayLabel(w.next), cdMin(countdownToNextMs)),
         highlight: w.name,
         nextName: w.next,
         countdownToNextMs,
@@ -218,7 +220,7 @@ export function computePrayerWidgetSnapshot(
 
   const countdownToNextMs = fajrTomorrow.getTime() - now.getTime();
   return {
-    v: 1,
+    v: 2,
     computedAtMs: now.getTime(),
     dateKey,
     mode: 'active',
@@ -230,4 +232,86 @@ export function computePrayerWidgetSnapshot(
     countdownLabelMin: cdMin(countdownToNextMs),
     schedule: baseSchedule,
   };
+}
+
+/**
+ * Builds boundary-driven widget states so widgets can update exactly at prayer boundaries
+ * without doing heavy computations themselves.\n+ *
+ * Includes: Fajr, Sunrise, Dhuhr, Asr, Maghrib, Isha, plus tomorrow Fajr.
+ */
+export function computePrayerWidgetTimelineEntries(
+  now: Date,
+  dateKey: string,
+  today: PrayerTimingsDay,
+  tomorrow: PrayerTimingsDay,
+  yesterday?: PrayerTimingsDay | null,
+): PrayerWidgetTimelineEntry[] {
+  const { day0, t } = parseDay(now, today);
+  const dayP1 = addLocalDays(day0, 1);
+  const fajrTomorrow = parseTimeOnLocalDay(tomorrow.Fajr, dayP1);
+
+  const makruhSunriseEnd = new Date(t.Sunrise.getTime() + MAKRUH_SUNRISE_MINUTES * 60 * 1000);
+  const makruhStart = new Date(Math.max(t.Sunrise.getTime(), t.Dhuhr.getTime() - MAKRUH_BEFORE_DHUHR_MINUTES * 60 * 1000));
+  const makruhSunsetStart = new Date(t.Maghrib.getTime() - MAKRUH_SUNSET_MINUTES * 60 * 1000);
+
+  const boundaries = [
+    t.Fajr,
+    t.Sunrise,
+    makruhSunriseEnd,
+    makruhStart,
+    t.Dhuhr,
+    t.Asr,
+    makruhSunsetStart,
+    t.Maghrib,
+    t.Isha,
+    fajrTomorrow,
+  ]
+    .map(d => d.getTime())
+    .filter(ms => Number.isFinite(ms))
+    .sort((a, b) => a - b);
+
+  const unique = Array.from(new Set(boundaries));
+
+  const entries: PrayerWidgetTimelineEntry[] = [];
+  for (const atMs of unique) {
+    // Take the state a second after the boundary so inclusive comparisons behave naturally.
+    const snap = computePrayerWidgetSnapshot(
+      new Date(atMs + 1000),
+      dateKey,
+      today,
+      tomorrow,
+      yesterday,
+    );
+    entries.push({
+      atMs,
+      mode: snap.mode,
+      makruhVariant: snap.makruhVariant,
+      title: snap.title,
+      subtitle: snap.subtitle,
+      highlight: snap.highlight,
+      nextName: snap.nextName,
+      countdownToNextMs: snap.countdownToNextMs,
+      countdownLabelMin: snap.countdownLabelMin,
+      periodNote: snap.periodNote,
+    });
+  }
+
+  // Ensure a near-future entry exists even if all boundaries are in the past (bad clock/data).
+  if (entries.length === 0) {
+    const snap = computePrayerWidgetSnapshot(now, dateKey, today, tomorrow, yesterday);
+    entries.push({
+      atMs: now.getTime() + 60_000,
+      mode: snap.mode,
+      makruhVariant: snap.makruhVariant,
+      title: snap.title,
+      subtitle: snap.subtitle,
+      highlight: snap.highlight,
+      nextName: snap.nextName,
+      periodNote: snap.periodNote,
+      countdownToNextMs: snap.countdownToNextMs,
+      countdownLabelMin: snap.countdownLabelMin,
+    });
+  }
+
+  return entries;
 }

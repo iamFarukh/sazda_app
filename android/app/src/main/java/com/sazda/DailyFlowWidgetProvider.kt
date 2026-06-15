@@ -6,6 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.os.SystemClock
 import android.view.View
 import android.widget.RemoteViews
 import org.json.JSONObject
@@ -34,16 +35,17 @@ class DailyFlowWidgetProvider : AppWidgetProvider() {
         private data class FlowItem(
             val key: String,
             val itemId: Int,
+            val iconId: Int,
             val nameId: Int,
             val timeId: Int,
         )
 
         private val ITEMS = listOf(
-            FlowItem("Fajr",    R.id.flow_item_fajr,    R.id.flow_name_fajr,    R.id.flow_time_fajr),
-            FlowItem("Dhuhr",   R.id.flow_item_dhuhr,   R.id.flow_name_dhuhr,   R.id.flow_time_dhuhr),
-            FlowItem("Asr",     R.id.flow_item_asr,     R.id.flow_name_asr,     R.id.flow_time_asr),
-            FlowItem("Maghrib", R.id.flow_item_maghrib, R.id.flow_name_maghrib, R.id.flow_time_maghrib),
-            FlowItem("Isha",    R.id.flow_item_isha,    R.id.flow_name_isha,    R.id.flow_time_isha),
+            FlowItem("Fajr",    R.id.flow_item_fajr,    R.id.flow_icon_fajr,    R.id.flow_name_fajr,    R.id.flow_time_fajr),
+            FlowItem("Dhuhr",   R.id.flow_item_dhuhr,   R.id.flow_icon_dhuhr,   R.id.flow_name_dhuhr,   R.id.flow_time_dhuhr),
+            FlowItem("Asr",     R.id.flow_item_asr,     R.id.flow_icon_asr,     R.id.flow_name_asr,     R.id.flow_time_asr),
+            FlowItem("Maghrib", R.id.flow_item_maghrib, R.id.flow_icon_maghrib, R.id.flow_name_maghrib, R.id.flow_time_maghrib),
+            FlowItem("Isha",    R.id.flow_item_isha,    R.id.flow_icon_isha,    R.id.flow_name_isha,    R.id.flow_time_isha),
         )
 
         fun updateWidget(
@@ -64,9 +66,22 @@ class DailyFlowWidgetProvider : AppWidgetProvider() {
                     val title = json.optString("title", "")
                     val subtitle = json.optString("subtitle", "")
                     val countdown = json.optString("countdownLabelMin", "")
+                    val city = json.optString("city", "")
+                    val isStale = json.optBoolean("isStale", false)
+                    val staleLabel = json.optString("staleLabel", "")
+                    val periodNote = json.optString("periodNote", "")
 
                     views.setTextViewText(R.id.flow_title, "Daily Flow")
                     views.setTextViewText(R.id.flow_date, formatDateKey(dateKey))
+                    views.setTextViewText(R.id.flow_city, city)
+
+                    if (periodNote.isNotEmpty() && (mode == "between" || mode == "night")) {
+                        views.setTextViewText(R.id.flow_period_note, periodNote)
+                        views.setViewVisibility(R.id.flow_period_note, View.VISIBLE)
+                    } else {
+                        views.setTextViewText(R.id.flow_period_note, "")
+                        views.setViewVisibility(R.id.flow_period_note, View.GONE)
+                    }
 
                     val schedule = json.optJSONArray("schedule")
                     var currentHighlight = highlight
@@ -80,41 +95,85 @@ class DailyFlowWidgetProvider : AppWidgetProvider() {
                         else -> Color.parseColor(GREEN)
                     }
 
-                    if (schedule != null) {
+                    // Use timeline to accurately calculate the active state
+                    val timeline = json.optJSONArray("timeline")
+                    if (timeline != null && timeline.length() > 0) {
                         val now = System.currentTimeMillis()
-                        val updated = prefs.getLong(PrayerWidgetModule.KEY_UPDATED, now)
-                        
-                        // If snapshot is stale by 2 minutes, natively calculate current & next
-                        if (now - updated > 120_000) {
-                            var computedCurrent = ""
-                            var computedNext = "Fajr"
-                            
-                            for (i in 0 until schedule.length().coerceAtMost(5)) {
-                                val entry = schedule.getJSONObject(i)
-                                val t = entry.optLong("timeMillis", 0L)
-                                if (now >= t) {
-                                    computedCurrent = entry.optString("name", "")
-                                    if (i + 1 < schedule.length()) {
-                                        computedNext = schedule.getJSONObject(i + 1).optString("name", "Fajr")
-                                    } else {
-                                        computedNext = "Fajr"
-                                    }
-                                }
-                            }
-                            currentHighlight = computedCurrent
-                            if (computedCurrent.isNotEmpty()) {
-                                finalStatusText = "Now: $computedCurrent · Next: $computedNext"
-                                statusColor = Color.parseColor(GREEN)
+                        var activeEntry: JSONObject? = null
+
+                        for (i in 0 until timeline.length()) {
+                            val entry = timeline.getJSONObject(i)
+                            val t = entry.optLong("atMs", 0L)
+                            if (now >= t) {
+                                activeEntry = entry
                             } else {
-                                finalStatusText = "Next: Fajr"
-                                statusColor = Color.parseColor(GREEN)
+                                break
+                            }
+                        }
+
+                        if (activeEntry != null) {
+                            currentHighlight = activeEntry.optString("highlight", "")
+                            val activeMode = activeEntry.optString("mode", "active")
+                            val activeTitle = activeEntry.optString("title", "")
+                            val activeSubtitle = activeEntry.optString("subtitle", "")
+                            val activeNextName = activeEntry.optString("nextName", "")
+                            
+                            val atMs = activeEntry.optLong("atMs", 0L)
+                            val cdMs = activeEntry.optLong("countdownToNextMs", 0L)
+                            val targetTimeMs = PrayerWidgetCountdown.segmentEndWallTimeMs(atMs, cdMs)
+                            val remainingMs = targetTimeMs - now
+                            
+                            val secondaryText = when (activeMode) {
+                                "makruh" -> "Next: ${PrayerUiLabels.displayName(activeNextName)} in %s"
+                                "active" -> "Ends in %s"
+                                "between", "night" -> "In %s"
+                                else -> activeSubtitle
+                            }
+                            
+                            finalStatusText = when (activeMode) {
+                                "makruh" -> "⚠ $activeTitle · $secondaryText"
+                                "night" -> "🌙 $activeTitle · $secondaryText"
+                                else -> "$activeTitle · $secondaryText"
+                            }
+                            
+                            if (remainingMs > 0L && finalStatusText.contains("%s")) {
+                                views.setChronometerCountDown(R.id.flow_status, true)
+                                views.setChronometer(
+                                    R.id.flow_status,
+                                    SystemClock.elapsedRealtime() + remainingMs,
+                                    finalStatusText,
+                                    true,
+                                )
+                            } else {
+                                views.setChronometerCountDown(R.id.flow_status, false)
+                                val fallback = activeEntry.optString("countdownLabelMin", "").ifEmpty { "0:00" }
+                                views.setChronometer(
+                                    R.id.flow_status,
+                                    0L,
+                                    finalStatusText.replace("%s", fallback),
+                                    false,
+                                )
+                            }
+                            
+                            statusColor = when (activeMode) {
+                                "makruh" -> Color.parseColor(MAKRUH_TEXT)
+                                else -> Color.parseColor(GREEN)
                             }
                         }
                     }
 
-                    views.setTextViewText(R.id.flow_status, finalStatusText)
                     views.setTextColor(R.id.flow_status, statusColor)
                     views.setViewVisibility(R.id.flow_status, View.VISIBLE)
+
+                    if (isStale && staleLabel.isNotEmpty()) {
+                        views.setChronometerCountDown(R.id.flow_status, false)
+                        views.setChronometer(
+                            R.id.flow_status,
+                            0L,
+                            "$finalStatusText · $staleLabel".replace("%s", "--"),
+                            false,
+                        )
+                    }
 
                     if (schedule != null) {
                         for (i in 0 until schedule.length().coerceAtMost(5)) {
@@ -123,18 +182,20 @@ class DailyFlowWidgetProvider : AppWidgetProvider() {
                             val time12 = entry.optString("time12", "--")
 
                             val item = ITEMS.find { it.key == name } ?: continue
-                            views.setTextViewText(item.nameId, name.uppercase())
+                            views.setTextViewText(item.nameId, PrayerUiLabels.displayName(name).uppercase())
                             views.setTextViewText(item.timeId, time12)
 
                             val isHighlighted = name == currentHighlight
                             if (isHighlighted) {
                                 views.setInt(item.itemId, "setBackgroundResource", R.drawable.widget_row_highlight_bg)
-                                views.setTextColor(item.nameId, Color.parseColor(GREEN))
-                                views.setTextColor(item.timeId, Color.parseColor(GREEN))
+                                views.setTextColor(item.nameId, Color.WHITE)
+                                views.setTextColor(item.timeId, Color.WHITE)
+                                views.setInt(item.iconId, "setColorFilter", Color.WHITE)
                             } else {
                                 views.setInt(item.itemId, "setBackgroundResource", R.drawable.widget_flow_item_bg)
                                 views.setTextColor(item.nameId, Color.parseColor(GREEN))
                                 views.setTextColor(item.timeId, Color.parseColor(GREEN_MUTED))
+                                views.setInt(item.iconId, "setColorFilter", Color.parseColor(GREEN))
                             }
                         }
                     }

@@ -20,6 +20,7 @@ import { useThemePalette } from '../../theme/useThemePalette';
 import { radius } from '../../theme/radius';
 import { spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
+import { hapticMedium } from '../../utils/appHaptics';
 
 import DeviceInfo from 'react-native-device-info';
 
@@ -72,9 +73,18 @@ export function ProfileSettingsScreen() {
 
   const setTheme = useCallback(
     (p: ThemePreference) => {
+      hapticMedium();
       setPreference(p);
     },
     [setPreference],
+  );
+
+  const onTranslationChange = useCallback(
+    (v: boolean) => {
+      hapticMedium();
+      setShowTranslation(v);
+    },
+    [setShowTranslation],
   );
 
   return (
@@ -131,7 +141,7 @@ export function ProfileSettingsScreen() {
             </View>
             <Switch
               value={showTranslation}
-              onValueChange={setShowTranslation}
+              onValueChange={onTranslationChange}
               trackColor={{ false: c.outlineVariant, true: c.primaryContainer }}
               thumbColor={showTranslation ? c.secondaryContainer : c.surfaceContainerHighest}
             />

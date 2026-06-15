@@ -2,14 +2,38 @@ import type { DailyPrayerName } from '../../utils/prayerSchedule';
 
 export type PrayerWidgetMode = 'active' | 'makruh' | 'night' | 'between';
 
-export type PrayerWidgetMakruhVariant = 'post_fajr' | 'ishraq' | 'zawal' | 'sunset';
+export type PrayerWidgetMakruhVariant =
+  | 'post_fajr'
+  | 'ishraq'
+  | 'zawal'
+  | 'sunset';
+
+export type PrayerWidgetTimelineEntry = {
+  /** When the widget should update to this state (epoch ms). */
+  atMs: number;
+  mode: PrayerWidgetMode;
+  makruhVariant?: PrayerWidgetMakruhVariant;
+  title: string;
+  subtitle: string;
+  highlight: DailyPrayerName | null;
+  nextName: DailyPrayerName;
+  countdownToNextMs: number;
+  countdownLabelMin: string;
+  /** Context note for this boundary (e.g. between-prayer copy); must not leak across modes. */
+  periodNote?: string;
+};
 
 /** Serializable for WidgetKit / Android widgets + in-app glance UI. */
 export type PrayerWidgetSnapshot = {
-  v: 1;
+  v: 2;
   computedAtMs: number;
   /** Local calendar key DD-MM-YYYY used for the schedule. */
   dateKey: string;
+  /** Small location label for widgets (city only). */
+  city?: string;
+  /** If true, cached data may be outdated; widgets should show subtle hint. */
+  isStale?: boolean;
+  staleLabel?: string;
   mode: PrayerWidgetMode;
   makruhVariant?: PrayerWidgetMakruhVariant;
   /** Primary line (e.g. "Now: Asr", "Makruh time", "Next: Fajr") */
@@ -25,4 +49,6 @@ export type PrayerWidgetSnapshot = {
   countdownLabelMin: string;
   periodNote?: string;
   schedule: { name: DailyPrayerName; time12: string; timeMillis: number }[];
+  /** Boundary-driven timeline states (used by iOS timeline + Android alarms). */
+  timeline?: PrayerWidgetTimelineEntry[];
 };

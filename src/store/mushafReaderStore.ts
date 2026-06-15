@@ -40,7 +40,7 @@ export const useMushafReaderStore = create<State>()(
       setLastReadPage: p =>
         set({ lastReadPage: Math.max(1, Math.min(604, Math.round(p))) }),
 
-      setFontScale: n => set({ fontScale: Math.min(1.45, Math.max(0.78, n)) }),
+      setFontScale: n => set({ fontScale: Math.min(1.6, Math.max(0.85, n)) }),
 
       setTheme: t => set({ theme: t }),
 

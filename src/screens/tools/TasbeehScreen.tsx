@@ -10,7 +10,12 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from 'react-native-reanimated';
 import { RefreshCw, Vibrate, VibrateOff } from 'lucide-react-native';
 import { TasbeehGeometricBackground } from '../../components/organisms/TasbeehCounter/TasbeehGeometricBackground';
 import { TasbeehTapOrb } from '../../components/organisms/TasbeehCounter/TasbeehTapOrb';
@@ -35,7 +40,10 @@ import {
   tasbeehTapLight,
 } from '../../utils/tasbeehHaptics';
 import { useAuthStore } from '../../store/authStore';
-import { pullAndMergeTasbeeh, setTasbeehSyncUser } from '../../services/tasbeehCloudSync';
+import {
+  pullAndMergeTasbeeh,
+  setTasbeehSyncUser,
+} from '../../services/tasbeehCloudSync';
 import { useFocusEffect } from '@react-navigation/native';
 
 const GOAL_MODES_ROW: { mode: TasbeehGoalMode; label: string }[] = [
@@ -97,7 +105,10 @@ export function TasbeehScreen() {
     const h = after.hapticsEnabled;
     if (after.cycles > beforeCycles) {
       tasbeehCycleComplete(h);
-    } else if (beforeMode === 'traditional33' && after.phaseIndex !== beforePhase) {
+    } else if (
+      beforeMode === 'traditional33' &&
+      after.phaseIndex !== beforePhase
+    ) {
       tasbeehPhraseComplete(h);
     } else {
       tasbeehTapLight(h);
@@ -118,7 +129,7 @@ export function TasbeehScreen() {
     useCallback(() => {
       setTasbeehSyncUser(uid);
       if (uid) void pullAndMergeTasbeeh(uid);
-    }, [uid])
+    }, [uid]),
   );
 
   const onSelectGoal = useCallback(
@@ -147,21 +158,34 @@ export function TasbeehScreen() {
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+      >
         <ToolsSubheader title="Tasbeeh" />
 
         <View style={styles.hero}>
           <View style={styles.badge}>
-            <SazdaText variant="caption" color="secondary" style={styles.badgeText}>
+            <SazdaText
+              variant="caption"
+              color="secondary"
+              style={styles.badgeText}
+            >
               Currently reciting
             </SazdaText>
           </View>
 
           <View style={styles.titleBlock}>
-            <SazdaText variant="headlineLarge" color="primary" style={styles.displayTitle}>
+            <SazdaText
+              variant="headlineLarge"
+              color="primary"
+              style={styles.displayTitle}
+            >
               {titleSubtitle.title}
             </SazdaText>
-            <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={styles.subtitle}>
+            <SazdaText
+              variant="bodyMedium"
+              color="onSurfaceVariant"
+              style={styles.subtitle}
+            >
               {titleSubtitle.subtitle}
             </SazdaText>
           </View>
@@ -170,10 +194,15 @@ export function TasbeehScreen() {
             <SazdaText
               variant="displayLg"
               color={scheme === 'dark' ? c.primary : c.primaryContainer}
-              style={styles.bigCount}>
+              style={styles.bigCount}
+            >
               {currentCount}
             </SazdaText>
-            <SazdaText variant="headlineLarge" color="onSurfaceVariant" style={styles.countSlash}>
+            <SazdaText
+              variant="headlineLarge"
+              color="onSurfaceVariant"
+              style={styles.countSlash}
+            >
               {' '}
               / {target}
             </SazdaText>
@@ -208,15 +237,22 @@ export function TasbeehScreen() {
                     mode === 'custom'
                       ? 'Custom goal, opens editor'
                       : mode === 'single100'
-                        ? 'Goal 100 taps per cycle'
-                        : 'Classic 33, 33, and 34 phrase cycle'
-                  }>
+                      ? 'Goal 100 taps per cycle'
+                      : 'Classic 33, 33, and 34 phrase cycle'
+                  }
+                >
                   <SazdaText
                     variant="label"
-                    color="secondary"
-                    style={[styles.goalSegmentText, active && styles.goalSegmentTextActive]}>
+                    color="onPrimary"
+                    style={[
+                      styles.goalSegmentText,
+                      active && styles.goalSegmentTextActive,
+                    ]}
+                  >
                     {label}
-                    {mode === 'custom' && goalMode === 'custom' ? ` (${customTarget})` : ''}
+                    {mode === 'custom' && goalMode === 'custom'
+                      ? ` (${customTarget})`
+                      : ''}
                   </SazdaText>
                 </Pressable>
               );
@@ -227,11 +263,19 @@ export function TasbeehScreen() {
         <View style={styles.bento}>
           <Pressable
             onPress={onResetPhrase}
-            style={({ pressed }) => [styles.bentoCard, pressed && styles.bentoPressed]}
+            style={({ pressed }) => [
+              styles.bentoCard,
+              pressed && styles.bentoPressed,
+            ]}
             accessibilityRole="button"
-            accessibilityLabel="Reset current phrase">
+            accessibilityLabel="Reset current phrase"
+          >
             <ResetIcon spin={resetSpin} />
-            <SazdaText variant="label" color="onSurface" style={styles.bentoLabel}>
+            <SazdaText
+              variant="label"
+              color="onSurface"
+              style={styles.bentoLabel}
+            >
               Reset phrase
             </SazdaText>
           </Pressable>
@@ -246,16 +290,27 @@ export function TasbeehScreen() {
               ]}
               accessibilityRole="radio"
               accessibilityState={{ checked: hapticsEnabled }}
-              accessibilityLabel="Haptic on">
-              <Vibrate size={28} color={hapticsEnabled ? c.primary : c.onSurfaceVariant} strokeWidth={2.1} />
+              accessibilityLabel="Haptic on"
+            >
+              <Vibrate
+                size={28}
+                color={hapticsEnabled ? c.primary : c.onSurfaceVariant}
+                strokeWidth={2.1}
+              />
               <SazdaText
                 variant="label"
                 color={hapticsEnabled ? 'primary' : 'onSurfaceVariant'}
-                style={styles.hapticHalfLabel}>
+                style={styles.hapticHalfLabel}
+              >
                 Haptic on
               </SazdaText>
             </Pressable>
-            <View style={[styles.hapticDivider, { backgroundColor: c.outlineVariant }]} />
+            <View
+              style={[
+                styles.hapticDivider,
+                { backgroundColor: c.outlineVariant },
+              ]}
+            />
             <Pressable
               onPress={() => setHapticsEnabled(false)}
               style={({ pressed }) => [
@@ -265,12 +320,18 @@ export function TasbeehScreen() {
               ]}
               accessibilityRole="radio"
               accessibilityState={{ checked: !hapticsEnabled }}
-              accessibilityLabel="Haptic off">
-              <VibrateOff size={28} color={!hapticsEnabled ? c.primary : c.onSurfaceVariant} strokeWidth={2.1} />
+              accessibilityLabel="Haptic off"
+            >
+              <VibrateOff
+                size={28}
+                color={!hapticsEnabled ? c.primary : c.onSurfaceVariant}
+                strokeWidth={2.1}
+              />
               <SazdaText
                 variant="label"
                 color={!hapticsEnabled ? 'primary' : 'onSurfaceVariant'}
-                style={styles.hapticHalfLabel}>
+                style={styles.hapticHalfLabel}
+              >
                 Haptic off
               </SazdaText>
             </Pressable>
@@ -278,16 +339,29 @@ export function TasbeehScreen() {
 
           <Pressable
             onPress={resetAll}
-            style={({ pressed }) => [styles.bentoWide, pressed && styles.bentoPressed]}
+            style={({ pressed }) => [
+              styles.bentoWide,
+              pressed && styles.bentoPressed,
+            ]}
             accessibilityRole="button"
-            accessibilityLabel="Reset full tasbeeh">
-            <SazdaText variant="label" color="onPrimary" style={styles.resetAllText}>
+            accessibilityLabel="Reset full tasbeeh"
+          >
+            <SazdaText
+              variant="label"
+              color="onPrimary"
+              style={styles.resetAllText}
+            >
               Reset all (start over)
             </SazdaText>
           </Pressable>
         </View>
 
-        <SazdaText variant="caption" color="onSurfaceVariant" align="center" style={styles.cycles}>
+        <SazdaText
+          variant="caption"
+          color="onSurfaceVariant"
+          align="center"
+          style={styles.cycles}
+        >
           Completed cycles: {cycles}
         </SazdaText>
       </ScrollView>
@@ -296,16 +370,34 @@ export function TasbeehScreen() {
         visible={customModalOpen}
         transparent
         animationType="fade"
-        onRequestClose={() => setCustomModalOpen(false)}>
+        onRequestClose={() => setCustomModalOpen(false)}
+      >
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-          style={styles.modalBackdrop}>
-          <Pressable style={StyleSheet.absoluteFill} onPress={() => setCustomModalOpen(false)} />
-          <View style={[styles.modalCard, { backgroundColor: c.surfaceContainerLow }]}>
-            <SazdaText variant="titleSm" color="primary" style={styles.modalTitle}>
+          style={styles.modalBackdrop}
+        >
+          <Pressable
+            style={StyleSheet.absoluteFill}
+            onPress={() => setCustomModalOpen(false)}
+          />
+          <View
+            style={[
+              styles.modalCard,
+              { backgroundColor: c.surfaceContainerLow },
+            ]}
+          >
+            <SazdaText
+              variant="titleSm"
+              color="primary"
+              style={styles.modalTitle}
+            >
               Custom goal
             </SazdaText>
-            <SazdaText variant="caption" color="onSurfaceVariant" style={styles.modalHint}>
+            <SazdaText
+              variant="caption"
+              color="onSurfaceVariant"
+              style={styles.modalHint}
+            >
               Enter how many taps per cycle (1–9999).
             </SazdaText>
             <TextInput
@@ -326,7 +418,11 @@ export function TasbeehScreen() {
             <View style={styles.modalActions}>
               <Pressable
                 onPress={() => setCustomModalOpen(false)}
-                style={({ pressed }) => [styles.modalBtn, pressed && styles.bentoPressed]}>
+                style={({ pressed }) => [
+                  styles.modalBtn,
+                  pressed && styles.bentoPressed,
+                ]}
+              >
                 <SazdaText variant="label" color="onSurface">
                   Cancel
                 </SazdaText>
@@ -337,7 +433,8 @@ export function TasbeehScreen() {
                   styles.modalBtnPrimary,
                   { backgroundColor: c.primary },
                   pressed && styles.bentoPressed,
-                ]}>
+                ]}
+              >
                 <SazdaText variant="label" color="onPrimary">
                   Save
                 </SazdaText>
@@ -357,7 +454,10 @@ function ResetIcon({ spin }: { spin: number }) {
   useEffect(() => {
     if (spin === 0) return;
     rot.value = 0;
-    rot.value = withTiming(360, { duration: 480, easing: Easing.out(Easing.cubic) });
+    rot.value = withTiming(360, {
+      duration: 480,
+      easing: Easing.out(Easing.cubic),
+    });
   }, [spin, rot]);
 
   const style = useAnimatedStyle(() => ({
@@ -390,9 +490,11 @@ function createTasbeehStyles(c: AppPalette, scheme: ResolvedScheme) {
       paddingHorizontal: spacing.md,
       paddingVertical: 7,
       borderRadius: radius.full,
-      backgroundColor: scheme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.72)',
+      backgroundColor:
+        scheme === 'dark' ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.72)',
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: scheme === 'dark' ? 'rgba(142,207,178,0.14)' : 'rgba(0,53,39,0.07)',
+      borderColor:
+        scheme === 'dark' ? 'rgba(142,207,178,0.14)' : 'rgba(0,53,39,0.07)',
       marginBottom: spacing.lg,
     },
     badgeText: {
@@ -494,7 +596,8 @@ function createTasbeehStyles(c: AppPalette, scheme: ResolvedScheme) {
       alignItems: 'center',
       gap: spacing.sm,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: scheme === 'dark' ? 'rgba(142,207,178,0.12)' : 'rgba(0,53,39,0.06)',
+      borderColor:
+        scheme === 'dark' ? 'rgba(142,207,178,0.12)' : 'rgba(0,53,39,0.06)',
     },
     hapticCard: {
       flex: 1,
@@ -504,7 +607,8 @@ function createTasbeehStyles(c: AppPalette, scheme: ResolvedScheme) {
       backgroundColor: c.surfaceContainerLow,
       borderRadius: radius.md + 4,
       borderWidth: StyleSheet.hairlineWidth,
-      borderColor: scheme === 'dark' ? 'rgba(142,207,178,0.12)' : 'rgba(0,53,39,0.06)',
+      borderColor:
+        scheme === 'dark' ? 'rgba(142,207,178,0.12)' : 'rgba(0,53,39,0.06)',
       overflow: 'hidden',
     },
     hapticHalf: {
@@ -516,7 +620,8 @@ function createTasbeehStyles(c: AppPalette, scheme: ResolvedScheme) {
       gap: spacing.sm,
     },
     hapticHalfActive: {
-      backgroundColor: scheme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,53,39,0.05)',
+      backgroundColor:
+        scheme === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,53,39,0.05)',
     },
     hapticHalfPressed: {
       opacity: 0.9,

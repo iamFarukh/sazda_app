@@ -1,4 +1,5 @@
 import type { PrayerTimingsDay } from '../services/prayerTimesApi';
+import { prayerDisplayLabel } from './prayerDisplayLabel';
 
 export type DailyPrayerName = 'Fajr' | 'Dhuhr' | 'Asr' | 'Maghrib' | 'Isha';
 
@@ -138,7 +139,9 @@ export function computePrayerHeroState(
   }
 
   // Makruh after Sunrise (Ishraq)
-  const makruhSunriseEnd = new Date(t.Sunrise.getTime() + MAKRUH_SUNRISE_MINUTES * 60 * 1000);
+  const makruhSunriseEnd = new Date(
+    t.Sunrise.getTime() + MAKRUH_SUNRISE_MINUTES * 60 * 1000,
+  );
   if (now >= t.Sunrise && now < makruhSunriseEnd) {
     return {
       currentPeriod: 'MakruhSunrise',
@@ -167,8 +170,9 @@ export function computePrayerHeroState(
       currentSalahRow: null,
       nextPrayerAt: t.Dhuhr,
       countdownMs: t.Dhuhr.getTime() - now.getTime(),
-      periodNote:
-        'Optional (nafl) prayer is commonly avoided shortly before Dhuhr (near solar noon). Follow your madhhab for details.',
+      periodNote: `Optional (nafl) prayer is commonly avoided shortly before ${prayerDisplayLabel(
+        'Dhuhr',
+      )} (near solar noon). Follow your madhhab for details.`,
     };
   }
 
@@ -183,12 +187,17 @@ export function computePrayerHeroState(
       currentSalahRow: null,
       nextPrayerAt: t.Dhuhr,
       countdownMs: t.Dhuhr.getTime() - now.getTime(),
-      periodNote: 'Fajr time has ended. Next obligatory salah is Dhuhr.',
+      periodNote: `Fajr time has ended. Next obligatory salah is ${prayerDisplayLabel('Dhuhr')}.`,
     };
   }
 
   // Dhuhr → Asr, Asr → Maghrib, Maghrib → Isha, Isha → Fajr (tomorrow)
-  const windows: { name: DailyPrayerName; start: Date; end: Date; nextRow: keyof PrayerTimingsDay }[] = [
+  const windows: {
+    name: DailyPrayerName;
+    start: Date;
+    end: Date;
+    nextRow: keyof PrayerTimingsDay;
+  }[] = [
     { name: 'Dhuhr', start: t.Dhuhr, end: t.Asr, nextRow: 'Asr' },
     { name: 'Asr', start: t.Asr, end: t.Maghrib, nextRow: 'Maghrib' },
     { name: 'Maghrib', start: t.Maghrib, end: t.Isha, nextRow: 'Isha' },
@@ -199,7 +208,9 @@ export function computePrayerHeroState(
     if (now >= w.start && now < w.end) {
       if (w.name === 'Asr') {
         // Makruh before Sunset (Ghurub)
-        const makruhSunsetStart = new Date(t.Maghrib.getTime() - MAKRUH_SUNSET_MINUTES * 60 * 1000);
+        const makruhSunsetStart = new Date(
+          t.Maghrib.getTime() - MAKRUH_SUNSET_MINUTES * 60 * 1000,
+        );
         if (now >= makruhSunsetStart) {
           return {
             currentPeriod: 'MakruhSunset',
@@ -215,7 +226,9 @@ export function computePrayerHeroState(
       }
 
       const nextName =
-        w.end === fajrTomorrow ? 'Fajr' : (ORDER[ORDER.indexOf(w.name) + 1] as DailyPrayerName);
+        w.end === fajrTomorrow
+          ? 'Fajr'
+          : (ORDER[ORDER.indexOf(w.name) + 1] as DailyPrayerName);
       return {
         currentPeriod: w.name,
         currentPeriodStart: w.start,

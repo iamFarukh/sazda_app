@@ -10,6 +10,7 @@ import notifee, {
 import { PermissionsAndroid, Platform } from 'react-native';
 import { FIVE_DAILY_PRAYERS, type FiveDailyPrayer } from '../store/prayerTrackerStore';
 import { formatHhmmTo12h } from '../utils/prayerTimesDisplay';
+import { prayerDisplayLabel } from '../utils/prayerDisplayLabel';
 import { useAdhanSettingsStore } from '../store/adhanSettingsStore';
 import { usePrayerReminderStore } from '../store/prayerReminderStore';
 import { usePrayerTrackerStore } from '../store/prayerTrackerStore';
@@ -54,7 +55,7 @@ export function buildAdhanNotificationCopy(
 ): { meta: string; headline: string; detail: string } {
   const atLabel = formatHhmmTo12h(timingsHhmm);
   const meta = 'SAZDA • ADHAN';
-  const headline = `${prayer}`;
+  const headline = `${prayerDisplayLabel(prayer)}`;
   const detail =
     adhanDelayMinutes === 0
       ? `Prayer time begins at ${atLabel}.`
@@ -70,7 +71,7 @@ export function buildFollowUpNotificationCopy(prayer: FiveDailyPrayer): {
 } {
   return {
     meta: 'SAZDA • REMINDER',
-    headline: `Still time for ${prayer}`,
+    headline: `Still time for ${prayerDisplayLabel(prayer)}`,
     detail: 'If you have not prayed yet, this is a gentle reminder.',
   };
 }

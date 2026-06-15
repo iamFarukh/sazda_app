@@ -16,6 +16,7 @@ import {
 } from '../../store/prayerReminderStore';
 import { getBuiltinAdhanDisplayName, getBuiltinAdhanBundleFile } from '../../constants/adhanBuiltInSounds';
 import { FIVE_DAILY_PRAYERS, type FiveDailyPrayer } from '../../store/prayerTrackerStore';
+import { prayerDisplayLabel } from '../../utils/prayerDisplayLabel';
 import type { ProfileStackParamList } from '../../navigation/types';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useMemo } from 'react';
@@ -124,7 +125,9 @@ export function AdhanSettingsScreen() {
               >
                 <View style={styles.prayerRowLeft}>
                   <View style={styles.timeBox}>
-                    <Text style={[styles.prayerName, { color: c.primary }]}>{prayer}</Text>
+                    <Text style={[styles.prayerName, { color: c.primary }]}>
+                      {prayerDisplayLabel(prayer)}
+                    </Text>
                   </View>
                   <View style={[styles.divider, { backgroundColor: c.primary }]} />
                   <View>
@@ -249,7 +252,9 @@ export function AdhanSettingsScreen() {
                 style={[styles.preferenceRowCompact, { backgroundColor: c.surfaceContainerLow, marginBottom: spacing.xxs }]}>
                 <View style={styles.rowLeft}>
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.rowTitleCompact, { color: c.primary }]}>{prayer}</Text>
+                    <Text style={[styles.rowTitleCompact, { color: c.primary }]}>
+                      {prayerDisplayLabel(prayer)}
+                    </Text>
                     <Text style={[styles.rowSubCompact, { color: c.onSurfaceVariant }]}>
                       If not marked
                     </Text>

@@ -1,5 +1,15 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  Keyboard,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useRoute, type RouteProp } from '@react-navigation/native';
@@ -143,6 +153,7 @@ export function ZakatPaymentHistoryScreen() {
       onDidDismiss={onSheetDidDismiss}>
       <ScrollView
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
         contentContainerStyle={styles.sheetScroll}
         showsVerticalScrollIndicator={false}>
         <View style={[styles.sheetHandle, { backgroundColor: c.surfaceContainerHighest }]} />
@@ -159,7 +170,8 @@ export function ZakatPaymentHistoryScreen() {
                 styles.miniChip,
                 editCat === cat && { backgroundColor: c.primaryContainer },
               ]}>
-              <Text style={{ color: editCat === cat ? c.onPrimary : c.onSurface, fontWeight: '700' }}>
+              <Text
+                style={{ color: editCat === cat ? c.onPrimary : c.onSurface, fontWeight: '700' }}>
                 {PAYMENT_CATEGORY_LABEL[cat]}
               </Text>
             </Pressable>
@@ -173,7 +185,9 @@ export function ZakatPaymentHistoryScreen() {
           <Pressable onPress={() => void sheetRef.current?.dismiss()} style={styles.modalBtn}>
             <Text style={{ color: c.onSurfaceVariant, fontWeight: '700' }}>Cancel</Text>
           </Pressable>
-          <Pressable onPress={saveEdit} style={[styles.modalBtn, { backgroundColor: c.primaryContainer }]}>
+          <Pressable
+            onPress={saveEdit}
+            style={[styles.modalBtn, { backgroundColor: c.primaryContainer }]}>
             <Text style={{ color: c.onPrimary, fontWeight: '800' }}>Save</Text>
           </Pressable>
         </View>

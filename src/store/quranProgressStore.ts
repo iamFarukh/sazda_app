@@ -90,7 +90,7 @@ export const useQuranProgressStore = create<QuranProgressState>()(
       setShowTranslation: value => set({ showTranslation: value }),
 
       setSurahReaderFontScale: n =>
-        set({ surahReaderFontScale: Math.min(1.38, Math.max(0.82, n)) }),
+        set({ surahReaderFontScale: Math.min(1.6, Math.max(0.85, n)) }),
 
       setSurahReaderTheme: t => set({ surahReaderTheme: t }),
 

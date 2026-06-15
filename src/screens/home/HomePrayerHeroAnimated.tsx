@@ -1,7 +1,8 @@
-import { useEffect, useId, useMemo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { useEffect, useId, useMemo, useRef } from 'react';
+import { AccessibilityInfo, StyleSheet, Text, View } from 'react-native';
 import Animated, {
   Easing,
+  interpolateColor,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
@@ -14,8 +15,13 @@ import { spacing } from '../../theme/spacing';
 import { fontFamilies, getFontConfig } from '../../theme/typography';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
+import { motionDurations, motionEasing } from '../../theme/motion';
 import type { PrayerHeroState } from '../../utils/prayerSchedule';
 import { formatCountdown, formatTime12h } from '../../utils/prayerSchedule';
+import {
+  resolvePrayerHeroCardAmbient,
+  resolvePrayerHeroGlowAmbient,
+} from '../../utils/prayerHeroAmbient';
 
 type HomeHeroStyles = ReturnType<typeof createDualHeroStyles>;
 
@@ -38,6 +44,81 @@ type Props = {
 
 const TRANSITION_MS = 520;
 
+function useHeroAmbientColors(
+  c: AppPalette,
+  scheme: ResolvedScheme,
+  hero: PrayerHeroState,
+  isBetweenPrayers: boolean,
+) {
+  const periodKey = `${hero.currentPeriod}:${isBetweenPrayers ? 1 : 0}`;
+  const prevCard = useSharedValue(
+    resolvePrayerHeroCardAmbient(c, scheme, hero.currentPeriod, isBetweenPrayers),
+  );
+  const nextCard = useSharedValue(
+    resolvePrayerHeroCardAmbient(c, scheme, hero.currentPeriod, isBetweenPrayers),
+  );
+  const prevGlow = useSharedValue(
+    resolvePrayerHeroGlowAmbient(c, scheme, hero.currentPeriod, isBetweenPrayers),
+  );
+  const nextGlow = useSharedValue(
+    resolvePrayerHeroGlowAmbient(c, scheme, hero.currentPeriod, isBetweenPrayers),
+  );
+  const blend = useSharedValue(1);
+  const reduceMotionRef = useRef(false);
+  const isFirstAmbient = useRef(true);
+
+  useEffect(() => {
+    let alive = true;
+    AccessibilityInfo.isReduceMotionEnabled?.().then(v => {
+      if (alive) reduceMotionRef.current = v;
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const card = resolvePrayerHeroCardAmbient(
+      c,
+      scheme,
+      hero.currentPeriod,
+      isBetweenPrayers,
+    );
+    const glow = resolvePrayerHeroGlowAmbient(
+      c,
+      scheme,
+      hero.currentPeriod,
+      isBetweenPrayers,
+    );
+    if (isFirstAmbient.current) {
+      isFirstAmbient.current = false;
+      prevCard.value = card;
+      nextCard.value = card;
+      prevGlow.value = glow;
+      nextGlow.value = glow;
+      blend.value = 1;
+      return;
+    }
+    prevCard.value = nextCard.value;
+    nextCard.value = card;
+    prevGlow.value = nextGlow.value;
+    nextGlow.value = glow;
+    blend.value = 0;
+    const ms = reduceMotionRef.current ? 0 : motionDurations.heroAmbientMs;
+    blend.value = withTiming(1, { duration: ms, easing: motionEasing.standardOut });
+  }, [periodKey, c, scheme, hero.currentPeriod, isBetweenPrayers]);
+
+  const cardBgStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(blend.value, [0, 1], [prevCard.value, nextCard.value]),
+  }));
+
+  const glowBgStyle = useAnimatedStyle(() => ({
+    backgroundColor: interpolateColor(blend.value, [0, 1], [prevGlow.value, nextGlow.value]),
+  }));
+
+  return { cardBgStyle, glowBgStyle };
+}
+
 /** Diamond tile like Stitch `makruh.html` `.bg-pattern` */
 function MakruhCardPattern({ color }: { color: string }) {
   const uid = useId().replace(/:/g, '');
@@ -47,7 +128,12 @@ function MakruhCardPattern({ color }: { color: string }) {
     <View style={StyleSheet.absoluteFill} pointerEvents="none">
       <Svg width="100%" height="100%">
         <Defs>
-          <Pattern id={pid} patternUnits="userSpaceOnUse" width={60} height={60}>
+          <Pattern
+            id={pid}
+            patternUnits="userSpaceOnUse"
+            width={60}
+            height={60}
+          >
             <Path d={d} fill={color} fillOpacity={0.04} fillRule="evenodd" />
           </Pattern>
         </Defs>
@@ -75,6 +161,12 @@ export function HomePrayerHeroAnimated({
   const isMakruh = hero.currentPeriod.startsWith('Makruh');
   const isBetweenPrayers = hero.currentPeriod === 'BetweenFajrDhuhr';
   const p = useSharedValue(isMakruh ? 1 : 0);
+  const { cardBgStyle, glowBgStyle } = useHeroAmbientColors(
+    c,
+    scheme,
+    hero,
+    isBetweenPrayers,
+  );
 
   const makruhDetails = useMemo(() => {
     switch (hero.currentPeriod) {
@@ -117,11 +209,9 @@ export function HomePrayerHeroAnimated({
     opacity: p.value,
   }));
 
-  const standardOn =
-    scheme === 'dark' ? 'onPrimaryContainer' : 'onPrimary';
+  const standardOn = scheme === 'dark' ? 'onPrimaryContainer' : 'onPrimary';
 
-  const standardAccent =
-    scheme === 'dark' ? 'secondary' : 'secondaryContainer';
+  const standardAccent = scheme === 'dark' ? 'secondary' : 'secondaryContainer';
 
   const standardAccentHex =
     scheme === 'dark' ? c.secondary : c.secondaryContainer;
@@ -130,8 +220,12 @@ export function HomePrayerHeroAnimated({
     scheme === 'dark' ? c.onPrimaryContainer : c.onPrimary;
 
   const waitRemaining =
-    countdownLabel === 'Now' ? 'Now' : `${formatCountdown(hero.countdownMs)} remaining`;
-  const nextAtLine = `${nextPrayerLabel} at ${formatTime12h(hero.nextPrayerAt)}`;
+    countdownLabel === 'Now'
+      ? 'Now'
+      : `${formatCountdown(hero.countdownMs)} remaining`;
+  const nextAtLine = `${nextPrayerLabel} at ${formatTime12h(
+    hero.nextPrayerAt,
+  )}`;
 
   const makruhInk = c.onSecondaryContainer;
   const patternInk = c.primaryContainer;
@@ -139,10 +233,21 @@ export function HomePrayerHeroAnimated({
   return (
     <View style={s.dualWrap}>
       {/* Standard hero — in document flow so the section reserves full height (fixes quick-action overlap). */}
-      <Animated.View style={[s.standardColumn, standardStyle]} pointerEvents={isMakruh ? 'none' : 'auto'}>
+      <Animated.View
+        style={[s.standardColumn, standardStyle]}
+        pointerEvents={isMakruh ? 'none' : 'auto'}
+      >
         <View style={s.standardInner}>
-          <Animated.View style={[s.prayerGlow, glowStyle]} pointerEvents="none" />
-          <View style={[s.prayerCard, isBetweenPrayers && s.betweenStitchCard]}>
+          <Animated.View
+            style={[s.prayerGlow, glowBgStyle, glowStyle]}
+            pointerEvents="none"
+          />
+          <Animated.View
+            style={[
+              s.prayerCard,
+              isBetweenPrayers && s.betweenStitchCard,
+              cardBgStyle,
+            ]}>
             {isBetweenPrayers ? (
               <>
                 <MakruhCardPattern color={c.primary} />
@@ -156,12 +261,22 @@ export function HomePrayerHeroAnimated({
                 </View>
                 <View style={s.betweenStitchInner}>
                   <View style={s.makruhBadgeRow}>
-                    <View style={[s.makruhBadge, s.betweenBadgeCompact, { backgroundColor: c.secondary }]}>
-                      <Text style={s.betweenBadgeText}>{prayerKicker.toUpperCase()}</Text>
+                    <View
+                      style={[
+                        s.makruhBadge,
+                        s.betweenBadgeCompact,
+                        { backgroundColor: c.secondary },
+                      ]}
+                    >
+                      <Text style={s.betweenBadgeText}>
+                        {prayerKicker.toUpperCase()}
+                      </Text>
                     </View>
                     <Clock3 size={18} color={c.secondary} strokeWidth={2.25} />
                   </View>
-                  <Text style={[s.betweenTitle, { color: c.onSecondaryContainer }]}>
+                  <Text
+                    style={[s.betweenTitle, { color: c.onSecondaryContainer }]}
+                  >
                     {currentPrayerLabel}
                   </Text>
                   {currentPrayerTimeLabel ? (
@@ -170,7 +285,9 @@ export function HomePrayerHeroAnimated({
                     </Text>
                   ) : null}
                   {prayerPeriodNote ? (
-                    <Text style={[s.betweenBody, { color: c.onSecondaryContainer }]}>
+                    <Text
+                      style={[s.betweenBody, { color: c.onSecondaryContainer }]}
+                    >
                       {prayerPeriodNote}
                     </Text>
                   ) : null}
@@ -179,40 +296,78 @@ export function HomePrayerHeroAnimated({
                       s.betweenPrayersDivider,
                       {
                         borderTopColor:
-                          scheme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(115, 92, 0, 0.1)',
+                          scheme === 'dark'
+                            ? 'rgba(255,255,255,0.1)'
+                            : 'rgba(115, 92, 0, 0.1)',
                       },
-                    ]}>
+                    ]}
+                  >
                     <View style={s.makruhStatCol}>
-                      <Text style={[s.betweenStatLabel, { color: c.onSecondaryContainer }]}>
+                      <Text
+                        style={[
+                          s.betweenStatLabel,
+                          { color: c.onSecondaryContainer },
+                        ]}
+                      >
                         Wait time
                       </Text>
-                      <Text style={[s.betweenStatValue, { color: c.primary }]}>{waitRemaining}</Text>
+                      <Text style={[s.betweenStatValue, { color: c.primary }]}>
+                        {waitRemaining}
+                      </Text>
                     </View>
                     <View style={[s.makruhStatCol, s.makruhStatColRight]}>
-                      <Text style={[s.betweenStatLabel, { color: c.onSecondaryContainer }]}>
+                      <Text
+                        style={[
+                          s.betweenStatLabel,
+                          { color: c.onSecondaryContainer },
+                        ]}
+                      >
                         Next prayer
                       </Text>
-                      <Text style={[s.betweenNextValue, { color: c.primary }]}>{nextAtLine}</Text>
+                      <Text style={[s.betweenNextValue, { color: c.primary }]}>
+                        {nextAtLine}
+                      </Text>
                     </View>
                   </View>
-                  <SazdaText variant="caption" style={[s.betweenFoot, { color: c.onSecondaryContainer }]}>
+                  <SazdaText
+                    variant="caption"
+                    style={[s.betweenFoot, { color: c.onSecondaryContainer }]}
+                  >
                     {methodNote}
                   </SazdaText>
-                  <SazdaText variant="caption" style={[s.betweenFootMuted, { color: c.onSecondaryContainer }]}>
+                  <SazdaText
+                    variant="caption"
+                    style={[
+                      s.betweenFootMuted,
+                      { color: c.onSecondaryContainer },
+                    ]}
+                  >
                     {locationLine}
                   </SazdaText>
                 </View>
               </>
             ) : (
               <>
-                <SazdaText variant="label" color={standardOn} style={s.prayerKicker}>
+                <SazdaText
+                  variant="label"
+                  color={standardOn}
+                  style={s.prayerKicker}
+                >
                   {prayerKicker}
                 </SazdaText>
                 <View style={s.prayerTitleRow}>
-                  <SazdaText variant="displayLg" color={standardOn} style={s.prayerName}>
+                  <SazdaText
+                    variant="displayLg"
+                    color={standardOn}
+                    style={s.prayerName}
+                  >
                     {currentPrayerLabel}
                   </SazdaText>
-                  <SazdaText variant="headlineLarge" color={standardAccent} style={s.prayerTime}>
+                  <SazdaText
+                    variant="headlineLarge"
+                    color={standardAccent}
+                    style={s.prayerTime}
+                  >
                     {currentPrayerTimeLabel}
                   </SazdaText>
                 </View>
@@ -220,20 +375,37 @@ export function HomePrayerHeroAnimated({
                   <Clock3 size={18} color={standardAccentHex} strokeWidth={2} />
                   <Text style={[s.countdownText, { color: countdownBaseHex }]}>
                     Time to {nextPrayerLabel}:{' '}
-                    <Text style={[s.countdownHighlight, { color: standardAccentHex }]}>
+                    <Text
+                      style={[
+                        s.countdownHighlight,
+                        { color: standardAccentHex },
+                      ]}
+                    >
                       {countdownLabel}
                     </Text>
                   </Text>
                 </View>
                 {prayerPeriodNote ? (
-                  <SazdaText variant="caption" color={standardOn} style={s.prayerPeriodNote}>
+                  <SazdaText
+                    variant="caption"
+                    color={standardOn}
+                    style={s.prayerPeriodNote}
+                  >
                     {prayerPeriodNote}
                   </SazdaText>
                 ) : null}
-                <SazdaText variant="caption" color={standardOn} style={s.prayerFootnote}>
+                <SazdaText
+                  variant="caption"
+                  color={standardOn}
+                  style={s.prayerFootnote}
+                >
                   {methodNote}
                 </SazdaText>
-                <SazdaText variant="caption" color={standardOn} style={s.prayerFootnoteMuted}>
+                <SazdaText
+                  variant="caption"
+                  color={standardOn}
+                  style={s.prayerFootnoteMuted}
+                >
                   {locationLine}
                 </SazdaText>
               </>
@@ -257,14 +429,15 @@ export function HomePrayerHeroAnimated({
                 {streakCount}
               </Text>
             </View>
-          </View>
+          </Animated.View>
         </View>
       </Animated.View>
 
       {/* Makruh — overlays the same footprint; vertically centered (Stitch reference). */}
       <Animated.View
         style={[s.makruhOverlay, makruhStyle]}
-        pointerEvents={isMakruh ? 'box-none' : 'none'}>
+        pointerEvents={isMakruh ? 'box-none' : 'none'}
+      >
         <View style={s.makruhCenter}>
           <View style={[s.makruhCard, { backgroundColor: '#fed65b' }]}>
             <MakruhCardPattern color="#064e3b" />
@@ -277,40 +450,75 @@ export function HomePrayerHeroAnimated({
               <View style={s.makruhBadgeRow}>
                 <View style={[s.makruhBadge, { backgroundColor: '#735c00' }]}>
                   <SazdaText variant="label" style={s.makruhBadgeText}>
-                    CURRENTLY PROHIBITED
+                    MAKRUH
                   </SazdaText>
                 </View>
                 <Clock3 size={20} color="#735c00" strokeWidth={2.5} />
               </View>
-              <SazdaText variant="headlineMedium" style={[s.makruhTitle, { color: '#745c00' }]}>
+              <SazdaText
+                variant="caption"
+                style={[s.makruhContextLine, { color: '#745c00' }]}
+              >
+                Optional prayer is discouraged during this window — follow your madhhab.
+              </SazdaText>
+              <SazdaText
+                variant="headlineMedium"
+                style={[s.makruhTitle, { color: '#745c00' }]}
+              >
                 {makruhDetails.title}
               </SazdaText>
-              <SazdaText variant="bodyMedium" style={[s.makruhBody, { color: '#745c00' }]}>
+              <SazdaText
+                variant="bodyMedium"
+                style={[s.makruhBody, { color: '#745c00' }]}
+              >
                 {makruhDetails.body}
               </SazdaText>
-              <View style={[s.makruhDivider, { borderTopColor: 'rgba(115,92,0,0.1)' }]}>
+              <View
+                style={[
+                  s.makruhDivider,
+                  { borderTopColor: 'rgba(115,92,0,0.1)' },
+                ]}
+              >
                 <View style={s.makruhStatCol}>
-                  <SazdaText variant="caption" style={[s.makruhStatLabel, { color: '#745c00' }]}>
+                  <SazdaText
+                    variant="caption"
+                    style={[s.makruhStatLabel, { color: '#745c00' }]}
+                  >
                     Wait time
                   </SazdaText>
-                  <SazdaText variant="titleSm" style={[s.makruhStatValue, { color: '#003527' }]}>
+                  <SazdaText
+                    variant="titleSm"
+                    style={[s.makruhStatValue, { color: '#003527' }]}
+                  >
                     {waitRemaining}
                   </SazdaText>
                 </View>
                 <View style={[s.makruhStatCol, s.makruhStatColRight]}>
-                  <SazdaText variant="caption" style={[s.makruhStatLabel, { color: '#745c00' }]}>
+                  <SazdaText
+                    variant="caption"
+                    style={[s.makruhStatLabel, { color: '#745c00' }]}
+                  >
                     Next prayer
                   </SazdaText>
-                  <SazdaText variant="titleSm" style={[s.makruhNextValue, { color: '#003527' }]}>
+                  <SazdaText
+                    variant="titleSm"
+                    style={[s.makruhNextValue, { color: '#003527' }]}
+                  >
                     {nextAtLine}
                   </SazdaText>
                 </View>
               </View>
               {/* Optional footnotes mapped in primary color for legibility */}
-              <SazdaText variant="caption" style={[s.makruhFoot, { color: '#745c00' }]}>
+              <SazdaText
+                variant="caption"
+                style={[s.makruhFoot, { color: '#745c00' }]}
+              >
                 {methodNote}
               </SazdaText>
-              <SazdaText variant="caption" style={[s.makruhFootMuted, { color: '#745c00' }]}>
+              <SazdaText
+                variant="caption"
+                style={[s.makruhFootMuted, { color: '#745c00' }]}
+              >
                 {locationLine}
               </SazdaText>
             </View>
@@ -333,20 +541,15 @@ export function createDualHeroStyles(
 ) {
   const between = opts?.betweenPrayers === true;
 
-  const heroFill = between
-    ? c.secondaryContainer
-    : scheme === 'dark'
-      ? c.primaryContainer
-      : c.primary;
-
   const cardShadow = between
     ? scheme === 'dark'
       ? 'rgba(0,0,0,0.45)'
       : 'rgba(115, 92, 0, 0.22)'
     : scheme === 'dark'
-      ? 'rgba(0,0,0,0.35)'
-      : 'rgba(6, 78, 59, 0.25)';
-  const makruhShadow = scheme === 'dark' ? 'rgba(0,0,0,0.45)' : 'rgba(115, 92, 0, 0.14)';
+    ? 'rgba(0,0,0,0.35)'
+    : 'rgba(6, 78, 59, 0.25)';
+  const makruhShadow =
+    scheme === 'dark' ? 'rgba(0,0,0,0.45)' : 'rgba(115, 92, 0, 0.14)';
 
   const subMutedOpacity = 0.58;
   const footMutedOpacity = 0.65;
@@ -370,11 +573,7 @@ export function createDualHeroStyles(
       right: -4,
       top: 4,
       bottom: -8,
-      backgroundColor: between
-        ? scheme === 'dark'
-          ? 'rgba(228, 199, 101, 0.28)'
-          : 'rgba(115, 92, 0, 0.2)'
-        : c.secondaryContainer,
+      backgroundColor: 'transparent',
       borderRadius: radius.md + 8,
     },
     makruhOverlay: {
@@ -392,7 +591,7 @@ export function createDualHeroStyles(
     },
     prayerCard: {
       position: 'relative',
-      backgroundColor: heroFill,
+      backgroundColor: 'transparent',
       borderRadius: radius.md + 8,
       padding: spacing.xl,
       alignItems: 'center',
@@ -558,8 +757,8 @@ export function createDualHeroStyles(
           ? 'rgba(255,255,255,0.1)'
           : 'rgba(0, 53, 39, 0.12)'
         : scheme === 'dark'
-          ? 'rgba(255,255,255,0.06)'
-          : 'rgba(255,255,255,0.08)',
+        ? 'rgba(255,255,255,0.06)'
+        : 'rgba(255,255,255,0.08)',
     },
     countdownText: {
       ...getFontConfig(fontFamilies.body, '600'),
@@ -627,6 +826,13 @@ export function createDualHeroStyles(
       letterSpacing: 2.0,
       fontSize: 10,
       color: '#ffffff',
+    },
+    makruhContextLine: {
+      ...getFontConfig(fontFamilies.body, '600'),
+      fontSize: 12,
+      lineHeight: 17,
+      opacity: 0.92,
+      marginTop: 2,
     },
     makruhTitle: {
       ...getFontConfig(fontFamilies.headline, '800'),

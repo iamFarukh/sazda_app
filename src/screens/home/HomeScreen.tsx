@@ -1,11 +1,26 @@
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
 import {
-  ActivityIndicator,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react';
+import {
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
+import Animated, {
+  Easing,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -44,6 +59,8 @@ import {
 } from './HomePrayerHeroAnimated';
 import { HomePrayerTimesList } from './HomePrayerTimesList';
 import { useProfileStore } from '../../store/profileStore';
+import { motionDurations } from '../../theme/motion';
+import { hapticLight } from '../../utils/appHaptics';
 
 const FIVE_SALAH_KEYS = new Set<string>([
   'Fajr',
@@ -53,7 +70,117 @@ const FIVE_SALAH_KEYS = new Set<string>([
   'Isha',
 ]);
 
+const DAILY_VERSES = [
+  { ar: 'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا', en: '“For indeed, with hardship [will be] ease.”', ref: 'Surah Ash-Sharh 94:5' },
+  { ar: 'لَا تَحْزَنْ إِنَّ اللَّهَ مَعَنَا', en: '“Do not grieve; indeed Allah is with us.”', ref: 'Surah At-Tawbah 9:40' },
+  { ar: 'وَاسْتَعِينُوا بِالصَّبْرِ وَالصَّلَاةِ', en: '“And seek help through patience and prayer.”', ref: 'Surah Al-Baqarah 2:45' },
+  { ar: 'فَاذْكُرُونِي أَذْكُرْكُمْ', en: '“So remember Me; I will remember you.”', ref: 'Surah Al-Baqarah 2:152' },
+  { ar: 'إِنَّ اللَّهَ يُحِبُّ الْمُتَوَكِّلِينَ', en: '“Indeed, Allah loves those who rely [upon Him].”', ref: "Surah Ali 'Imran 3:159" },
+  { ar: 'وَمَا تَشَاءُونَ إِلَّا أَن يَشَاءَ اللَّهُ', en: '“And you do not will except that Allah wills.”', ref: 'Surah Al-Insan 76:30' },
+  { ar: 'وَهُوَ مَعَكُمْ أَيْنَ مَا كُنْتُمْ', en: '“And He is with you wherever you are.”', ref: 'Surah Al-Hadid 57:4' },
+];
+
 type MoodId = 'grateful' | 'anxious' | 'calm' | 'seeking';
+
+type HomeStyles = ReturnType<typeof createHomeStyles>;
+
+const HomeDailyVerseCard = memo(function HomeDailyVerseCard({
+  verse,
+  styles: s,
+  quoteIconColor,
+}: {
+  verse: (typeof DAILY_VERSES)[number];
+  styles: HomeStyles;
+  quoteIconColor: string;
+}) {
+  return (
+    <Card variant="elevated" padding="lg" borderRadius={radius.md + 8}>
+      <View style={s.verseDecor} pointerEvents="none" />
+      <View style={s.quoteIcon}>
+        <Quote size={36} color={quoteIconColor} strokeWidth={1.75} />
+      </View>
+      <SazdaText variant="verse" color="primary" align="center" style={s.verseAr}>
+        {verse.ar}
+      </SazdaText>
+      <SazdaText variant="body" color="onSurfaceVariant" align="center" style={s.verseEn}>
+        {verse.en}
+      </SazdaText>
+      <SazdaText variant="label" color="secondary" align="center" style={s.verseRef}>
+        {verse.ref}
+      </SazdaText>
+    </Card>
+  );
+});
+
+const HomeMoodSection = memo(function HomeMoodSection({
+  mood,
+  onMood,
+  moodIconColor,
+  styles: s,
+}: {
+  mood: MoodId | null;
+  onMood: (id: MoodId) => void;
+  moodIconColor: (active: boolean) => string;
+  styles: HomeStyles;
+}) {
+  return (
+    <View style={s.section}>
+      <SazdaText variant="headlineMedium" color="primary" align="center">
+        How are you feeling today?
+      </SazdaText>
+      <View style={s.moodBar}>
+        <MoodChip
+          s={s}
+          label="Grateful"
+          active={mood === 'grateful'}
+          onPress={() => onMood('grateful')}
+          icon={
+            <Smile
+              size={22}
+              color={moodIconColor(mood === 'grateful')}
+              strokeWidth={2}
+            />
+          }
+        />
+        <MoodChip
+          s={s}
+          label="Anxious"
+          active={mood === 'anxious'}
+          onPress={() => onMood('anxious')}
+          icon={
+            <Frown
+              size={22}
+              color={moodIconColor(mood === 'anxious')}
+              strokeWidth={2}
+            />
+          }
+        />
+        <MoodChip
+          s={s}
+          label="Calm"
+          active={mood === 'calm'}
+          onPress={() => onMood('calm')}
+          icon={
+            <Moon size={22} color={moodIconColor(mood === 'calm')} strokeWidth={2} />
+          }
+        />
+        <MoodChip
+          s={s}
+          label="Seeking"
+          active={mood === 'seeking'}
+          onPress={() => onMood('seeking')}
+          icon={
+            <BookOpen
+              size={22}
+              color={moodIconColor(mood === 'seeking')}
+              strokeWidth={2}
+            />
+          }
+        />
+      </View>
+    </View>
+  );
+});
 
 export function HomeScreen() {
   const greetingName = useProfileStore(s => s.displayName.trim() || 'Guest');
@@ -61,7 +188,10 @@ export function HomeScreen() {
   const styles = useMemo(() => createHomeStyles(c, scheme), [c, scheme]);
   const moodMuted =
     scheme === 'dark' ? 'rgba(142,207,178,0.38)' : 'rgba(0, 53, 39, 0.38)';
-  const moodIconColor = (active: boolean) => (active ? c.primary : moodMuted);
+  const moodIconColor = useCallback(
+    (active: boolean) => (active ? c.primary : moodMuted),
+    [c.primary, moodMuted],
+  );
   const heroOnFill = scheme === 'dark' ? c.onPrimaryContainer : c.onPrimary;
   /** Gold accent on prayer hero: dark palette’s `secondaryContainer` is a brown fill, not readable as text. */
   const heroAccent = scheme === 'dark' ? c.secondary : c.secondaryContainer;
@@ -144,6 +274,12 @@ export function HomeScreen() {
     return r as DailyPrayerName;
   }, [hero?.currentSalahRow]);
 
+  const dayIndex = useMemo(() => {
+    const seed = todayDateKey.split('-').join('');
+    return Number(seed) % DAILY_VERSES.length || 0;
+  }, [todayDateKey]);
+  const verseToday = DAILY_VERSES[dayIndex];
+
   const locationPending = !coords && !permissionDenied && !locationError;
   const prayerKicker = hero
     ? hero.hideCurrentAdhanTime
@@ -158,8 +294,14 @@ export function HomeScreen() {
     : 'Prayer times';
 
   const onMood = useCallback((id: MoodId) => {
+    hapticLight();
     setMood(prev => (prev === id ? null : id));
   }, []);
+
+  const onRefreshPrayers = useCallback(() => {
+    hapticLight();
+    refetchPrayers();
+  }, [refetchPrayers]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -167,6 +309,14 @@ export function HomeScreen() {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={prayerLoading && !!coords}
+            onRefresh={onRefreshPrayers}
+            tintColor={c.primary}
+            colors={[c.primary]}
+          />
+        }
       >
         <View style={styles.homeTopCluster}>
           <TabLandingHeader denseBottom />
@@ -210,7 +360,7 @@ export function HomeScreen() {
           </View>
         </View>
 
-        {/* Current prayer — live from location + Aladhan (updates ~every 15s) */}
+        {/* Current prayer — live countdown every second; times from Aladhan */}
         <View style={styles.prayerWrap}>
           {hero ? (
             <HomePrayerHeroAnimated
@@ -298,7 +448,13 @@ export function HomeScreen() {
                   </View>
                 ) : locationPending || prayerLoading || waitingNightData ? (
                   <View style={styles.prayerLoadingBlock}>
-                    <ActivityIndicator color={heroAccent} size="large" />
+                    <PrayerHeroSkeleton
+                      trackColor={
+                        scheme === 'dark'
+                          ? 'rgba(255,255,255,0.14)'
+                          : 'rgba(255,255,255,0.22)'
+                      }
+                    />
                     <SazdaText
                       variant="bodyMedium"
                       color={heroOnFill}
@@ -357,98 +513,18 @@ export function HomeScreen() {
           />
         ) : null}
 
-        {/* Daily verse */}
-        <Card variant="elevated" padding="lg" borderRadius={radius.md + 8}>
-          <View style={styles.verseDecor} pointerEvents="none" />
-          <View style={styles.quoteIcon}>
-            <Quote size={36} color={c.secondaryContainer} strokeWidth={1.75} />
-          </View>
-          <SazdaText
-            variant="verse"
-            color="primary"
-            align="center"
-            style={styles.verseAr}
-          >
-            فَإِنَّ مَعَ الْعُسْرِ يُسْرًا
-          </SazdaText>
-          <SazdaText
-            variant="body"
-            color="onSurfaceVariant"
-            align="center"
-            style={styles.verseEn}
-          >
-            &ldquo;For indeed, with hardship [will be] ease.&rdquo;
-          </SazdaText>
-          <SazdaText
-            variant="label"
-            color="secondary"
-            align="center"
-            style={styles.verseRef}
-          >
-            Surah Ash-Sharh 94:5
-          </SazdaText>
-        </Card>
+        <HomeDailyVerseCard
+          verse={verseToday}
+          styles={styles}
+          quoteIconColor={c.secondaryContainer}
+        />
 
-        {/* Mood */}
-        <View style={styles.section}>
-          <SazdaText variant="headlineMedium" color="primary" align="center">
-            How are you feeling today?
-          </SazdaText>
-          <View style={styles.moodBar}>
-            <MoodChip
-              s={styles}
-              label="Grateful"
-              active={mood === 'grateful'}
-              onPress={() => onMood('grateful')}
-              icon={
-                <Smile
-                  size={22}
-                  color={moodIconColor(mood === 'grateful')}
-                  strokeWidth={2}
-                />
-              }
-            />
-            <MoodChip
-              s={styles}
-              label="Anxious"
-              active={mood === 'anxious'}
-              onPress={() => onMood('anxious')}
-              icon={
-                <Frown
-                  size={22}
-                  color={moodIconColor(mood === 'anxious')}
-                  strokeWidth={2}
-                />
-              }
-            />
-            <MoodChip
-              s={styles}
-              label="Calm"
-              active={mood === 'calm'}
-              onPress={() => onMood('calm')}
-              icon={
-                <Moon
-                  size={22}
-                  color={moodIconColor(mood === 'calm')}
-                  strokeWidth={2}
-                />
-              }
-            />
-            <MoodChip
-              s={styles}
-              label="Seeking"
-              active={mood === 'seeking'}
-              onPress={() => onMood('seeking')}
-              icon={
-                <BookOpen
-                  size={22}
-                  color={moodIconColor(mood === 'seeking')}
-                  strokeWidth={2}
-                />
-              }
-            />
-          </View>
-        </View>
+        <HomeMoodSection
+          mood={mood}
+          onMood={onMood}
+          moodIconColor={moodIconColor}
+          styles={styles}
+        />
       </ScrollView>
 
       <LocationSettingsSheet
@@ -461,8 +537,6 @@ export function HomeScreen() {
     </SafeAreaView>
   );
 }
-
-type HomeStyles = ReturnType<typeof createHomeStyles>;
 
 function QuickAction({
   s,
@@ -487,6 +561,64 @@ function QuickAction({
         {label}
       </SazdaText>
     </Pressable>
+  );
+}
+
+function PrayerHeroSkeleton({ trackColor }: { trackColor: string }) {
+  const o = useSharedValue(0.38);
+  useEffect(() => {
+    o.value = withRepeat(
+      withSequence(
+        withTiming(1, {
+          duration: motionDurations.skeletonPulseMs / 2,
+          easing: Easing.inOut(Easing.quad),
+        }),
+        withTiming(0.38, {
+          duration: motionDurations.skeletonPulseMs / 2,
+          easing: Easing.inOut(Easing.quad),
+        }),
+      ),
+      -1,
+      true,
+    );
+  }, [o]);
+  const pulse = useAnimatedStyle(() => ({ opacity: o.value }));
+  return (
+    <View style={{ width: '100%', gap: spacing.md, alignItems: 'center' }}>
+      <Animated.View
+        style={[
+          {
+            width: '50%',
+            height: 11,
+            borderRadius: 6,
+            backgroundColor: trackColor,
+          },
+          pulse,
+        ]}
+      />
+      <Animated.View
+        style={[
+          {
+            width: '88%',
+            height: 40,
+            borderRadius: 10,
+            backgroundColor: trackColor,
+          },
+          pulse,
+        ]}
+      />
+      <Animated.View
+        style={[
+          {
+            width: '100%',
+            height: 48,
+            borderRadius: 14,
+            backgroundColor: trackColor,
+          },
+          pulse,
+        ]}
+      />
+    </View>
   );
 }
 
