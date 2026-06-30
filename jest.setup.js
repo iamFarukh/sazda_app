@@ -36,21 +36,71 @@ jest.mock('@react-native-vector-icons/material-icons', () => 'MaterialIcons');
 global.__reanimatedWorkletInit = () => {};
 
 jest.mock('react-native-reanimated', () => {
-  const { View } = require('react-native');
+  const { View, Text, ScrollView } = require('react-native');
   const createAnimatedComponent = c => c;
+  const identityEasing = () => 0;
+  const chain = () => identityEasing;
+  const Easing = {
+    linear: identityEasing,
+    ease: identityEasing,
+    quad: identityEasing,
+    cubic: identityEasing,
+    sin: identityEasing,
+    exp: identityEasing,
+    bezier: () => identityEasing,
+    in: chain,
+    out: chain,
+    inOut: chain,
+  };
   return {
     __esModule: true,
-    default: { createAnimatedComponent },
+    default: { createAnimatedComponent, View, Text, ScrollView },
     View,
+    Text,
+    ScrollView,
     createAnimatedComponent,
     useSharedValue: v => ({ value: v }),
     useAnimatedStyle: () => ({}),
+    useAnimatedProps: () => ({}),
+    useDerivedValue: fn => ({ value: typeof fn === 'function' ? fn() : fn }),
+    useReducedMotion: () => false,
     withTiming: v => v,
+    withSpring: v => v,
+    withDelay: (_d, v) => v,
+    withRepeat: v => v,
+    withSequence: (...vals) => vals[vals.length - 1],
+    cancelAnimation: () => {},
+    interpolate: (_v, _in, out) => (Array.isArray(out) ? out[0] : 0),
     runOnJS: fn => fn,
-    Easing: {},
-    Animated: { View, createAnimatedComponent },
+    Extrapolation: { CLAMP: 'clamp', EXTEND: 'extend' },
+    ReduceMotion: { System: 'system', Always: 'always', Never: 'never' },
+    Easing,
+    Animated: { View, Text, ScrollView, createAnimatedComponent },
   };
 });
+
+jest.mock('react-native-svg', () => {
+  const React = require('react');
+  const { View } = require('react-native');
+  const Mock = props => React.createElement(View, props, props.children);
+  return {
+    __esModule: true,
+    default: Mock,
+    Svg: Mock,
+    Circle: Mock,
+    Path: Mock,
+    G: Mock,
+    Rect: Mock,
+    Defs: Mock,
+    LinearGradient: Mock,
+    RadialGradient: Mock,
+    Stop: Mock,
+    ClipPath: Mock,
+    Text: Mock,
+  };
+});
+
+jest.mock('lottie-react-native', () => 'LottieView');
 
 jest.mock('firebase/app', () => ({
   initializeApp: jest.fn(),
