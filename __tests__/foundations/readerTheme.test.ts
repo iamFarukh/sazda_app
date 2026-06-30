@@ -8,9 +8,9 @@ describe('getReaderPalette', () => {
     }
   });
   it('falls back to light for an undefined / unknown theme', () => {
-    // @ts-expect-error runtime fallback
+    // undefined is a valid argument (MushafTheme | undefined) and hits the fallback.
     expect(getReaderPalette(undefined)).toEqual(getReadingTheme('light'));
-    // @ts-expect-error runtime fallback
+    // @ts-expect-error runtime fallback for an out-of-type value
     expect(getReaderPalette('nope')).toEqual(getReadingTheme('light'));
   });
 });
