@@ -24,14 +24,6 @@ export function getFontConfig(
   baseFamily: string,
   weight: WeightStr,
 ): Pick<TextStyle, 'fontFamily' | 'fontWeight'> {
-  if (Platform.OS === 'ios') {
-    // iOS interprets variations intelligently
-    return { fontFamily: baseFamily === 'PlusJakartaSans' ? 'Plus Jakarta Sans' : baseFamily, fontWeight: weight };
-  }
-
-  // Android strict mapping to filenames (e.g., Manrope-Bold)
-  let mappedWeight = weight;
-  
   if (baseFamily === fontFamilies.quran) {
     // Single-weight Quranic face. iOS uses the registered family name "Amiri Quran";
     // Android (legacy assets/fonts) maps by the file base name.
@@ -39,6 +31,14 @@ export function getFontConfig(
       ? { fontFamily: 'Amiri Quran', fontWeight: undefined }
       : { fontFamily: 'AmiriQuran-Regular', fontWeight: undefined };
   }
+
+  if (Platform.OS === 'ios') {
+    // iOS interprets variations intelligently
+    return { fontFamily: baseFamily === 'PlusJakartaSans' ? 'Plus Jakarta Sans' : baseFamily, fontWeight: weight };
+  }
+
+  // Android strict mapping to filenames (e.g., Manrope-Bold)
+  let mappedWeight = weight;
 
   if (baseFamily === 'Amiri') {
     // Amiri only has Regular and Bold
