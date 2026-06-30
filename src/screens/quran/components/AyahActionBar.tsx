@@ -40,9 +40,17 @@ export const AyahActionBar = memo(function AyahActionBar({
       <PressableScale onPress={tap(onTafsir)} style={styles.btn} accessibilityLabel="Tafsir">
         <BookOpen size={iconSize} color={p.text} strokeWidth={2} />
       </PressableScale>
-      <PressableScale onPress={tap(onToggleBookmark)} style={styles.btn} accessibilityLabel="Bookmark">
-        <AnimatedBookmark filled={bookmarked} onPress={tap(onToggleBookmark)} size={iconSize} color={p.textMuted} fillColor={p.accent} />
-      </PressableScale>
+      <View style={styles.btn}>
+        {/* AnimatedBookmark is itself a Pressable with its own bounce/glow — no PressableScale wrapper. */}
+        <AnimatedBookmark
+          filled={bookmarked}
+          onPress={tap(onToggleBookmark)}
+          size={iconSize}
+          color={p.textMuted}
+          fillColor={p.accent}
+          accessibilityLabel="Bookmark"
+        />
+      </View>
       <PressableScale onPress={tap(onShare)} style={styles.btn} accessibilityLabel="Share verse">
         <Share2 size={iconSize} color={p.text} strokeWidth={2} />
       </PressableScale>
