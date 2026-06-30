@@ -1,4 +1,4 @@
-import { memo, useEffect } from 'react';
+import { memo, useCallback, useEffect, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -29,15 +29,23 @@ export const GoldBloom = memo(function GoldBloom({
   const t = useSharedValue(0);
   const duration = bloomDurationMs(reduceMotion);
 
+  // Keep the latest onFinish without retriggering the one-shot animation when a
+  // parent passes an inline (unmemoized) callback.
+  const onFinishRef = useRef(onFinish);
+  onFinishRef.current = onFinish;
+  const handleFinish = useCallback(() => {
+    onFinishRef.current?.();
+  }, []);
+
   useEffect(() => {
     if (reduceMotion) {
-      onFinish?.();
+      handleFinish();
       return;
     }
     t.value = withTiming(1, { duration, easing: motionEasing.standardOut }, finished => {
-      if (finished && onFinish) runOnJS(onFinish)();
+      if (finished) runOnJS(handleFinish)();
     });
-  }, [t, duration, reduceMotion, onFinish]);
+  }, [t, duration, reduceMotion, handleFinish]);
 
   const ringStyle = useAnimatedStyle(() => ({
     opacity: 1 - t.value,
