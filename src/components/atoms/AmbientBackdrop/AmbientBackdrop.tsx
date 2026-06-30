@@ -1,11 +1,11 @@
-import { memo } from 'react';
+import { memo, type ComponentProps } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import LottieView from 'lottie-react-native';
 import { getAmbientGradient } from '../../../theme/gradients';
 import type { ResolvedScheme } from '../../../theme/useThemePalette';
 
-type LottieSource = Parameters<typeof LottieView>[0]['source'];
+type LottieSource = ComponentProps<typeof LottieView>['source'];
 
 type Props = {
   scheme: ResolvedScheme;
