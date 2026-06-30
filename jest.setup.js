@@ -83,7 +83,7 @@ jest.mock('react-native-svg', () => {
   const React = require('react');
   const { View } = require('react-native');
   const Mock = props => React.createElement(View, props, props.children);
-  return {
+  const base = {
     __esModule: true,
     default: Mock,
     Svg: Mock,
@@ -97,7 +97,22 @@ jest.mock('react-native-svg', () => {
     Stop: Mock,
     ClipPath: Mock,
     Text: Mock,
+    Line: Mock,
+    Polyline: Mock,
+    Polygon: Mock,
+    Ellipse: Mock,
+    Image: Mock,
+    Use: Mock,
+    Symbol: Mock,
+    Mask: Mock,
+    ForeignObject: Mock,
+    Marker: Mock,
+    Pattern: Mock,
+    TSpan: Mock,
+    TextPath: Mock,
   };
+  // Proxy so any capitalised SVG element (e.g. future lucide nodes) returns Mock
+  return new Proxy(base, { get: (t, k) => (k in t ? t[k] : Mock) });
 });
 
 jest.mock('lottie-react-native', () => 'LottieView');
