@@ -510,8 +510,8 @@ Create `src/store/motionPrefStore.ts`:
 
 ```ts
 import { create } from 'zustand';
-import { persist, createJSONStorage } from 'zustand/middleware';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { persist } from 'zustand/middleware';
+import { zustandStorage } from '../services/storage';
 
 type MotionPrefState = {
   /** User opt-in for ambient motion/Lottie. Default on; OS reduce-motion still overrides. */
@@ -527,7 +527,7 @@ export const useMotionPrefStore = create<MotionPrefState>()(
     }),
     {
       name: 'motion-pref-v1',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: zustandStorage,
     },
   ),
 );
@@ -1119,14 +1119,16 @@ Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 
 ---
 
-### Task 10: Uthmani Hafs Quran font wiring
+### Task 10: Quran reading font wiring (Amiri Quran)
 
-Add the Uthmani Hafs font for verse-by-verse Quran reading and expose it through the typography system. Amiri stays for incidental Arabic.
+Add a dedicated Quranic reading face for verse-by-verse reading and expose it through the typography system. Amiri (regular) stays for incidental Arabic. We use **Amiri Quran** (OFL-licensed, a proper Quranic Uthmani-style face from Google Fonts) — the true KFGQPC Hafs font was not fetchable, and Amiri Quran is a license-safe, authentic substitute that reads distinctly more "Quranic" than the base Amiri already bundled.
 
-**Prep (one-time, manual — document in PR):** Download the **KFGQPC Uthmanic Script HAFS** (or "Uthmani"/"me_quran") TTF (open license) and place it at `src/assets/fonts/UthmanicHafs.ttf`. The filename must match the family registration below. After adding the file, run `npx react-native-asset` (uses the existing `react-native.config.js` `assets` entry) and rebuild the apps so the font links natively. iOS additionally requires the font listed under `UIAppFonts` in `ios/<App>/Info.plist` — add `UthmanicHafs.ttf` there if not auto-added.
+**Asset:** `src/assets/fonts/AmiriQuran-Regular.ttf` is already added to the repo (downloaded from Google Fonts OFL). Family name (name table): **"Amiri Quran"**, PostScript: **"AmiriQuran-Regular"**.
+
+**Native linking (manual, document in PR — required for on-device rendering):** run `npx react-native-asset` (uses the existing `react-native.config.js` `assets` entry) and rebuild both apps. iOS additionally requires `AmiriQuran-Regular.ttf` listed under `UIAppFonts` in `ios/<App>/Info.plist` if not auto-added. **On-device verification:** confirm the iOS family string actually renders; if "Amiri Quran" doesn't resolve, read the font's name table and use the exact registered family name.
 
 **Files:**
-- Add asset: `src/assets/fonts/UthmanicHafs.ttf` (binary, prep step)
+- Asset (already present): `src/assets/fonts/AmiriQuran-Regular.ttf`
 - Modify: `src/theme/typography.ts`
 - Test: `__tests__/foundations/typographyQuran.test.ts`
 
@@ -1164,15 +1166,15 @@ export const fontFamilies = {
   headline: 'Manrope',
   body: 'PlusJakartaSans',
   arabic: 'Amiri',
-  /** Uthmani Hafs — verse-by-verse Quran reading. Asset: UthmanicHafs.ttf */
-  quran: 'UthmanicHafs',
+  /** Amiri Quran — verse-by-verse Quran reading. Asset: AmiriQuran-Regular.ttf */
+  quran: 'AmiriQuran',
 } as const;
 ```
 
 Then, after the existing `verse` entry in the `typography` object, add a `quranVerse` variant:
 
 ```ts
-  // Verse-by-verse Quran reading (premium Uthmani script, larger + airier than incidental verse).
+  // Verse-by-verse Quran reading (Quranic Amiri face, larger + airier than incidental verse).
   quranVerse: {
     ...getFontConfig(fontFamilies.quran, '400'),
     fontSize: 26,
@@ -1180,14 +1182,19 @@ Then, after the existing `verse` entry in the `typography` object, add a `quranV
   },
 ```
 
-Note: `getFontConfig` maps Android to `UthmanicHafs-Regular`; if the shipped TTF has no weight suffix, register it as a single-weight family — adjust the Android mapping for `quran` in `getFontConfig` to return `fontFamily: 'UthmanicHafs'` directly (no `-Regular` suffix) when `baseFamily === fontFamilies.quran`. Add this guard near the existing `Amiri` special-case:
+`getFontConfig` must resolve the platform-correct family for the single-weight Amiri Quran file. Add this guard inside `getFontConfig`, near the existing `Amiri` special-case, BEFORE the generic weight-map return:
 
 ```ts
-  if (baseFamily === 'UthmanicHafs') {
-    // Single-weight font file shipped without a weight suffix.
-    return { fontFamily: 'UthmanicHafs', fontWeight: undefined };
+  if (baseFamily === fontFamilies.quran) {
+    // Single-weight Quranic face. iOS uses the registered family name "Amiri Quran";
+    // Android (legacy assets/fonts) maps by the file base name.
+    return Platform.OS === 'ios'
+      ? { fontFamily: 'Amiri Quran', fontWeight: undefined }
+      : { fontFamily: 'AmiriQuran-Regular', fontWeight: undefined };
   }
 ```
+
+Note: `fontFamilies` is defined above `getFontConfig` in this file, so referencing `fontFamilies.quran` inside `getFontConfig` is fine. The unit test only asserts the tokens exist; the on-device family string is verified during the native build (see prep note).
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -1197,8 +1204,8 @@ Expected: PASS.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/theme/typography.ts __tests__/foundations/typographyQuran.test.ts src/assets/fonts/UthmanicHafs.ttf
-git commit -m "feat(theme): wire Uthmani Hafs quran font + quranVerse variant
+git add src/theme/typography.ts __tests__/foundations/typographyQuran.test.ts src/assets/fonts/AmiriQuran-Regular.ttf
+git commit -m "feat(theme): wire Amiri Quran reading font + quranVerse variant
 
 Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>"
 ```

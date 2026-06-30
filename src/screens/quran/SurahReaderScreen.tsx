@@ -1,8 +1,7 @@
-import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
-  Modal,
   Pressable,
   StatusBar,
   StyleSheet,
@@ -23,29 +22,30 @@ import { useQuery } from '@tanstack/react-query';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
-import {
-  ArrowLeft,
-  BookOpen,
-  Bookmark,
-  ChevronDown,
-  ChevronUp,
-  Languages,
-  Settings,
-  Pause,
-  Play,
-} from 'lucide-react-native';
+import { ArrowLeft, Languages, Settings } from 'lucide-react-native';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { AmbientBackdrop } from '../../components/atoms/AmbientBackdrop/AmbientBackdrop';
+import { BismillahReveal } from '../../components/atoms/BismillahReveal/BismillahReveal';
+import { hapticLight } from '../../utils/appHaptics';
 import type { QuranStackParamList } from '../../navigation/types';
 import { OFFLINE_QURAN_VERSION } from '../../services/offlineQuran/constants';
 import { loadSurahReaderDataOfflineFirst } from '../../services/offlineQuran/reader';
 import type { AyahReaderRow } from '../../services/quranApi';
-import { getSurahReaderColors, type SurahReaderColors } from '../../services/quran/surahReaderAppearance';
-import type { MushafTheme } from '../../services/mushaf/mushafTheme';
+import { getReaderPalette } from '../../services/quran/readerTheme';
+import type { ReadingThemePalette } from '../../theme/readingThemes';
+import {
+  shouldShowBismillah,
+  isActiveAyah,
+  type ShareVerseInput,
+} from '../../services/quran/readerLogic';
 import { useQuranProgressStore } from '../../store/quranProgressStore';
 import { useQuranAudioStore, type QuranAudioQueueItem } from '../../store/quranAudioStore';
-import { radius } from '../../theme/radius';
 import { spacing } from '../../theme/spacing';
-import { typography } from '../../theme/typography';
+import { useAmbientEnabled } from '../../hooks/useAmbientEnabled';
+import { useReduceMotion } from '../../hooks';
+import { AyahBlock } from './components/AyahBlock';
+import { ReaderSettingsModal } from './components/ReaderSettingsModal';
+import { ShareVersePreview } from './components/ShareVersePreview';
 import { ReaderAudioPlayerSheet } from './components/ReaderAudioPlayerSheet';
 
 type Nav = NativeStackNavigationProp<QuranStackParamList, 'SurahReader'>;
@@ -56,9 +56,9 @@ const MIN_SCALE = 0.85;
 const MAX_SCALE = 1.6;
 const SCALE_EPS = 0.01;
 
-function createReaderStyles(c: SurahReaderColors) {
+function createReaderStyles(p: ReadingThemePalette) {
   return StyleSheet.create({
-    safe: { flex: 1, backgroundColor: c.surface },
+    safe: { flex: 1, backgroundColor: p.background },
     header: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -66,7 +66,7 @@ function createReaderStyles(c: SurahReaderColors) {
       paddingVertical: spacing.sm,
       gap: spacing.sm,
       borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: c.headerBorder,
+      borderBottomColor: p.divider,
     },
     backHit: { width: 44, height: 44, justifyContent: 'center' },
     headerTitle: { flex: 1, minWidth: 0 },
@@ -81,150 +81,8 @@ function createReaderStyles(c: SurahReaderColors) {
       paddingBottom: spacing.md,
       paddingTop: spacing.md,
     },
-    ayahRow: {
-      minHeight: 88,
-      flexDirection: 'row',
-      alignItems: 'flex-start',
-      gap: spacing.sm,
-      paddingVertical: spacing.md,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: c.ayahSeparator,
-    },
-    ayahBadge: {
-      minWidth: 28,
-      height: 28,
-      borderRadius: radius.full,
-      backgroundColor: c.primaryContainer,
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginTop: 4,
-    },
-    ayahNum: { fontWeight: '800', fontSize: 11 },
-    ayahBody: { flex: 1, minWidth: 0 },
-    ayahText: {
-      ...typography.verse,
-      fontSize: 22,
-      lineHeight: 22 * 1.45,
-    },
-    translation: {
-      marginTop: spacing.sm,
-      ...typography.bodyMedium,
-      lineHeight: 15 * 1.45,
-      fontSize: 15,
-    },
-    actions: {
-      alignItems: 'center',
-      gap: 4,
-      paddingTop: 2,
-    },
-    iconHit: {
-      padding: spacing.xs,
-      minWidth: 36,
-      minHeight: 36,
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    iconDisabled: { opacity: 0.35 },
   });
 }
-
-type ReaderStyles = ReturnType<typeof createReaderStyles>;
-
-type AyahRowProps = {
-  item: AyahReaderRow;
-  showTranslation: boolean;
-  bookmarked: boolean;
-  colors: SurahReaderColors;
-  styles: ReaderStyles;
-  iconSize: number;
-  liveScale: Animated.SharedValue<number>;
-  audioState: { isActive: boolean; isPlaying: boolean; isLoading: boolean; hasAudio: boolean };
-  onPlay: (item: AyahReaderRow) => void;
-  onOpenTafsir: (ayah: number) => void;
-  onToggleBookmark: () => void;
-};
-
-const SurahReaderAyahRow = memo(function SurahReaderAyahRow({
-  item,
-  showTranslation,
-  bookmarked,
-  colors: c,
-  styles,
-  iconSize,
-  liveScale,
-  audioState,
-  onPlay,
-  onOpenTafsir,
-  onToggleBookmark,
-}: AyahRowProps) {
-  const arabicStyle = useAnimatedStyle(() => {
-    const s = liveScale.value;
-    const fs = 22 * s;
-    return { fontSize: fs, lineHeight: fs * 1.45 };
-  }, [liveScale]);
-
-  const transStyle = useAnimatedStyle(() => {
-    const s = liveScale.value;
-    const fs = 15 * s;
-    return { fontSize: fs, lineHeight: fs * 1.45 };
-  }, [liveScale]);
-
-  return (
-    <View style={styles.ayahRow}>
-      <View style={styles.ayahBadge}>
-        <SazdaText variant="caption" color={c.onPrimary} style={styles.ayahNum}>
-          {item.numberInSurah}
-        </SazdaText>
-      </View>
-      <View style={styles.ayahBody}>
-        <Animated.Text
-          style={[styles.ayahText, { color: c.primary, textAlign: 'right' }, { writingDirection: 'rtl' as const }, arabicStyle]}>
-          {item.arabic}
-        </Animated.Text>
-        {showTranslation && item.translation ? (
-          <Animated.Text style={[styles.translation, { color: c.onSurfaceVariant }, transStyle]}>
-            {item.translation}
-          </Animated.Text>
-        ) : null}
-      </View>
-      <View style={styles.actions}>
-        <Pressable
-          onPress={() => onPlay(item)}
-          disabled={!audioState.hasAudio}
-          style={[styles.iconHit, !item.audioUrl && styles.iconDisabled]}
-          accessibilityLabel="Play recitation">
-          {audioState.isLoading && audioState.isActive ? (
-            <ActivityIndicator size="small" color={c.primaryContainer} />
-          ) : audioState.isActive && audioState.isPlaying ? (
-            <Pause size={iconSize} color={c.primaryContainer} strokeWidth={2.3} />
-          ) : (
-            <Play
-              size={iconSize}
-              color={audioState.hasAudio ? c.primaryContainer : c.outlineVariant}
-              strokeWidth={2.3}
-            />
-          )}
-        </Pressable>
-        <Pressable
-          onPress={() => onOpenTafsir(item.numberInSurah)}
-          style={styles.iconHit}
-          accessibilityLabel="Tafsir">
-          <BookOpen size={iconSize} color={c.secondary} strokeWidth={2} />
-        </Pressable>
-        <Pressable
-          onPress={onToggleBookmark}
-          style={styles.iconHit}
-          accessibilityLabel={bookmarked ? 'Remove bookmark' : 'Add bookmark'}>
-          <Bookmark
-            size={iconSize}
-            color={bookmarked ? c.secondary : c.outline}
-            fill={bookmarked ? c.secondary : undefined}
-          />
-        </Pressable>
-      </View>
-    </View>
-  );
-});
 
 export function SurahReaderScreen() {
   const navigation = useNavigation<Nav>();
@@ -251,14 +109,14 @@ export function SurahReaderScreen() {
   const setSurahReaderTheme = useQuranProgressStore(s => s.setSurahReaderTheme);
   const setSurahReaderFontScale = useQuranProgressStore(s => s.setSurahReaderFontScale);
 
-  const readerColors = useMemo(() => getSurahReaderColors(surahReaderTheme), [surahReaderTheme]);
-  const styles = useMemo(
-    () => createReaderStyles(readerColors),
-    [readerColors],
-  );
-  const iconSize = Math.min(22, Math.round(20 * Math.min(surahReaderFontScale, 1.12)));
+  const palette = useMemo(() => getReaderPalette(surahReaderTheme), [surahReaderTheme]);
+  const styles = useMemo(() => createReaderStyles(palette), [palette]);
+  const ambientEnabled = useAmbientEnabled();
+  const reduceMotion = useReduceMotion();
+  const scheme = surahReaderTheme === 'dark' ? 'dark' : 'light';
 
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [verseToShare, setVerseToShare] = useState<ShareVerseInput | null>(null);
 
   const isBookmarked = useQuranProgressStore(s => s.isBookmarked);
   const addBookmark = useQuranProgressStore(s => s.addBookmark);
@@ -360,6 +218,7 @@ export function SurahReaderScreen() {
   const flashLimitToast = useCallback((text: string) => {
     // Ensure we only set state when the message changes
     if (toastTextRef.current === text && toastText) return;
+    hapticLight();
     toastTextRef.current = text;
     setToastText(text);
     toastOpacity.value = 1;
@@ -444,49 +303,61 @@ export function SurahReaderScreen() {
   );
 
   const renderAyah = useCallback(
-    ({ item }: { item: AyahReaderRow }) => (
-      <SurahReaderAyahRow
-        item={item}
-        showTranslation={showTranslation}
-        bookmarked={isBookmarked(surahNumber, item.numberInSurah)}
-        colors={readerColors}
-        styles={styles}
-        iconSize={iconSize}
-        liveScale={liveScale}
-        audioState={{
-          isActive:
-            audioCurrentSurahNumber === surahNumber &&
-            audioCurrentAyahNumber === item.numberInSurah,
-          isPlaying: audioIsPlaying,
-          isLoading: audioIsLoading,
-          hasAudio: !!item.audioUrl,
-        }}
-        onPlay={playAyah}
-        onOpenTafsir={ayah =>
-          navigation.navigate('Tafsir', { surahNumber, ayahNumber: ayah })
-        }
-        onToggleBookmark={() =>
-          isBookmarked(surahNumber, item.numberInSurah)
-            ? removeBookmark(surahNumber, item.numberInSurah)
-            : addBookmark(surahNumber, item.numberInSurah)
-        }
-      />
-    ),
+    ({ item }: { item: AyahReaderRow }) => {
+      const active = isActiveAyah(
+        surahNumber,
+        item.numberInSurah,
+        audioCurrentSurahNumber,
+        audioCurrentAyahNumber,
+      );
+      return (
+        <AyahBlock
+          item={item}
+          palette={palette}
+          showTranslation={showTranslation}
+          bookmarked={isBookmarked(surahNumber, item.numberInSurah)}
+          liveScale={liveScale}
+          audio={{
+            isActive: active,
+            isPlaying: active && audioIsPlaying,
+            isLoading: active && audioIsLoading,
+            hasAudio: !!item.audioUrl,
+          }}
+          onPlay={() => playAyah(item)}
+          onTafsir={() =>
+            navigation.navigate('Tafsir', { surahNumber, ayahNumber: item.numberInSurah })
+          }
+          onToggleBookmark={() =>
+            isBookmarked(surahNumber, item.numberInSurah)
+              ? removeBookmark(surahNumber, item.numberInSurah)
+              : addBookmark(surahNumber, item.numberInSurah)
+          }
+          onShare={() =>
+            setVerseToShare({
+              arabic: item.arabic,
+              translation: item.translation,
+              surahEnglishName: data!.surah.englishName,
+              surahNumber,
+              ayahNumber: item.numberInSurah,
+            })
+          }
+        />
+      );
+    },
     [
       addBookmark,
       audioCurrentAyahNumber,
       audioCurrentSurahNumber,
       audioIsLoading,
       audioIsPlaying,
-      iconSize,
+      data,
       isBookmarked,
       liveScale,
       navigation,
+      palette,
       playAyah,
-      readerColors,
       removeBookmark,
       showTranslation,
-      styles,
       surahNumber,
     ],
   );
@@ -509,24 +380,24 @@ export function SurahReaderScreen() {
       <StatusBar
         translucent
         backgroundColor="transparent"
-        barStyle={surahReaderTheme === 'dark' ? 'light-content' : 'dark-content'}
+        barStyle={scheme === 'dark' ? 'light-content' : 'dark-content'}
       />
       <View style={styles.header}>
         <Pressable onPress={() => navigation.goBack()} style={styles.backHit} accessibilityLabel="Back">
-          <ArrowLeft size={24} color={readerColors.primary} strokeWidth={2} />
+          <ArrowLeft size={24} color={palette.text} strokeWidth={2} />
         </Pressable>
         <View style={styles.headerTitle}>
           {data ? (
             <>
-              <SazdaText variant="headlineMedium" color={readerColors.primary} numberOfLines={1}>
+              <SazdaText variant="headlineMedium" color={palette.text} numberOfLines={1}>
                 {data.surah.englishName}
               </SazdaText>
-              <SazdaText variant="caption" color={readerColors.onSurfaceVariant} numberOfLines={1}>
+              <SazdaText variant="caption" color={palette.textMuted} numberOfLines={1}>
                 {data.surah.englishNameTranslation} • {data.surah.numberOfAyahs} ayahs
               </SazdaText>
             </>
           ) : (
-            <SazdaText variant="headlineMedium" color={readerColors.primary}>
+            <SazdaText variant="headlineMedium" color={palette.text}>
               Surah {surahNumber}
             </SazdaText>
           )}
@@ -538,7 +409,7 @@ export function SurahReaderScreen() {
             accessibilityLabel={showTranslation ? 'Hide translation' : 'Show translation'}>
             <Languages
               size={22}
-              color={showTranslation ? readerColors.primary : readerColors.outline}
+              color={showTranslation ? palette.accent : palette.textMuted}
               strokeWidth={2}
             />
           </Pressable>
@@ -546,16 +417,16 @@ export function SurahReaderScreen() {
             onPress={() => setSettingsOpen(true)}
             style={styles.settingsHit}
             accessibilityLabel="Reader appearance">
-            <Settings size={22} color={readerColors.primary} strokeWidth={2} />
+            <Settings size={22} color={palette.text} strokeWidth={2} />
           </Pressable>
         </View>
       </View>
 
       {isPending ? (
-        <ActivityIndicator style={styles.loader} color={readerColors.primary} size="large" />
+        <ActivityIndicator style={styles.loader} color={palette.accent} size="large" />
       ) : isError ? (
         <Pressable onPress={() => refetch()} style={styles.errorBox}>
-          <SazdaText variant="bodyMedium" color={readerColors.error} align="center">
+          <SazdaText variant="bodyMedium" color={palette.accent} align="center">
             Could not load this surah. Tap to retry.
           </SazdaText>
         </Pressable>
@@ -564,6 +435,7 @@ export function SurahReaderScreen() {
           style={styles.listWrap}
           onLayout={e => setContainerH(e.nativeEvent.layout.height)}
         >
+          <AmbientBackdrop scheme={scheme} ambientEnabled={ambientEnabled} />
           <GestureDetector gesture={pinch}>
             <Animated.View style={{ flex: 1 }}>
               <FlatList
@@ -571,16 +443,15 @@ export function SurahReaderScreen() {
                 data={data!.ayahs}
                 keyExtractor={a => String(a.numberInSurah)}
                 renderItem={renderAyah}
+                ListHeaderComponent={
+                  data && shouldShowBismillah(surahNumber) ? (
+                    <BismillahReveal reduceMotion={reduceMotion} color={palette.accent} />
+                  ) : null
+                }
                 extraData={{
                   showTranslation,
                   surahReaderTheme,
                 }}
-                contentContainerStyle={[
-                  styles.listContent,
-                  audioUrlActive
-                    ? { paddingBottom: tabBarHeight + 66 + spacing.lg }
-                    : null,
-                ]}
                 showsVerticalScrollIndicator={false}
                 initialNumToRender={12}
                 maxToRenderPerBatch={14}
@@ -617,7 +488,7 @@ export function SurahReaderScreen() {
                 toastStyles.wrap,
                 toastAnimStyle,
               ]}>
-              <View style={[toastStyles.pill, { backgroundColor: readerColors.primary }]}>
+              <View style={[toastStyles.pill, { backgroundColor: palette.accent }]}>
                 <Text style={toastStyles.text}>{toastText}</Text>
               </View>
             </Animated.View>
@@ -625,100 +496,24 @@ export function SurahReaderScreen() {
         </View>
       )}
 
-      <Modal visible={settingsOpen} transparent animationType="fade" onRequestClose={() => setSettingsOpen(false)}>
-        <Pressable style={modalStyles.backdrop} onPress={() => setSettingsOpen(false)}>
-          <Pressable
-            style={[modalStyles.card, { backgroundColor: readerColors.surface }]}
-            onPress={e => e.stopPropagation()}>
-            <Text style={[modalStyles.title, { color: readerColors.primary }]}>Reader appearance</Text>
-            <Text style={[modalStyles.sub, { color: readerColors.onSurfaceVariant }]}>Theme</Text>
-            <View style={modalStyles.themeRow}>
-              {(['light', 'sepia', 'dark'] as MushafTheme[]).map(t => (
-                <Pressable
-                  key={t}
-                  onPress={() => setSurahReaderTheme(t)}
-                  style={[
-                    modalStyles.themeChip,
-                    surahReaderTheme === t && {
-                      borderColor: readerColors.primaryContainer,
-                      borderWidth: 2,
-                    },
-                    { backgroundColor: readerColors.surface },
-                  ]}>
-                  <Text style={{ color: readerColors.primary }}>{t[0].toUpperCase() + t.slice(1)}</Text>
-                </Pressable>
-              ))}
-            </View>
-            <Text style={[modalStyles.sub, { color: readerColors.onSurfaceVariant }]}>Text size</Text>
-            <View style={modalStyles.sizeRow}>
-              <Pressable
-                onPress={() => setSurahReaderFontScale(surahReaderFontScale - 0.06)}
-                style={modalStyles.sizeBtn}>
-                <ChevronDown size={22} color={readerColors.primary} />
-              </Pressable>
-              <Text style={{ color: readerColors.primary }}>{Math.round(surahReaderFontScale * 100)}%</Text>
-              <Pressable
-                onPress={() => setSurahReaderFontScale(surahReaderFontScale + 0.06)}
-                style={modalStyles.sizeBtn}>
-                <ChevronUp size={22} color={readerColors.primary} />
-              </Pressable>
-            </View>
-            <Pressable style={modalStyles.close} onPress={() => setSettingsOpen(false)}>
-              <Text style={{ color: readerColors.primaryContainer, fontWeight: '700' }}>Done</Text>
-            </Pressable>
-          </Pressable>
-        </Pressable>
-      </Modal>
+      <ReaderSettingsModal
+        visible={settingsOpen}
+        theme={surahReaderTheme}
+        fontScale={surahReaderFontScale}
+        onClose={() => setSettingsOpen(false)}
+        onSetTheme={setSurahReaderTheme}
+        onSetFontScale={setSurahReaderFontScale}
+      />
+
+      <ShareVersePreview
+        palette={palette}
+        visible={verseToShare !== null}
+        verse={verseToShare}
+        onClose={() => setVerseToShare(null)}
+      />
     </SafeAreaView>
   );
 }
-
-const modalStyles = StyleSheet.create({
-  backdrop: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  card: {
-    borderRadius: radius.md,
-    padding: spacing.xl,
-    gap: spacing.md,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: '800',
-  },
-  sub: {
-    fontSize: 12,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  themeRow: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    flexWrap: 'wrap',
-  },
-  themeChip: {
-    padding: spacing.md,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: 'transparent',
-  },
-  sizeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: spacing.lg,
-  },
-  sizeBtn: {
-    padding: spacing.sm,
-  },
-  close: {
-    alignSelf: 'flex-end',
-    paddingVertical: spacing.sm,
-  },
-});
 
 const toastStyles = StyleSheet.create({
   wrap: {
