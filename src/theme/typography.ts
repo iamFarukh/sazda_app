@@ -10,6 +10,8 @@ export const fontFamilies = {
   headline: 'Manrope',
   body: 'PlusJakartaSans', // No spaces for PlusJakartaSans filename mapping
   arabic: 'Amiri',
+  /** Amiri Quran — verse-by-verse Quran reading. Asset: AmiriQuran-Regular.ttf */
+  quran: 'AmiriQuran',
 } as const;
 
 type WeightStr = '400' | '500' | '600' | '700' | '800' | '900';
@@ -30,6 +32,14 @@ export function getFontConfig(
   // Android strict mapping to filenames (e.g., Manrope-Bold)
   let mappedWeight = weight;
   
+  if (baseFamily === fontFamilies.quran) {
+    // Single-weight Quranic face. iOS uses the registered family name "Amiri Quran";
+    // Android (legacy assets/fonts) maps by the file base name.
+    return Platform.OS === 'ios'
+      ? { fontFamily: 'Amiri Quran', fontWeight: undefined }
+      : { fontFamily: 'AmiriQuran-Regular', fontWeight: undefined };
+  }
+
   if (baseFamily === 'Amiri') {
     // Amiri only has Regular and Bold
     if (weight !== '400' && weight !== '700') {
@@ -59,39 +69,66 @@ export const typography = {
     fontSize: 56,
     // -0.02em with a 16px base ~= -0.32px
     letterSpacing: -0.4,
+    lineHeight: 60,
   },
   headlineLarge: {
     ...getFontConfig(fontFamilies.headline, '800'),
     fontSize: 32,
     letterSpacing: -0.5,
+    lineHeight: 38,
   },
   headlineMedium: {
     ...getFontConfig(fontFamilies.headline, '700'),
     fontSize: 20,
     letterSpacing: -0.25,
+    lineHeight: 26,
+  },
+  /** Section/card title between headlineMedium and titleSm. */
+  titleLarge: {
+    ...getFontConfig(fontFamilies.headline, '700'),
+    fontSize: 17,
+    letterSpacing: -0.2,
+    lineHeight: 23,
   },
   titleSm: {
     ...getFontConfig(fontFamilies.headline, '700'),
     fontSize: 14,
+    lineHeight: 20,
   },
 
   // Functional voice
   body: {
     ...getFontConfig(fontFamilies.body, '400'),
     fontSize: 16,
+    lineHeight: 24,
   },
   bodyMedium: {
     ...getFontConfig(fontFamilies.body, '500'),
     fontSize: 16,
+    lineHeight: 24,
+  },
+  /** Smaller body for dense rows / secondary content. */
+  bodySmall: {
+    ...getFontConfig(fontFamilies.body, '400'),
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  /** Supporting line under a title (settings rows, list subtitles). */
+  subtitle: {
+    ...getFontConfig(fontFamilies.body, '500'),
+    fontSize: 13,
+    lineHeight: 18,
   },
   caption: {
     ...getFontConfig(fontFamilies.body, '500'),
     fontSize: 12,
+    lineHeight: 16,
   },
   label: {
     ...getFontConfig(fontFamilies.body, '600'),
     fontSize: 10,
     letterSpacing: 1.2,
+    lineHeight: 14,
     textTransform: 'uppercase' as const,
   },
 
@@ -100,5 +137,11 @@ export const typography = {
     ...getFontConfig(fontFamilies.arabic, '700'),
     fontSize: 20, // 1.25 * 16px ~ 20px
     lineHeight: 28,
+  },
+  // Verse-by-verse Quran reading (Quranic Amiri face, larger + airier than incidental verse).
+  quranVerse: {
+    ...getFontConfig(fontFamilies.quran, '400'),
+    fontSize: 26,
+    lineHeight: 52,
   },
 } as const;
