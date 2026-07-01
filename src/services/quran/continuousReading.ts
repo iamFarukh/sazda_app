@@ -47,3 +47,24 @@ export function shouldAppendNext(
   if (loaded.has(next)) return null;
   return next;
 }
+
+/** Loosely-typed SectionList viewable-item token (only the fields we read). */
+export type ReaderViewToken = {
+  isViewable: boolean;
+  item?: { numberInSurah?: number } | null;
+  section?: { surah?: { number?: number } } | null;
+};
+
+/**
+ * Derives the surah + ayah of the top-most viewable item — used for both the sticky
+ * current-surah bar and last-read tracking. Returns null when nothing usable is visible.
+ */
+export function topVisibleSurah(
+  tokens: ReaderViewToken[],
+): { surahNumber: number; ayahNumber: number } | null {
+  const first = tokens.find(t => t.isViewable);
+  const surahNumber = first?.section?.surah?.number;
+  const ayahNumber = first?.item?.numberInSurah;
+  if (typeof surahNumber !== 'number' || typeof ayahNumber !== 'number') return null;
+  return { surahNumber, ayahNumber };
+}
