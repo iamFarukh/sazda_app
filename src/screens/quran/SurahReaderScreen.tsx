@@ -24,7 +24,6 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import { ArrowLeft, Languages, Settings } from 'lucide-react-native';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
-import { AmbientBackdrop } from '../../components/atoms/AmbientBackdrop/AmbientBackdrop';
 import { BismillahReveal } from '../../components/atoms/BismillahReveal/BismillahReveal';
 import { hapticLight } from '../../utils/appHaptics';
 import type { QuranStackParamList } from '../../navigation/types';
@@ -41,7 +40,6 @@ import {
 import { useQuranProgressStore } from '../../store/quranProgressStore';
 import { useQuranAudioStore, type QuranAudioQueueItem } from '../../store/quranAudioStore';
 import { spacing } from '../../theme/spacing';
-import { useAmbientEnabled } from '../../hooks/useAmbientEnabled';
 import { useReduceMotion } from '../../hooks';
 import { AyahBlock } from './components/AyahBlock';
 import { ReaderSettingsModal } from './components/ReaderSettingsModal';
@@ -111,7 +109,6 @@ export function SurahReaderScreen() {
 
   const palette = useMemo(() => getReaderPalette(surahReaderTheme), [surahReaderTheme]);
   const styles = useMemo(() => createReaderStyles(palette), [palette]);
-  const ambientEnabled = useAmbientEnabled();
   const reduceMotion = useReduceMotion();
   const scheme = surahReaderTheme === 'dark' ? 'dark' : 'light';
 
@@ -435,7 +432,6 @@ export function SurahReaderScreen() {
           style={styles.listWrap}
           onLayout={e => setContainerH(e.nativeEvent.layout.height)}
         >
-          <AmbientBackdrop scheme={scheme} ambientEnabled={ambientEnabled} />
           <GestureDetector gesture={pinch}>
             <Animated.View style={{ flex: 1 }}>
               <FlatList
