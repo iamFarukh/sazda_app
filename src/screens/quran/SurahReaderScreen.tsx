@@ -25,6 +25,7 @@ import type { RouteProp } from '@react-navigation/native';
 import { ArrowLeft, Languages, Settings } from 'lucide-react-native';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import { BismillahReveal } from '../../components/atoms/BismillahReveal/BismillahReveal';
+import { SurahOpeningHeader } from './components/SurahOpeningHeader';
 import { hapticLight } from '../../utils/appHaptics';
 import type { QuranStackParamList } from '../../navigation/types';
 import { OFFLINE_QURAN_VERSION } from '../../services/offlineQuran/constants';
@@ -440,8 +441,20 @@ export function SurahReaderScreen() {
                 keyExtractor={a => String(a.numberInSurah)}
                 renderItem={renderAyah}
                 ListHeaderComponent={
-                  data && shouldShowBismillah(surahNumber) ? (
-                    <BismillahReveal reduceMotion={reduceMotion} color={palette.accent} />
+                  data ? (
+                    <>
+                      <SurahOpeningHeader
+                        palette={palette}
+                        arabicName={data.surah.name}
+                        englishName={data.surah.englishName}
+                        translation={data.surah.englishNameTranslation}
+                        ayahCount={data.surah.numberOfAyahs}
+                        revelationType={data.surah.revelationType}
+                      />
+                      {shouldShowBismillah(surahNumber) ? (
+                        <BismillahReveal reduceMotion={reduceMotion} color={palette.accent} />
+                      ) : null}
+                    </>
                   ) : null
                 }
                 extraData={{

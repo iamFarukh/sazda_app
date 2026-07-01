@@ -12,6 +12,8 @@ import type { ReadingThemePalette } from '../../../theme/readingThemes';
 
 const BASE_ARABIC = typography.quranVerse.fontSize; // 26
 const BASE_TRANS = 15;
+/** Traditional end-of-ayah ornament (U+06DD). */
+const END_OF_AYAH = '۝';
 
 type AudioState = { isActive: boolean; isPlaying: boolean; isLoading: boolean; hasAudio: boolean };
 
@@ -28,7 +30,11 @@ type Props = {
   onShare: () => void;
 };
 
-/** Spacious ayah block with breathing active-highlight and an expandable action bar. */
+/**
+ * A single ayah as a calm rounded card: soft gold number medallion, Uthmani verse with a
+ * gold end-of-ayah ornament, translation, and a tap-to-reveal action bar. The active
+ * (currently-playing) ayah breathes gently on a gold-tinted card.
+ */
 export const AyahBlock = memo(function AyahBlock({
   item, palette: p, showTranslation, bookmarked, liveScale, audio,
   onPlay, onTafsir, onToggleBookmark, onShare,
@@ -37,7 +43,7 @@ export const AyahBlock = memo(function AyahBlock({
 
   const arabicStyle = useAnimatedStyle(() => {
     const fs = BASE_ARABIC * liveScale.value;
-    return { fontSize: fs, lineHeight: fs * 2 };
+    return { fontSize: fs, lineHeight: fs * 1.9 };
   }, [liveScale]);
 
   const transStyle = useAnimatedStyle(() => {
@@ -45,18 +51,28 @@ export const AyahBlock = memo(function AyahBlock({
     return { fontSize: fs, lineHeight: fs * 1.55 };
   }, [liveScale]);
 
+  const cardStyle = [
+    styles.card,
+    {
+      backgroundColor: audio.isActive ? p.ayahHighlight : p.surface,
+      borderColor: audio.isActive ? p.accent : p.divider,
+    },
+  ];
+
   const content = (
     <Pressable
       onPress={() => { hapticLight(); setBarOpen(o => !o); }}
-      style={[styles.block, { borderBottomColor: p.divider }]}
+      style={styles.inner}
       accessibilityRole="button" accessibilityLabel={`Ayah ${item.numberInSurah}`}>
       <View style={styles.headerRow}>
-        <View style={[styles.marker, { backgroundColor: p.ayahMarkerBg, borderColor: p.ayahMarkerBorder }]}>
-          <Text style={[styles.markerText, { color: p.ayahMarkerText }]}>{item.numberInSurah}</Text>
+        <View style={[styles.marker, { backgroundColor: p.ayahHighlight, borderColor: p.accent }]}>
+          <Text style={[styles.markerText, { color: p.accent }]}>{item.numberInSurah}</Text>
         </View>
       </View>
       <Animated.Text style={[styles.arabic, { color: p.text }, arabicStyle]} allowFontScaling={false}>
         {item.arabic}
+        {'  '}
+        <Text style={{ color: p.accent }}>{END_OF_AYAH}</Text>
       </Animated.Text>
       {showTranslation && item.translation ? (
         <Animated.Text style={[styles.translation, { color: p.textMuted }, transStyle]}>
@@ -72,17 +88,21 @@ export const AyahBlock = memo(function AyahBlock({
 
   if (audio.isActive) {
     return (
-      <BreathingView style={[styles.activeWrap, { backgroundColor: p.ayahHighlight }]} minOpacity={0.92}>
+      <BreathingView style={cardStyle} minOpacity={0.94}>
         {content}
       </BreathingView>
     );
   }
-  return content;
+  return <View style={cardStyle}>{content}</View>;
 });
 
 const styles = StyleSheet.create({
-  block: { paddingVertical: spacing.lg, borderBottomWidth: StyleSheet.hairlineWidth, gap: spacing.sm },
-  activeWrap: { borderRadius: radius.md, paddingHorizontal: spacing.md, marginVertical: spacing.xs },
+  card: {
+    borderRadius: radius.md,
+    borderWidth: StyleSheet.hairlineWidth,
+    marginVertical: spacing.xs,
+  },
+  inner: { padding: spacing.lg, gap: spacing.sm },
   headerRow: { flexDirection: 'row', alignItems: 'center' },
   marker: {
     minWidth: 30, height: 30, borderRadius: radius.full, borderWidth: 1,
