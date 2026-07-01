@@ -21,3 +21,29 @@ export type ReaderSection = {
   surah: QuranApiSurah;
   data: AyahReaderRow[];
 };
+
+/** Builds a keyed section from freshly-loaded surah reader data. */
+export function buildSection(input: {
+  surah: QuranApiSurah;
+  ayahs: AyahReaderRow[];
+}): ReaderSection {
+  return { key: `surah-${input.surah.number}`, surah: input.surah, data: input.ayahs };
+}
+
+/**
+ * Decides which surah (if any) to append next.
+ * Returns the next surah number when: the highest loaded surah has a valid successor,
+ * that successor is not already loaded, and no append is currently in flight.
+ * Otherwise returns null.
+ */
+export function shouldAppendNext(
+  loaded: Set<number>,
+  maxLoaded: number,
+  isAppending: boolean,
+): number | null {
+  if (isAppending) return null;
+  const next = nextSurahNumber(maxLoaded);
+  if (next == null) return null;
+  if (loaded.has(next)) return null;
+  return next;
+}
