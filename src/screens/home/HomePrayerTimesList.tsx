@@ -1,9 +1,11 @@
 import { memo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
+import Animated, { Easing, FadeInDown } from 'react-native-reanimated';
 import { Bell, BellOff, Calculator, Mic, Sunrise } from 'lucide-react-native';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import type { PrayerTimingsDay } from '../../services/prayerTimesApi';
 import { radius } from '../../theme/radius';
+import { elevation } from '../../theme/elevation';
 import { spacing } from '../../theme/spacing';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
@@ -12,6 +14,16 @@ import type { DailyPrayerName } from '../../utils/prayerSchedule';
 import { prayerDisplayLabel } from '../../utils/prayerDisplayLabel';
 
 const FIVE: DailyPrayerName[] = ['Fajr', 'Dhuhr', 'Asr', 'Maghrib', 'Isha'];
+
+/** Staggered reveal timing for the "Today's times" section (Reduce-Motion aware). */
+const REVEAL_MS = 440;
+const STAGGER_MS = 55;
+const REVEAL_BASE_MS = 70;
+/** A gentle rise+fade entering animation, delayed by `order` steps. */
+const reveal = (order: number) =>
+  FadeInDown.duration(REVEAL_MS)
+    .delay(REVEAL_BASE_MS + order * STAGGER_MS)
+    .easing(Easing.out(Easing.cubic));
 
 type Props = {
   timings: PrayerTimingsDay;
@@ -26,12 +38,14 @@ function HomePrayerTimesListInner({ timings, activeSalah, palette: c, scheme }: 
 
   return (
     <View style={styles.wrap}>
-      <SazdaText variant="titleSm" color="primary" style={styles.sectionTitle}>
-        Today&apos;s times
-      </SazdaText>
+      <Animated.View entering={reveal(0)}>
+        <SazdaText variant="titleSm" color="primary" style={styles.sectionTitle}>
+          Today&apos;s times
+        </SazdaText>
+      </Animated.View>
 
       {/* Sunrise utility row — matches Stitch */}
-      <View style={styles.sunRow}>
+      <Animated.View entering={reveal(1)} style={styles.sunRow}>
         <View style={styles.sunLeft}>
           <View style={styles.sunIcon}>
             <Sunrise size={20} color={c.secondary} strokeWidth={2} />
@@ -51,22 +65,23 @@ function HomePrayerTimesListInner({ timings, activeSalah, palette: c, scheme }: 
           accessibilityLabel="Sunrise reminder (coming soon)">
           <BellOff size={22} color={c.outline} strokeWidth={2} />
         </Pressable>
-      </View>
+      </Animated.View>
 
       <View style={styles.prayerBlock}>
-        {FIVE.map(name => (
-          <PrayerRow
-            key={name}
-            name={name}
-            time={formatHhmmTo12h(timings[name])}
-            active={activeSalah === name}
-            styles={styles}
-            colors={c}
-          />
+        {FIVE.map((name, i) => (
+          <Animated.View key={name} entering={reveal(2 + i)}>
+            <PrayerRow
+              name={name}
+              time={formatHhmmTo12h(timings[name])}
+              active={activeSalah === name}
+              styles={styles}
+              colors={c}
+            />
+          </Animated.View>
         ))}
       </View>
 
-      <View style={styles.bentoRow}>
+      <Animated.View entering={reveal(2 + FIVE.length)} style={styles.bentoRow}>
         <View style={styles.bentoCard}>
           <Mic size={22} color={c.secondary} strokeWidth={2} />
           <View style={styles.bentoText}>
@@ -89,7 +104,7 @@ function HomePrayerTimesListInner({ timings, activeSalah, palette: c, scheme }: 
             </SazdaText>
           </View>
         </View>
-      </View>
+      </Animated.View>
     </View>
   );
 }
@@ -194,11 +209,7 @@ function createListStyles(c: AppPalette, scheme: ResolvedScheme) {
       backgroundColor: activeBg,
       borderColor: scheme === 'dark' ? 'rgba(142,207,178,0.25)' : 'rgba(6, 78, 59, 0.2)',
       transform: [{ scale: 1.02 }],
-      shadowColor: scheme === 'dark' ? '#000' : 'rgba(6, 78, 59, 0.2)',
-      shadowOpacity: 0.35,
-      shadowRadius: 16,
-      shadowOffset: { width: 0, height: 8 },
-      elevation: 6,
+      ...elevation('md', scheme),
     },
     prayerRowLeft: {
       flexDirection: 'row',

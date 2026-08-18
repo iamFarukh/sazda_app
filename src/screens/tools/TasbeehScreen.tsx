@@ -13,12 +13,16 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, {
   Easing,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
 import { RefreshCw, Vibrate, VibrateOff } from 'lucide-react-native';
 import { TasbeehGeometricBackground } from '../../components/organisms/TasbeehCounter/TasbeehGeometricBackground';
 import { TasbeehTapOrb } from '../../components/organisms/TasbeehCounter/TasbeehTapOrb';
+import { NoorRing } from '../../components/atoms/NoorRing/NoorRing';
+import { LottieBurst } from '../../components/molecules/LottieBurst/LottieBurst';
+import { PressableScale } from '../../components/atoms/PressableScale/PressableScale';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import { ToolsSubheader } from '../../components/molecules/ToolsSubheader/ToolsSubheader';
 import { radius } from '../../theme/radius';
@@ -46,6 +50,8 @@ import {
 } from '../../services/tasbeehCloudSync';
 import { useFocusEffect } from '@react-navigation/native';
 
+const CELEBRATE = require('../../assets/lottie/celebrate.json');
+
 const GOAL_MODES_ROW: { mode: TasbeehGoalMode; label: string }[] = [
   { mode: 'traditional33', label: '33' },
   { mode: 'single100', label: '100' },
@@ -72,7 +78,10 @@ export function TasbeehScreen() {
   const resetPhase = useTasbeehStore(s => s.resetPhase);
   const resetAll = useTasbeehStore(s => s.resetAll);
 
+  const reduceMotion = useReducedMotion();
   const [tapTick, setTapTick] = useState(0);
+  /** Bumped when a full cycle completes → plays the Noor celebration burst. */
+  const [cycleKey, setCycleKey] = useState(0);
   const [resetSpin, setResetSpin] = useState(0);
   const [customModalOpen, setCustomModalOpen] = useState(false);
   const [customDraft, setCustomDraft] = useState(String(customTarget));
@@ -105,6 +114,7 @@ export function TasbeehScreen() {
     const h = after.hapticsEnabled;
     if (after.cycles > beforeCycles) {
       tasbeehCycleComplete(h);
+      setCycleKey(k => k + 1);
     } else if (
       beforeMode === 'traditional33' &&
       after.phaseIndex !== beforePhase
@@ -155,6 +165,12 @@ export function TasbeehScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <TasbeehGeometricBackground palette={c} scheme={scheme} />
+      {cycleKey > 0 && !reduceMotion ? (
+        <View pointerEvents="none" style={styles.noorOverlay}>
+          <NoorRing key={cycleKey} playKey={cycleKey} size={260} />
+        </View>
+      ) : null}
+      <LottieBurst trigger={cycleKey} source={CELEBRATE} size={320} />
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
@@ -223,14 +239,11 @@ export function TasbeehScreen() {
             {GOAL_MODES_ROW.map(({ mode, label }) => {
               const active = goalMode === mode;
               return (
-                <Pressable
+                <PressableScale
                   key={mode}
+                  to={0.94}
                   onPress={() => onSelectGoal(mode)}
-                  style={({ pressed }) => [
-                    styles.goalSegment,
-                    active && styles.goalSegmentActive,
-                    pressed && styles.goalSegmentPressed,
-                  ]}
+                  style={[styles.goalSegment, active && styles.goalSegmentActive]}
                   accessibilityRole="tab"
                   accessibilityState={{ selected: active }}
                   accessibilityLabel={
@@ -254,19 +267,17 @@ export function TasbeehScreen() {
                       ? ` (${customTarget})`
                       : ''}
                   </SazdaText>
-                </Pressable>
+                </PressableScale>
               );
             })}
           </View>
         </View>
 
         <View style={styles.bento}>
-          <Pressable
+          <PressableScale
+            to={0.96}
             onPress={onResetPhrase}
-            style={({ pressed }) => [
-              styles.bentoCard,
-              pressed && styles.bentoPressed,
-            ]}
+            style={styles.bentoCard}
             accessibilityRole="button"
             accessibilityLabel="Reset current phrase"
           >
@@ -278,16 +289,13 @@ export function TasbeehScreen() {
             >
               Reset phrase
             </SazdaText>
-          </Pressable>
+          </PressableScale>
 
           <View style={styles.hapticCard}>
-            <Pressable
+            <PressableScale
+              to={0.95}
               onPress={() => setHapticsEnabled(true)}
-              style={({ pressed }) => [
-                styles.hapticHalf,
-                hapticsEnabled && styles.hapticHalfActive,
-                pressed && styles.hapticHalfPressed,
-              ]}
+              style={[styles.hapticHalf, hapticsEnabled && styles.hapticHalfActive]}
               accessibilityRole="radio"
               accessibilityState={{ checked: hapticsEnabled }}
               accessibilityLabel="Haptic on"
@@ -304,20 +312,17 @@ export function TasbeehScreen() {
               >
                 Haptic on
               </SazdaText>
-            </Pressable>
+            </PressableScale>
             <View
               style={[
                 styles.hapticDivider,
                 { backgroundColor: c.outlineVariant },
               ]}
             />
-            <Pressable
+            <PressableScale
+              to={0.95}
               onPress={() => setHapticsEnabled(false)}
-              style={({ pressed }) => [
-                styles.hapticHalf,
-                !hapticsEnabled && styles.hapticHalfActive,
-                pressed && styles.hapticHalfPressed,
-              ]}
+              style={[styles.hapticHalf, !hapticsEnabled && styles.hapticHalfActive]}
               accessibilityRole="radio"
               accessibilityState={{ checked: !hapticsEnabled }}
               accessibilityLabel="Haptic off"
@@ -334,15 +339,13 @@ export function TasbeehScreen() {
               >
                 Haptic off
               </SazdaText>
-            </Pressable>
+            </PressableScale>
           </View>
 
-          <Pressable
+          <PressableScale
+            to={0.97}
             onPress={resetAll}
-            style={({ pressed }) => [
-              styles.bentoWide,
-              pressed && styles.bentoPressed,
-            ]}
+            style={styles.bentoWide}
             accessibilityRole="button"
             accessibilityLabel="Reset full tasbeeh"
           >
@@ -353,7 +356,7 @@ export function TasbeehScreen() {
             >
               Reset all (start over)
             </SazdaText>
-          </Pressable>
+          </PressableScale>
         </View>
 
         <SazdaText
@@ -474,6 +477,12 @@ function ResetIcon({ spin }: { spin: number }) {
 function createTasbeehStyles(c: AppPalette, scheme: ResolvedScheme) {
   return StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.surface },
+    noorOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 50,
+    },
     scroll: {
       paddingHorizontal: spacing.lg,
       paddingBottom: spacing.x3xl,

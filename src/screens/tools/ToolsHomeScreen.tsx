@@ -1,12 +1,11 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery } from '@tanstack/react-query';
 import {
-  Award,
   CalendarDays,
   Compass,
   Globe,
@@ -16,10 +15,20 @@ import {
   Quote,
   ScrollText,
 } from 'lucide-react-native';
+import Animated, { useReducedMotion } from 'react-native-reanimated';
 import { TabLandingHeader } from '../../components/organisms/TabLandingHeader';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { PressableScale } from '../../components/atoms/PressableScale/PressableScale';
+import {
+  DuasMotif,
+  HijriMotif,
+  QiblaRaysDeco,
+  TasbeehMotif,
+  TrackerMotif,
+  ZakatMotif,
+  useSlowSpin,
+} from '../../components/molecules/ToolMotifs/ToolMotifs';
 import { usePrayerTimesHome } from '../../hooks/usePrayerTimesHome';
-import { usePrayerStreak } from '../../hooks/usePrayerStreak';
 import type { ToolsStackParamList } from '../../navigation/types';
 import { fetchGregorianToHijri } from '../../services/hijriCalendarApi';
 import { radius } from '../../theme/radius';
@@ -27,21 +36,8 @@ import { spacing } from '../../theme/spacing';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
 import { useThemePalette } from '../../theme/useThemePalette';
-import { useProfileStore } from '../../store/profileStore';
-import { formatHhmmTo12h } from '../../utils/prayerTimesDisplay';
-import type { PrayerTimingsDay } from '../../services/prayerTimesApi';
 
 type Nav = NativeStackNavigationProp<ToolsStackParamList, 'ToolsMain'>;
-
-function nextPrayerTimeLabel(
-  timings: PrayerTimingsDay | null,
-  targetName: string | undefined,
-): string {
-  if (!timings || !targetName) return '—';
-  const row = timings[targetName as keyof PrayerTimingsDay];
-  if (!row) return '—';
-  return formatHhmmTo12h(row);
-}
 
 const DAILY_WISDOM_QUOTES = [
   { text: 'Verily, with hardship comes ease.', ref: 'Surah Ash-Sharh 94:5' },
@@ -66,33 +62,20 @@ function getDailyWisdom(dateKey: string) {
 
 export function ToolsHomeScreen() {
   const navigation = useNavigation<Nav>();
-  const displayName = useProfileStore(s => s.displayName.trim() || 'Guest');
   const { colors: c, scheme } = useThemePalette();
   const styles = useMemo(() => createToolsStyles(c, scheme), [c, scheme]);
-  const streak = usePrayerStreak();
+  const isFocused = useIsFocused();
+  const reducedMotion = useReducedMotion();
+  const motionActive = isFocused && !reducedMotion;
+  const qiblaSpin = useSlowSpin(motionActive);
 
-  const {
-    coords,
-    hero,
-    countdownLabel,
-    nextPrayerLabel,
-    todayTimings,
-    todayDateKey,
-    permissionDenied,
-    prayerLoading,
-  } = usePrayerTimesHome();
+  const { coords, todayDateKey } = usePrayerTimesHome();
 
   const { data: hijriToday } = useQuery({
     queryKey: ['toolsGToH', todayDateKey],
     queryFn: () => fetchGregorianToHijri(todayDateKey),
     staleTime: 1000 * 60 * 60,
   });
-
-  const nextTimeDisplay = nextPrayerTimeLabel(todayTimings, hero?.countdownTargetRow);
-  const nextNameDisplay =
-    todayTimings && hero && !permissionDenied ? nextPrayerLabel : '—';
-  const remainingDisplay =
-    todayTimings && hero && !permissionDenied ? countdownLabel : prayerLoading ? '…' : '—';
 
   const dailyWisdom = useMemo(() => getDailyWisdom(todayDateKey), [todayDateKey]);
 
@@ -105,71 +88,31 @@ export function ToolsHomeScreen() {
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}>
-        <View style={styles.greetingBlock}>
-          <SazdaText variant="label" color="primary" style={styles.salamKicker}>
-            As-salāmu ʿalaykum
+        <View style={styles.pageHead}>
+          <SazdaText variant="label" color="secondary" style={styles.pageKicker}>
+            SACRED TOOLS
           </SazdaText>
-          <View style={styles.greetingTitleRow}>
-            <SazdaText variant="headlineLarge" color="primary" style={styles.greetingTitle}>
-              {displayName},
-            </SazdaText>
-            <SazdaText variant="headlineLarge" color="secondary" style={styles.greetingAccent}>
-              {' '}
-              Peace be with you.
-            </SazdaText>
-          </View>
-        </View>
-
-        <View style={styles.insightCard}>
-          <View style={styles.insightLeft}>
-            <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={styles.insightLabel}>
-              Next prayer:{' '}
-              <SazdaText variant="bodyMedium" color="primary" style={styles.insightBold}>
-                {nextNameDisplay}
-              </SazdaText>
-            </SazdaText>
-            <SazdaText variant="headlineLarge" color="primary" style={styles.insightTime}>
-              {nextTimeDisplay}
-            </SazdaText>
-            <View style={styles.pulseRow}>
-              <View style={styles.pulseDot} />
-              <SazdaText variant="label" color="onSurfaceVariant" style={styles.remainingTiny}>
-                {remainingDisplay === '—' ? 'Times on Home' : `${remainingDisplay} left`}
-              </SazdaText>
-            </View>
-          </View>
-          <View style={styles.insightDivider} />
-          <View style={styles.insightRight}>
-            <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={styles.insightLabel}>
-              Salah streak
-            </SazdaText>
-            <View style={styles.streakRow}>
-              <SazdaText variant="headlineLarge" color="primary" style={styles.streakNum}>
-                {streak}
-              </SazdaText>
-              <Award size={22} color={c.secondary} strokeWidth={2} />
-            </View>
-            <SazdaText variant="label" color="onSurfaceVariant" style={styles.streakHint}>
-              Full days in a row
-            </SazdaText>
-          </View>
-        </View>
-
-        <View style={styles.sectionHead}>
-          <SazdaText variant="titleSm" color="primary" style={styles.sectionTitle}>
-            Sacred tools
+          <SazdaText variant="headlineLarge" color="primary" style={styles.pageTitle}>
+            Everything you need
           </SazdaText>
-          <SazdaText variant="bodyMedium" color="secondary" style={styles.sectionLink}>
-            All in one place
+          <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={styles.pageSub}>
+            Your daily companions, all in one place.
           </SazdaText>
         </View>
 
         <View style={styles.asymmetricGrid}>
-          <Pressable
+          <PressableScale
+            to={0.98}
             onPress={() => navigation.navigate('Qibla')}
-            style={({ pressed }) => [styles.qiblaHero, pressed && styles.pressed]}
+            style={styles.qiblaHero}
             accessibilityRole="button"
             accessibilityLabel="Qibla finder">
+            <View style={styles.qiblaDeco} pointerEvents="none">
+              <View style={styles.qiblaDecoInner}>
+                <Globe size={120} color={c.onPrimary} strokeWidth={1} />
+              </View>
+            </View>
+            <QiblaRaysDeco active={motionActive} />
             <View style={styles.qiblaHeroText} pointerEvents="none">
               <SazdaText variant="titleSm" color="onPrimaryContainer" style={styles.qiblaTitle}>
                 Qibla finder
@@ -183,31 +126,30 @@ export function ToolsHomeScreen() {
                 </SazdaText>
               </View>
             </View>
-            <View style={styles.qiblaOrb}>
-              <Compass size={28} color={c.primary} strokeWidth={2} />
+            <View style={styles.qiblaOrb} pointerEvents="none">
+              <Animated.View style={qiblaSpin}>
+                <Compass size={28} color={c.primary} strokeWidth={2} />
+              </Animated.View>
             </View>
-            <View style={styles.qiblaDeco} pointerEvents="none">
-              <View style={styles.qiblaDecoInner}>
-                <Globe size={120} color={c.onPrimary} strokeWidth={1} />
-              </View>
-            </View>
-          </Pressable>
+          </PressableScale>
 
           <View style={styles.pairRow}>
             <SacredSmallTile
               styles={styles}
               title="Tasbeeh"
               subtitle="Daily dhikr & digital beads"
-              icon={<Hash size={22} color={c.primary} strokeWidth={2} />}
+              icon={<Hash size={24} color={c.primary} strokeWidth={2.25} />}
               iconVariant="primary"
+              motif={<TasbeehMotif c={c} scheme={scheme} active={motionActive} />}
               onPress={() => navigation.navigate('Tasbeeh')}
             />
             <SacredSmallTile
               styles={styles}
               title="Zakat"
               subtitle="Cycles, ₹ payments & insights"
-              icon={<HandCoins size={22} color={c.secondary} strokeWidth={2} />}
+              icon={<HandCoins size={24} color={c.secondary} strokeWidth={2.25} />}
               iconVariant="secondary"
+              motif={<ZakatMotif c={c} scheme={scheme} active={motionActive} />}
               onPress={() => navigation.navigate('ZakatHome')}
             />
           </View>
@@ -217,23 +159,26 @@ export function ToolsHomeScreen() {
               styles={styles}
               title="Daily duas"
               subtitle="Supplications & Hindi help"
-              icon={<ScrollText size={22} color={c.primary} strokeWidth={2} />}
+              icon={<ScrollText size={24} color={c.primary} strokeWidth={2.25} />}
               iconVariant="primary"
+              motif={<DuasMotif c={c} scheme={scheme} active={motionActive} />}
               onPress={() => navigation.navigate('DailyDuas')}
             />
             <SacredSmallTile
               styles={styles}
               title="Prayer tracker"
               subtitle="Five prayers · streaks"
-              icon={<ListChecks size={22} color={c.primary} strokeWidth={2} />}
+              icon={<ListChecks size={24} color={c.primary} strokeWidth={2.25} />}
               iconVariant="primary"
+              motif={<TrackerMotif c={c} scheme={scheme} active={motionActive} />}
               onPress={() => navigation.navigate('PrayerTracker')}
             />
           </View>
 
-          <Pressable
+          <PressableScale
+            to={0.98}
             onPress={() => navigation.navigate('HijriCalendar')}
-            style={({ pressed }) => [styles.hijriWide, pressed && styles.pressed]}
+            style={styles.hijriWide}
             accessibilityRole="button"
             accessibilityLabel="Hijri calendar">
             <View style={styles.hijriDateBox}>
@@ -261,7 +206,8 @@ export function ToolsHomeScreen() {
                 </SazdaText>
               </View>
             </View>
-          </Pressable>
+            <HijriMotif c={c} scheme={scheme} active={motionActive} />
+          </PressableScale>
         </View>
 
         <SazdaText variant="titleSm" color="primary" style={styles.wisdomTitle}>
@@ -269,7 +215,7 @@ export function ToolsHomeScreen() {
         </SazdaText>
         <View style={styles.wisdomCard}>
           <View style={styles.wisdomDots} pointerEvents="none" />
-          <Quote size={36} color={c.secondary} strokeWidth={1.75} style={styles.wisdomQuoteIcon} />
+          <Quote size={26} color={c.secondary} strokeWidth={1.75} style={styles.wisdomQuoteIcon} />
           <SazdaText variant="bodyMedium" color="primary" align="center" style={styles.wisdomQuote}>
             “{dailyWisdom.text}”
           </SazdaText>
@@ -290,6 +236,7 @@ function SacredSmallTile({
   subtitle,
   icon,
   iconVariant,
+  motif,
   onPress,
 }: {
   styles: ToolsStyles;
@@ -297,14 +244,17 @@ function SacredSmallTile({
   subtitle: string;
   icon: ReactNode;
   iconVariant: 'primary' | 'secondary';
+  motif?: ReactNode;
   onPress: () => void;
 }) {
   return (
-    <Pressable
+    <PressableScale
+      to={0.97}
       onPress={onPress}
-      style={({ pressed }) => [styles.smallTile, pressed && styles.pressed]}
+      style={styles.smallTile}
       accessibilityRole="button"
       accessibilityLabel={title}>
+      {motif}
       <View
         style={[
           styles.smallTileIcon,
@@ -312,132 +262,74 @@ function SacredSmallTile({
         ]}>
         {icon}
       </View>
-      <SazdaText variant="titleSm" color="primary" style={styles.smallTileTitle} numberOfLines={2}>
-        {title}
-      </SazdaText>
-      <SazdaText variant="caption" color="onSurfaceVariant" style={styles.smallTileSub} numberOfLines={3}>
-        {subtitle}
-      </SazdaText>
-    </Pressable>
+      <View style={styles.smallTileText}>
+        <SazdaText variant="titleSm" color="primary" style={styles.smallTileTitle} numberOfLines={2}>
+          {title}
+        </SazdaText>
+        <SazdaText variant="caption" color="onSurfaceVariant" style={styles.smallTileSub} numberOfLines={3}>
+          {subtitle}
+        </SazdaText>
+      </View>
+    </PressableScale>
   );
 }
 
 function createToolsStyles(c: AppPalette, scheme: ResolvedScheme) {
   const ambient = scheme === 'dark' ? 'rgba(0,0,0,0.35)' : 'rgba(6, 78, 59, 0.06)';
   const ghost = scheme === 'dark' ? 'rgba(142,207,178,0.15)' : 'rgba(0, 53, 39, 0.06)';
+  const primaryTint = scheme === 'dark' ? 'rgba(146,226,200,0.14)' : 'rgba(6, 78, 59, 0.09)';
+  const secondaryTint = scheme === 'dark' ? 'rgba(233,200,74,0.16)' : 'rgba(254, 214, 91, 0.35)';
   return StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.surface },
     headerPad: { paddingHorizontal: spacing.lg },
     scroll: {
       paddingHorizontal: spacing.lg,
       paddingBottom: spacing.x3xl + spacing.xl,
-      gap: spacing.lg,
-    },
-    greetingBlock: {
-      gap: spacing.xs,
-      marginTop: spacing.xs,
-    },
-    salamKicker: {
-      opacity: 0.55,
-      letterSpacing: 2,
-      marginBottom: 2,
-    },
-    greetingTitleRow: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      alignItems: 'baseline',
-    },
-    greetingTitle: {
-      fontSize: 32,
-      lineHeight: 38,
-      letterSpacing: -0.8,
-      fontWeight: '800',
-    },
-    greetingAccent: {
-      fontSize: 32,
-      lineHeight: 38,
-      letterSpacing: -0.8,
-      fontWeight: '800',
-    },
-    insightCard: {
-      flexDirection: 'row',
-      alignItems: 'stretch',
-      backgroundColor: c.surfaceContainerLow,
-      borderRadius: radius.md + 4,
-      padding: spacing.lg + 2,
       gap: spacing.md,
-      shadowColor: ambient,
-      shadowOpacity: 0.9,
-      shadowRadius: 16,
-      shadowOffset: { width: 0, height: 4 },
-      elevation: 3,
     },
-    insightLeft: { flex: 1.15, minWidth: 0, gap: 4, justifyContent: 'center' },
-    insightRight: { flex: 1, minWidth: 0, gap: 4, justifyContent: 'center' },
-    insightLabel: { fontSize: 14 },
-    insightBold: { fontWeight: '800' },
-    insightTime: {
-      fontSize: 28,
+    pageHead: {
+      marginTop: spacing.xs,
+      marginBottom: spacing.xs,
+      gap: 3,
+    },
+    pageKicker: {
+      fontSize: 11,
       fontWeight: '800',
-      letterSpacing: -0.5,
-      marginTop: 2,
-    },
-    pulseRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.sm,
-      marginTop: spacing.sm,
-    },
-    pulseDot: {
-      width: 8,
-      height: 8,
-      borderRadius: 4,
-      backgroundColor: c.secondary,
-    },
-    remainingTiny: {
-      fontSize: 10,
-      letterSpacing: 1.2,
+      letterSpacing: 2,
       opacity: 0.85,
     },
-    insightDivider: {
-      width: StyleSheet.hairlineWidth,
-      backgroundColor: ghost,
-      alignSelf: 'stretch',
-      marginVertical: spacing.xs,
+    pageTitle: {
+      fontSize: 30,
+      lineHeight: 35,
+      fontWeight: '800',
+      letterSpacing: -0.7,
     },
-    streakRow: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: spacing.xs,
+    pageSub: {
+      fontSize: 14,
+      opacity: 0.7,
       marginTop: 2,
     },
-    streakNum: { fontSize: 28, fontWeight: '800', letterSpacing: -0.5 },
-    streakHint: { fontSize: 10, letterSpacing: 1, opacity: 0.8, marginTop: 4 },
-    sectionHead: {
-      flexDirection: 'row',
-      alignItems: 'baseline',
-      justifyContent: 'space-between',
-      marginTop: spacing.md,
-      marginBottom: spacing.xs,
-    },
-    sectionTitle: { fontSize: 18, fontWeight: '800', letterSpacing: -0.3 },
-    sectionLink: { fontWeight: '700', opacity: 0.9 },
     asymmetricGrid: {
       gap: spacing.md,
     },
     qiblaHero: {
       backgroundColor: c.primaryContainer,
-      borderRadius: radius.md + 4,
+      borderRadius: radius.md + 6,
       padding: spacing.lg + 2,
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
       overflow: 'hidden',
       position: 'relative',
-      minHeight: 112,
+      minHeight: 124,
+      shadowColor: scheme === 'dark' ? 'rgba(0,0,0,0.6)' : 'rgba(0, 53, 39, 0.28)',
+      shadowOpacity: 1,
+      shadowRadius: 18,
+      shadowOffset: { width: 0, height: 8 },
+      elevation: 6,
     },
     qiblaHeroText: { flex: 1, minWidth: 0, paddingRight: spacing.md, zIndex: 2 },
-    qiblaTitle: { color: c.onPrimary, marginBottom: 4 },
+    qiblaTitle: { color: c.onPrimary, marginBottom: 4, fontSize: 17 },
     qiblaSub: { opacity: 0.82, lineHeight: 16 },
     gpsChip: {
       alignSelf: 'flex-start',
@@ -479,39 +371,48 @@ function createToolsStyles(c: AppPalette, scheme: ResolvedScheme) {
     smallTile: {
       flex: 1,
       minWidth: 0,
+      minHeight: 158,
       backgroundColor: c.surfaceContainerLowest,
-      borderRadius: radius.md + 4,
+      borderRadius: radius.md + 6,
       padding: spacing.lg,
-      gap: spacing.sm,
+      justifyContent: 'flex-start',
+      position: 'relative',
+      overflow: 'hidden',
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: ghost,
       shadowColor: ambient,
-      shadowOpacity: 0.7,
-      shadowRadius: 12,
-      shadowOffset: { width: 0, height: 4 },
-      elevation: 2,
+      shadowOpacity: 0.85,
+      shadowRadius: 16,
+      shadowOffset: { width: 0, height: 6 },
+      elevation: 3,
     },
     smallTileIcon: {
-      width: 40,
-      height: 40,
-      borderRadius: radius.md - 2,
-      backgroundColor: c.surfaceContainerHighest,
+      width: 46,
+      height: 46,
+      borderRadius: radius.md,
+      backgroundColor: primaryTint,
       alignItems: 'center',
       justifyContent: 'center',
-      marginBottom: spacing.xs,
+      marginBottom: spacing.md,
+      zIndex: 2,
     },
     smallTileIconSec: {
-      backgroundColor: c.surfaceContainerHighest,
+      backgroundColor: secondaryTint,
     },
-    smallTileTitle: { fontSize: 14, fontWeight: '800', letterSpacing: -0.2 },
-    smallTileSub: { fontSize: 10, lineHeight: 14, opacity: 0.88, marginTop: 2 },
+    smallTileText: { marginTop: 'auto', zIndex: 2 },
+    smallTileTitle: { fontSize: 16, fontWeight: '800', letterSpacing: -0.3 },
+    smallTileSub: { fontSize: 11.5, lineHeight: 15, opacity: 0.8, marginTop: 3 },
     hijriWide: {
       flexDirection: 'row',
       alignItems: 'center',
       gap: spacing.lg,
       backgroundColor: scheme === 'dark' ? c.surfaceContainer : `${c.surfaceContainerHighest}99`,
-      borderRadius: radius.md + 4,
+      borderRadius: radius.md + 6,
       padding: spacing.lg + 2,
       borderWidth: StyleSheet.hairlineWidth,
       borderColor: ghost,
+      position: 'relative',
+      overflow: 'hidden',
     },
     hijriDateBox: {
       backgroundColor: c.surface,
@@ -539,15 +440,16 @@ function createToolsStyles(c: AppPalette, scheme: ResolvedScheme) {
     },
     hijriFootText: { fontSize: 10, letterSpacing: 0.8 },
     wisdomTitle: {
-      fontSize: 18,
-      fontWeight: '800',
-      letterSpacing: -0.3,
-      marginTop: spacing.md,
+      fontSize: 14,
+      fontWeight: '700',
+      letterSpacing: 0.4,
+      opacity: 0.7,
+      marginTop: spacing.xs,
     },
     wisdomCard: {
       backgroundColor: scheme === 'dark' ? `${c.surfaceContainerHighest}80` : `${c.surfaceContainerHighest}80`,
-      borderRadius: radius.md + 4,
-      padding: spacing.xl,
+      borderRadius: radius.md,
+      padding: spacing.lg,
       alignItems: 'center',
       overflow: 'hidden',
       position: 'relative',
@@ -558,18 +460,19 @@ function createToolsStyles(c: AppPalette, scheme: ResolvedScheme) {
       opacity: 0.05,
       backgroundColor: c.primary,
     },
-    wisdomQuoteIcon: { marginBottom: spacing.md, zIndex: 1 },
+    wisdomQuoteIcon: { marginBottom: spacing.sm, zIndex: 1 },
     wisdomQuote: {
       fontStyle: 'italic',
-      lineHeight: 26,
+      lineHeight: 22,
+      fontSize: 14,
       paddingHorizontal: spacing.sm,
       zIndex: 1,
     },
     wisdomRef: {
-      marginTop: spacing.lg,
+      marginTop: spacing.md,
       letterSpacing: 2,
+      fontSize: 11,
       zIndex: 1,
     },
-    pressed: { opacity: 0.94 },
   });
 }

@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -9,9 +8,20 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
-import Animated, { FadeIn } from 'react-native-reanimated';
+import Animated, {
+  Easing,
+  FadeIn,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import { ChevronLeft, ChevronRight, Quote } from 'lucide-react-native';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
+import { MoonPhase } from '../../components/atoms/MoonPhase/MoonPhase';
+import { PressableScale } from '../../components/atoms/PressableScale/PressableScale';
 import { ToolsSubheader } from '../../components/molecules/ToolsSubheader/ToolsSubheader';
 import {
   buildIslamicEventsFromMonth,
@@ -22,6 +32,7 @@ import {
 } from '../../services/hijriCalendarApi';
 import { dayjs } from '../../utils/dayjs';
 import { radius } from '../../theme/radius';
+import { elevation } from '../../theme/elevation';
 import { spacing } from '../../theme/spacing';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
@@ -40,6 +51,8 @@ export function HijriCalendarScreen() {
   const styles = useMemo(() => createStyles(c, scheme), [c, scheme]);
 
   const [tick, setTick] = useState(0);
+  // `tick` is bumped on an interval to re-evaluate "today" across midnight.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const todayDdMmYyyy = useMemo(() => dayjs().format('DD-MM-YYYY'), [tick]);
 
   useEffect(() => {
@@ -166,6 +179,17 @@ export function HijriCalendarScreen() {
         ) : null}
 
         <View style={styles.heroRow}>
+          {todayInfo?.hijriDay ? (
+            <View style={styles.moonWrap}>
+              <MoonPhase
+                day={todayInfo.hijriDay}
+                size={44}
+                litColor={c.secondaryContainer}
+                shadowColor={scheme === 'dark' ? c.surfaceContainer : c.surfaceContainerHighest}
+                ringColor={scheme === 'dark' ? 'rgba(233,200,74,0.4)' : 'rgba(115,92,0,0.28)'}
+              />
+            </View>
+          ) : null}
           <View style={styles.heroText}>
             <SazdaText
               variant="headlineLarge"
@@ -183,26 +207,22 @@ export function HijriCalendarScreen() {
             </SazdaText>
           </View>
           <View style={styles.heroNav}>
-            <Pressable
+            <PressableScale
+              to={0.9}
               onPress={goPrev}
-              style={({ pressed }) => [
-                styles.navBtn,
-                pressed && styles.navBtnPressed,
-              ]}
+              style={styles.navBtn}
               accessibilityLabel="Previous Hijri month"
             >
               <ChevronLeft size={22} color={c.primary} strokeWidth={2.25} />
-            </Pressable>
-            <Pressable
+            </PressableScale>
+            <PressableScale
+              to={0.9}
               onPress={goNext}
-              style={({ pressed }) => [
-                styles.navBtn,
-                pressed && styles.navBtnPressed,
-              ]}
+              style={styles.navBtn}
               accessibilityLabel="Next Hijri month"
             >
               <ChevronRight size={22} color={c.primary} strokeWidth={2.25} />
-            </Pressable>
+            </PressableScale>
           </View>
         </View>
 
@@ -221,11 +241,24 @@ export function HijriCalendarScreen() {
         <View style={styles.bleed} pointerEvents="none" />
 
         {!cursor || isPending ? (
-          <ActivityIndicator
-            style={styles.loader}
-            color={c.primary}
-            size="large"
-          />
+          <View style={styles.gridCard}>
+            <View style={styles.weekRow}>
+              {WEEKDAYS.map(w => (
+                <View key={w} style={styles.weekCell}>
+                  <SazdaText variant="label" color="primary" style={styles.weekLabel}>
+                    {w}
+                  </SazdaText>
+                </View>
+              ))}
+            </View>
+            <View style={styles.daysGrid}>
+              {Array.from({ length: 35 }).map((_, i) => (
+                <View key={i} style={styles.dayCell}>
+                  <Skeleton width={38} height={46} radius={14} />
+                </View>
+              ))}
+            </View>
+          </View>
         ) : isError ? (
           <Pressable onPress={() => refetch()} style={styles.errorBanner}>
             <SazdaText variant="bodyMedium" color="error" align="center">
@@ -322,6 +355,24 @@ export function HijriCalendarScreen() {
   );
 }
 
+function TodayGlow({ color, style }: { color: string; style: object }) {
+  const reduce = useReducedMotion();
+  const t = useSharedValue(0);
+  useEffect(() => {
+    if (reduce) return;
+    t.value = withRepeat(
+      withTiming(1, { duration: 1600, easing: Easing.inOut(Easing.sin) }),
+      -1,
+      true,
+    );
+  }, [reduce, t]);
+  const glowStyle = useAnimatedStyle(() => ({
+    opacity: 0.3 + t.value * 0.4,
+    transform: [{ scale: 1 + t.value * 0.1 }],
+  }));
+  return <Animated.View pointerEvents="none" style={[style, { backgroundColor: color }, glowStyle]} />;
+}
+
 function DayCell({
   day,
   todayDdMmYyyy,
@@ -357,6 +408,7 @@ function DayCell({
 
   return (
     <View style={styles.dayCell}>
+      {isToday ? <TodayGlow color={colors.secondaryContainer} style={styles.todayGlow} /> : null}
       <View
         style={[
           styles.dayInner,
@@ -472,10 +524,18 @@ function createStyles(c: AppPalette, scheme: ResolvedScheme) {
     },
     heroRow: {
       flexDirection: 'row',
-      alignItems: 'flex-end',
+      alignItems: 'center',
       justifyContent: 'space-between',
       marginBottom: spacing.md,
       marginTop: spacing.sm,
+    },
+    moonWrap: {
+      marginRight: spacing.md,
+      shadowColor: c.secondary,
+      shadowOffset: { width: 0, height: 0 },
+      shadowOpacity: scheme === 'dark' ? 0.6 : 0.4,
+      shadowRadius: 10,
+      elevation: 4,
     },
     heroText: { flex: 1, minWidth: 0, paddingRight: spacing.sm },
     heroMonth: {
@@ -511,7 +571,6 @@ function createStyles(c: AppPalette, scheme: ResolvedScheme) {
       backgroundColor: c.primary,
       opacity: 0.05,
     },
-    loader: { marginVertical: spacing.xl },
     errorBanner: { padding: spacing.lg, marginBottom: spacing.md },
     gridCard: {
       backgroundColor: c.surfaceContainerLowest,
@@ -520,11 +579,7 @@ function createStyles(c: AppPalette, scheme: ResolvedScheme) {
       borderWidth: 1,
       borderColor: hairline,
       marginBottom: spacing.xl,
-      shadowColor: 'rgba(6, 78, 59, 0.06)',
-      shadowOpacity: 1,
-      shadowRadius: 40,
-      shadowOffset: { width: 0, height: 12 },
-      elevation: 4,
+      ...elevation('md', scheme),
     },
     weekRow: {
       flexDirection: 'row',
@@ -548,6 +603,14 @@ function createStyles(c: AppPalette, scheme: ResolvedScheme) {
       minHeight: 52,
       paddingVertical: spacing.xs,
       borderRadius: radius.full,
+    },
+    todayGlow: {
+      position: 'absolute',
+      width: 48,
+      height: 56,
+      borderRadius: radius.full,
+      alignSelf: 'center',
+      top: spacing.sm,
     },
     dayNum: { fontSize: 18 },
     daySub: { fontSize: 10, marginTop: 2 },

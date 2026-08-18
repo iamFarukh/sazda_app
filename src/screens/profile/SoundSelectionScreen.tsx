@@ -27,11 +27,11 @@ type Route = RouteProp<ProfileStackParamList, 'SoundSelection'>;
 
 
 const STANDARD_SOUNDS = [
+  { id: 'default', name: 'System', sub: 'Your device default alert (recommended)' },
   { id: 'makkah', name: 'Makkah', sub: 'Makkah-style adhan' },
   { id: 'fajar', name: 'Fajr', sub: 'Fajr adhan' },
   { id: 'adan_tune', name: 'Classic', sub: 'Full adhan' },
   { id: 'soft', name: 'Soft', sub: 'Gentle tone' },
-  { id: 'default', name: 'System', sub: 'Device default alert' },
 ];
 
 export function SoundSelectionScreen() {
@@ -131,7 +131,7 @@ export function SoundSelectionScreen() {
           style={({ pressed }) => [styles.iconBtn, pressed && { opacity: 0.7 }]}>
           <ChevronLeft size={28} color={c.primary} strokeWidth={2.25} />
         </Pressable>
-        <Text style={[styles.title, { color: c.primary }]}>Select Adhan Sound</Text>
+        <Text style={[styles.title, { color: c.primary }]}>Prayer alert sound</Text>
         <View style={styles.iconBtn} />
       </View>
 
@@ -165,11 +165,13 @@ export function SoundSelectionScreen() {
               >
                 <View style={styles.soundRowLeft}>
                   <Pressable
-                    onPress={() => playPreview(sound.id)}
+                    onPress={() => sound.id !== 'default' && playPreview(sound.id)}
+                    disabled={sound.id === 'default'}
                     style={({ pressed }) => [
                       styles.playBtn,
                       { backgroundColor: isActive ? c.primaryContainer : c.surfaceContainerHighest },
-                      pressed && { opacity: 0.8 }
+                      sound.id === 'default' && { opacity: 0.35 },
+                      pressed && sound.id !== 'default' && { opacity: 0.8 },
                     ]}
                   >
                     {isPlaying ? (
@@ -260,9 +262,9 @@ export function SoundSelectionScreen() {
 
         <Animated.View entering={FadeInDown.duration(400).delay(200)} style={[styles.tipCard, { backgroundColor: c.surfaceContainer }]}>
           <Info size={32} color={c.primary} style={{ opacity: 0.2, position: 'absolute', top: spacing.md, right: spacing.md }} />
-          <Text style={[styles.tipTitle, { color: c.primary }]}>Sacred Etiquette</Text>
+          <Text style={[styles.tipTitle, { color: c.primary }]}>About sounds</Text>
           <Text style={[styles.tipText, { color: c.onSurfaceVariant }]}>
-            Choose sounds that inspire tranquility and mindfulness. The Adhan is a call to peace; its tone should reflect the sanctuary within your heart.
+            System uses your phone&apos;s default notification tone. Pick an Adhan or upload your own anytime — each prayer can have its own sound.
           </Text>
         </Animated.View>
 

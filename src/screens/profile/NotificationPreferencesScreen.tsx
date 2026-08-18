@@ -3,11 +3,11 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SazdaSwitch } from '../../components/atoms/SazdaSwitch/SazdaSwitch';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft } from 'lucide-react-native';
@@ -85,7 +85,7 @@ export function NotificationPreferencesScreen() {
                 Once around 9:10 PM if you have not marked all five daily prayers yet.
               </Text>
             </View>
-            <Switch
+            <SazdaSwitch
               value={streakReminderEnabled}
               onValueChange={async v => {
                 await ensurePerm();
@@ -105,7 +105,7 @@ export function NotificationPreferencesScreen() {
                 Quiet prompt to open the Quran ({formatQuranTime()}).
               </Text>
             </View>
-            <Switch
+            <SazdaSwitch
               value={quranReminderEnabled}
               onValueChange={async v => {
                 await ensurePerm();
@@ -144,7 +144,7 @@ export function NotificationPreferencesScreen() {
                 Suhoor before Fajr, Iftar before Maghrib — default sound only.
               </Text>
             </View>
-            <Switch
+            <SazdaSwitch
               value={ramadanNotificationsEnabled}
               onValueChange={async v => {
                 await ensurePerm();
@@ -183,7 +183,7 @@ export function NotificationPreferencesScreen() {
                     A single gentle reminder in the final ten days.
                   </Text>
                 </View>
-                <Switch
+                <SazdaSwitch
                   value={lastTenNightsReminderEnabled}
                   onValueChange={async v => {
                     await ensurePerm();

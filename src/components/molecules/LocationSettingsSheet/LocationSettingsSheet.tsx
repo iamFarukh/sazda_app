@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react';
-import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ChevronRight, Navigation, RefreshCw } from 'lucide-react-native';
 import { SazdaText } from '../../atoms/SazdaText/SazdaText';
+import { PressableScale } from '../../atoms/PressableScale/PressableScale';
+import { hapticLight, hapticMedium } from '../../../utils/appHaptics';
 import { radius } from '../../../theme/radius';
 import { spacing } from '../../../theme/spacing';
 import { fontFamilies, getFontConfig } from '../../../theme/typography';
@@ -85,14 +87,13 @@ export function LocationSettingsSheet({
           Adjust your coordinates for precise prayer timings.
         </SazdaText>
 
-        <Pressable
-          onPress={onUseCurrentLocation}
+        <PressableScale
+          onPress={() => {
+            hapticMedium();
+            onUseCurrentLocation();
+          }}
           disabled={busy}
-          style={({ pressed }) => [
-            styles.primaryBtn,
-            pressed && !busy && styles.primaryBtnPressed,
-            busy && styles.primaryBtnDisabled,
-          ]}
+          style={[styles.primaryBtn, busy && styles.primaryBtnDisabled]}
           accessibilityRole="button"
           accessibilityLabel="Use current location">
           <View style={styles.primaryLeft}>
@@ -111,31 +112,37 @@ export function LocationSettingsSheet({
             </SazdaText>
           </View>
           {!busy ? (
-            <ChevronRight size={22} color={c.onPrimaryContainer} style={{ opacity: 0.55 }} />
+            <ChevronRight size={22} color={c.onPrimaryContainer} style={styles.chevronOpacity} />
           ) : null}
-        </Pressable>
+        </PressableScale>
 
         <View style={styles.footerRow}>
-          <Pressable
-            onPress={onRefreshLocation}
+          <PressableScale
+            onPress={() => {
+              hapticLight();
+              onRefreshLocation();
+            }}
             disabled={busy}
-            style={({ pressed }) => [styles.textBtn, pressed && !busy && styles.pressed]}
+            style={styles.textBtn}
             accessibilityRole="button"
             accessibilityLabel="Refresh location">
             <RefreshCw size={18} color={c.primary} strokeWidth={2.2} />
             <SazdaText variant="bodyMedium" color="primary" style={styles.textBtnLabel}>
               Refresh
             </SazdaText>
-          </Pressable>
-          <Pressable
-            onPress={dismiss}
-            style={({ pressed }) => [styles.cancelBtn, pressed && styles.pressed]}
+          </PressableScale>
+          <PressableScale
+            onPress={() => {
+              hapticLight();
+              dismiss();
+            }}
+            style={styles.cancelBtn}
             accessibilityRole="button"
             accessibilityLabel="Cancel">
             <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={styles.cancelLabel}>
               Cancel
             </SazdaText>
-          </Pressable>
+          </PressableScale>
         </View>
       </View>
     </TrueSheet>
@@ -176,8 +183,8 @@ function createStyles(c: AppPalette, _scheme: ResolvedScheme, bottomInset: numbe
       paddingHorizontal: spacing.lg,
       marginBottom: spacing.xl,
     },
-    primaryBtnPressed: { opacity: 0.94 },
     primaryBtnDisabled: { opacity: 0.75 },
+    chevronOpacity: { opacity: 0.55 },
     primaryLeft: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -220,6 +227,5 @@ function createStyles(c: AppPalette, _scheme: ResolvedScheme, bottomInset: numbe
       borderRadius: radius.full,
     },
     cancelLabel: { ...getFontConfig(fontFamilies.body, '600') },
-    pressed: { opacity: 0.85 },
   });
 }

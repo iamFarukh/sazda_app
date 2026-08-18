@@ -1,4 +1,5 @@
 import notifee, {
+  AlarmType,
   AndroidImportance,
   AuthorizationStatus,
   RepeatFrequency,
@@ -20,8 +21,9 @@ import {
   type SazdaNotificationVariant,
 } from '../native/sazdaCustomNotificationAndroid';
 import { getIOSNotificationSoundFilename } from '../constants/adhanBuiltInSounds';
+import { ANDROID_CHANNEL_ADHAN_PREFIX } from '../constants/notificationChannels';
 import type { CustomSound } from '../store/adhanSettingsStore';
-import { ensureGeneralNotificationChannel } from './notifications/channels';
+import { ensureGeneralNotificationChannel, ensurePrayerSystemSoundChannel } from './notifications/channels';
 
 /** Adhan audio — fires after prayer time + configured delay. */
 function notificationIdAdhan(prayer: FiveDailyPrayer): string {
@@ -119,7 +121,7 @@ export async function getOrCreateAdhanChannel(
     }
     await notifee.createChannel({
       id,
-      name: 'Silent Adhan Alerts',
+      name: 'Silent prayer alerts',
       importance: AndroidImportance.DEFAULT,
       sound: undefined,
       vibration: vibrationEnabled,
@@ -128,17 +130,17 @@ export async function getOrCreateAdhanChannel(
     return id;
   }
 
-  const id = `sazda2-adhan-${soundId}-${volumeMode.toLowerCase()}`;
-  const legacyId = `sazda-adhan-${soundId}-${volumeMode.toLowerCase()}`;
-  let soundPath = 'default';
+  if (soundId === 'default') {
+    return ensurePrayerSystemSoundChannel(volumeMode, vibrationEnabled);
+  }
 
-  if (soundId !== 'default') {
-    const customSound = useAdhanSettingsStore.getState().customSounds.find(c => c.id === soundId);
-    if (customSound && customSound.uri) {
-      soundPath = customSound.uri;
-    } else {
-      soundPath = soundId;
-    }
+  const id = `${ANDROID_CHANNEL_ADHAN_PREFIX}-${soundId}-${volumeMode.toLowerCase()}`;
+  const legacyId = `sazda-adhan-${soundId}-${volumeMode.toLowerCase()}`;
+  let soundPath = soundId;
+
+  const customSound = useAdhanSettingsStore.getState().customSounds.find(c => c.id === soundId);
+  if (customSound?.uri) {
+    soundPath = customSound.uri;
   }
 
   try {
@@ -305,6 +307,8 @@ export async function rescheduleAdhanReminders(timings: PrayerTimingsDay): Promi
         type: TriggerType.TIMESTAMP,
         timestamp: adhanTs,
         repeatFrequency: RepeatFrequency.DAILY,
+        // Adhan must fire precisely at prayer time, even under Doze / battery saver.
+        alarmManager: { type: AlarmType.SET_EXACT_AND_ALLOW_WHILE_IDLE },
       },
     );
 
@@ -335,6 +339,7 @@ export async function rescheduleAdhanReminders(timings: PrayerTimingsDay): Promi
           type: TriggerType.TIMESTAMP,
           timestamp: followUpTs,
           repeatFrequency: RepeatFrequency.DAILY,
+          alarmManager: { type: AlarmType.SET_AND_ALLOW_WHILE_IDLE },
         },
       );
     }

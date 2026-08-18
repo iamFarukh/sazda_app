@@ -1,3 +1,4 @@
+import { Platform } from 'react-native';
 import type { NativeStackNavigationOptions } from '@react-navigation/native-stack';
 import type { AppPalette } from '../theme/useThemePalette';
 
@@ -6,6 +7,13 @@ export function getDefaultStackScreenOptions(palette: AppPalette): NativeStackNa
   return {
     headerShown: false,
     contentStyle: { backgroundColor: palette.surface },
+    // Consistent premium push everywhere: native slide on both platforms
+    // (Android's platform default is an abrupt fade on many OEM skins).
+    animation: Platform.OS === 'android' ? 'slide_from_right' : 'default',
+    // Back must always be reachable by gesture, headers are custom on most
+    // screens so the whole surface — not just the edge — can swipe back on iOS.
+    gestureEnabled: true,
+    fullScreenGestureEnabled: true,
   };
 }
 

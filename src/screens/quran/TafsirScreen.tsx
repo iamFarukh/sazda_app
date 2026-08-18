@@ -4,15 +4,16 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
 import {
-  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react-native';
+import { ArrowLeft, BookOpen, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
+import { EmptyState } from '../../components/molecules/EmptyState/EmptyState';
 import type { QuranStackParamList } from '../../navigation/types';
 import { fetchAllSurahs, fetchAyahTafsir } from '../../services/quranApi';
 import { radius } from '../../theme/radius';
@@ -90,19 +91,29 @@ export function TafsirScreen() {
       ) : null}
 
       {isPending ? (
-        <ActivityIndicator style={styles.loader} color={c.primary} size="large" />
+        <View style={styles.body}>
+          {['92%', '100%', '85%', '96%', '70%', '100%', '88%'].map((w, i) => (
+            <Skeleton key={i} width={w as `${number}%`} height={14} style={styles.skeletonLine} />
+          ))}
+        </View>
       ) : isError ? (
         <Pressable onPress={() => refetch()} style={styles.error}>
           <SazdaText variant="bodyMedium" color="error" align="center">
             Could not load tafsir. Tap to retry.
           </SazdaText>
         </Pressable>
+      ) : !tafsir?.text ? (
+        <EmptyState
+          icon={<BookOpen size={34} color={c.primary} strokeWidth={2} />}
+          title="No tafsir for this ayah"
+          message="There's no commentary available here yet. Try a nearby ayah or open the reader."
+        />
       ) : (
         <ScrollView
           contentContainerStyle={styles.body}
           showsVerticalScrollIndicator={false}>
           <SazdaText variant="body" color="onSurface" align="right" rtl style={styles.tafsirText}>
-            {tafsir?.text}
+            {tafsir.text}
           </SazdaText>
           <SazdaText variant="caption" color="onSurfaceVariant" style={styles.note}>
             Classical Arabic tafsir from api.alquran.cloud. English summaries may be added later.
@@ -155,9 +166,9 @@ function createTafsirStyles(c: AppPalette, scheme: ResolvedScheme) {
   hit: { width: 44, height: 44, justifyContent: 'center' },
   headerMid: { flex: 1, minWidth: 0 },
   source: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm, fontWeight: '600' },
-  loader: { marginTop: spacing.x3xl },
   error: { padding: spacing.xl },
   body: { padding: spacing.lg, paddingBottom: spacing.xl },
+  skeletonLine: { marginBottom: spacing.md, alignSelf: 'flex-end' },
   tafsirText: {
     fontSize: 18,
     lineHeight: 32,

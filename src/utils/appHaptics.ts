@@ -87,3 +87,64 @@ export function hapticSuccess() {
   }
 }
 
+/**
+ * Crisp “selection” tick — for toggles, chips, segmented controls, pickers, and any
+ * discrete state change. Quieter than {@link hapticMedium}; safe for frequent taps.
+ */
+export function hapticSelection() {
+  const mod = getNativeHaptics();
+  if (mod?.trigger) {
+    try {
+      mod.trigger('selection', opts);
+      return;
+    } catch {
+      /* fall through */
+    }
+  }
+  vibrateFallback(8);
+}
+
+/** Warning haptic — destructive confirmations, recoverable problems, “are you sure?”. */
+export function hapticWarning() {
+  const mod = getNativeHaptics();
+  if (mod?.trigger) {
+    try {
+      mod.trigger('notificationWarning', opts);
+      return;
+    } catch {
+      /* fall through */
+    }
+  }
+  if (Platform.OS === 'android') {
+    try {
+      Vibration.vibrate([0, 20, 60, 20]);
+    } catch {
+      /* ignore */
+    }
+  } else {
+    vibrateFallback(16);
+  }
+}
+
+/** Error haptic — failed actions, validation errors, blocked operations. */
+export function hapticError() {
+  const mod = getNativeHaptics();
+  if (mod?.trigger) {
+    try {
+      mod.trigger('notificationError', opts);
+      return;
+    } catch {
+      /* fall through */
+    }
+  }
+  if (Platform.OS === 'android') {
+    try {
+      Vibration.vibrate([0, 40, 40, 40, 40, 40]);
+    } catch {
+      /* ignore */
+    }
+  } else {
+    vibrateFallback(24);
+  }
+}
+

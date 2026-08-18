@@ -8,6 +8,7 @@ import Animated, {
   withRepeat,
   withSequence,
   runOnJS,
+  useReducedMotion,
 } from 'react-native-reanimated';
 import Svg, { Defs, RadialGradient, Stop, Rect, Path } from 'react-native-svg';
 import BootSplash from 'react-native-bootsplash';
@@ -21,8 +22,9 @@ interface Props {
 }
 
 export function AnimatedSplashScreen({ onAnimationEnd }: Props) {
-  const opacity = useSharedValue(0);
-  const scale = useSharedValue(0.95); // Starts slightly closer to 1 as per constraints
+  const reduced = useReducedMotion();
+  const opacity = useSharedValue(reduced ? 1 : 0);
+  const scale = useSharedValue(reduced ? 1 : 0.95); // Starts slightly closer to 1 as per constraints
   const loadingDots = useSharedValue(0);
 
   const { config } = useIslamicContext();
@@ -32,25 +34,34 @@ export function AnimatedSplashScreen({ onAnimationEnd }: Props) {
   useEffect(() => {
     BootSplash.hide({ fade: true }).catch(() => {});
 
-    // Extremely fast and smooth entry (under 800ms)
-    opacity.value = withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) });
-    scale.value = withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) });
+    if (!reduced) {
+      // Extremely fast and smooth entry (under 800ms)
+      opacity.value = withTiming(1, { duration: 600, easing: Easing.out(Easing.ease) });
+      scale.value = withTiming(1, { duration: 800, easing: Easing.out(Easing.ease) });
 
-    loadingDots.value = withRepeat(
-      withSequence(withTiming(1, { duration: 400 }), withTiming(0, { duration: 400 })),
-      -1,
-      true
-    );
+      loadingDots.value = withRepeat(
+        withSequence(withTiming(1, { duration: 400 }), withTiming(0, { duration: 400 })),
+        -1,
+        true
+      );
+    } else {
+      opacity.value = 1;
+      scale.value = 1;
+    }
 
     // Strict exit timeline: Total duration capped at 1200ms
     const timeout = setTimeout(() => {
+      if (reduced) {
+        runOnJS(onAnimationEnd)();
+        return;
+      }
       opacity.value = withTiming(0, { duration: 400 }, (finished) => {
         if (finished) runOnJS(onAnimationEnd)();
       });
     }, 1200);
 
     return () => clearTimeout(timeout);
-  }, [opacity, scale, loadingDots, onAnimationEnd]);
+  }, [opacity, scale, loadingDots, onAnimationEnd, reduced]);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,

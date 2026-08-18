@@ -1,24 +1,24 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ActivityIndicator,
-  FlatList,
   Pressable,
+  SectionList,
   StatusBar,
   StyleSheet,
   Text,
   View,
-  type ViewToken,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
+  FadeInDown,
   runOnJS,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -26,6 +26,8 @@ import { ArrowLeft, Languages, Settings } from 'lucide-react-native';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import { BismillahReveal } from '../../components/atoms/BismillahReveal/BismillahReveal';
 import { SurahOpeningHeader } from './components/SurahOpeningHeader';
+import { SurahTransition } from './components/SurahTransition';
+import { StickySurahBar } from './components/StickySurahBar';
 import { hapticLight } from '../../utils/appHaptics';
 import type { QuranStackParamList } from '../../navigation/types';
 import { OFFLINE_QURAN_VERSION } from '../../services/offlineQuran/constants';
@@ -38,9 +40,17 @@ import {
   isActiveAyah,
   type ShareVerseInput,
 } from '../../services/quran/readerLogic';
+import {
+  buildSection,
+  nextSurahNumber,
+  topVisibleSurah,
+  type ReaderSection,
+  type ReaderViewToken,
+} from '../../services/quran/continuousReading';
 import { useQuranProgressStore } from '../../store/quranProgressStore';
 import { useQuranAudioStore, type QuranAudioQueueItem } from '../../store/quranAudioStore';
 import { spacing } from '../../theme/spacing';
+import { motionPresets, durationFor } from '../../theme/motionPresets';
 import { useReduceMotion } from '../../hooks';
 import { AyahBlock } from './components/AyahBlock';
 import { ReaderSettingsModal } from './components/ReaderSettingsModal';
@@ -88,7 +98,7 @@ export function SurahReaderScreen() {
   const route = useRoute<R>();
   const { surahNumber, ayahNumber = 1 } = route.params;
   const tabBarHeight = useBottomTabBarHeight();
-  const listRef = useRef<FlatList<AyahReaderRow>>(null);
+  const listRef = useRef<SectionList<AyahReaderRow, ReaderSection>>(null);
   const [containerH, setContainerH] = useState(0);
   const scrolledRef = useRef(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
@@ -102,6 +112,14 @@ export function SurahReaderScreen() {
   const lastApplied = useSharedValue(1);
   const hitMinThisGesture = useSharedValue(false);
   const hitMaxThisGesture = useSharedValue(false);
+
+  // Continuous-reading section state.
+  const [sections, setSections] = useState<ReaderSection[]>([]);
+  const sectionsRef = useRef<ReaderSection[]>([]);
+  sectionsRef.current = sections;
+  const loadedRef = useRef<Set<number>>(new Set());
+  const appendingRef = useRef(false);
+  const [currentSurahName, setCurrentSurahName] = useState<string | null>(null);
 
   const surahReaderTheme = useQuranProgressStore(s => s.surahReaderTheme ?? 'light');
   const surahReaderFontScale = useQuranProgressStore(s => s.surahReaderFontScale ?? 1);
@@ -129,12 +147,63 @@ export function SurahReaderScreen() {
   const audioIsLoading = useQuranAudioStore(s => s.isLoading);
   const audioUrlActive = useQuranAudioStore(s => s.audioUrl);
   const playAyahGlobal = useQuranAudioStore(s => s.playAyah);
+  const queryClient = useQueryClient();
 
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ['quran', 'reader', surahNumber, OFFLINE_QURAN_VERSION],
     queryFn: () => loadSurahReaderDataOfflineFirst(surahNumber),
     staleTime: 1000 * 60 * 60 * 6,
   });
+
+  /** Warm the React Query cache for a surah so appending it later is instant (no spinner). */
+  const prefetchSurah = useCallback(
+    (n: number | null) => {
+      if (!n) return;
+      void queryClient.prefetchQuery({
+        queryKey: ['quran', 'reader', n, OFFLINE_QURAN_VERSION],
+        queryFn: () => loadSurahReaderDataOfflineFirst(n),
+        staleTime: 1000 * 60 * 60 * 6,
+      });
+    },
+    [queryClient],
+  );
+
+  // Seed the first section when the opened surah's data resolves; prefetch the next surah.
+  useEffect(() => {
+    if (!data?.surah) return;
+    const seed = buildSection(data);
+    loadedRef.current = new Set([data.surah.number]);
+    setSections([seed]);
+    setCurrentSurahName(data.surah.englishName);
+    prefetchSurah(nextSurahNumber(data.surah.number));
+  }, [data, prefetchSurah]);
+
+  /** Append the next surah as a new section when the reader nears the end. Silent, guarded. */
+  const appendNext = useCallback(async () => {
+    if (appendingRef.current) return;
+    const loaded = loadedRef.current;
+    if (loaded.size === 0) return;
+    const maxLoaded = Math.max(...loaded);
+    const nextN = nextSurahNumber(maxLoaded);
+    if (!nextN || loaded.has(nextN)) return;
+    appendingRef.current = true;
+    try {
+      const nextData = await queryClient.fetchQuery({
+        queryKey: ['quran', 'reader', nextN, OFFLINE_QURAN_VERSION],
+        queryFn: () => loadSurahReaderDataOfflineFirst(nextN),
+        staleTime: 1000 * 60 * 60 * 6,
+      });
+      if (nextData?.surah && !loadedRef.current.has(nextN)) {
+        loadedRef.current = new Set([...loadedRef.current, nextN]);
+        setSections(prev => [...prev, buildSection(nextData)]);
+        prefetchSurah(nextSurahNumber(nextN));
+      }
+    } catch {
+      // Silent: reaching the end without a next surah shouldn't interrupt reading.
+    } finally {
+      appendingRef.current = false;
+    }
+  }, [prefetchSurah, queryClient]);
 
   useEffect(() => {
     useQuranProgressStore.getState().touchRecentSurah(surahNumber);
@@ -163,37 +232,16 @@ export function SurahReaderScreen() {
   scheduleRef.current = scheduleLastRead;
 
   const onViewableItemsChanged = useRef(
-    ({ viewableItems }: { viewableItems: ViewToken[] }) => {
-      const first = viewableItems.find(v => v.isViewable);
-      const item = first?.item as AyahReaderRow | undefined;
-      if (item?.numberInSurah) {
-        scheduleRef.current(item.numberInSurah);
-      }
+    ({ viewableItems }: { viewableItems: ReaderViewToken[] }) => {
+      const top = topVisibleSurah(viewableItems);
+      if (!top) return;
+      setCurrentSurahName(
+        sectionsRef.current.find(s => s.surah.number === top.surahNumber)?.surah.englishName ??
+          null,
+      );
+      scheduleRef.current(top.ayahNumber);
     },
   ).current;
-
-  const scrollToAyah = useCallback(
-    (index: number) => {
-      if (index < 0 || !data?.ayahs.length) return;
-      requestAnimationFrame(() => {
-        listRef.current?.scrollToIndex({
-          index,
-          animated: false,
-          viewPosition: 0.15,
-        });
-      });
-    },
-    [data?.ayahs.length],
-  );
-
-  const tryInitialScroll = useCallback(() => {
-    if (!data?.ayahs.length || scrolledRef.current) return;
-    const idx = data.ayahs.findIndex(a => a.numberInSurah === ayahNumber);
-    if (idx >= 0) {
-      scrolledRef.current = true;
-      scrollToAyah(idx);
-    }
-  }, [data?.ayahs, ayahNumber, scrollToAyah]);
 
   useEffect(() => {
     return () => {
@@ -275,21 +323,23 @@ export function SurahReaderScreen() {
   ]);
 
   const playAyah = useCallback(
-    (item: AyahReaderRow) => {
-      if (!item.audioUrl || !data?.surah) return;
-      const queue: QuranAudioQueueItem[] = data.ayahs
+    (item: AyahReaderRow, section: ReaderSection) => {
+      if (!item.audioUrl) return;
+      const sNum = section.surah.number;
+      const name = section.surah.englishName;
+      const queue: QuranAudioQueueItem[] = section.data
         .filter(a => !!a.audioUrl)
         .map(a => ({
-          surahNumber,
-          surahEnglishName: data.surah.englishName,
+          surahNumber: sNum,
+          surahEnglishName: name,
           ayahNumber: a.numberInSurah,
           arabic: a.arabic,
           translation: a.translation,
           audioUrl: a.audioUrl!,
         }));
       const qItem: QuranAudioQueueItem = {
-        surahNumber,
-        surahEnglishName: data.surah.englishName,
+        surahNumber: sNum,
+        surahEnglishName: name,
         ayahNumber: item.numberInSurah,
         arabic: item.arabic,
         translation: item.translation,
@@ -297,13 +347,57 @@ export function SurahReaderScreen() {
       };
       void playAyahGlobal(qItem, queue);
     },
-    [data?.ayahs, data?.surah, playAyahGlobal, surahNumber],
+    [playAyahGlobal],
   );
 
-  const renderAyah = useCallback(
-    ({ item }: { item: AyahReaderRow }) => {
+  /** Scroll to the opened ayah in the first section once content is laid out. */
+  const tryInitialScroll = useCallback(() => {
+    if (scrolledRef.current) return;
+    const first = sectionsRef.current[0];
+    if (!first) return;
+    const idx = first.data.findIndex(a => a.numberInSurah === ayahNumber);
+    if (idx < 0) return;
+    scrolledRef.current = true;
+    try {
+      listRef.current?.scrollToLocation({
+        sectionIndex: 0,
+        itemIndex: idx,
+        viewPosition: 0.15,
+        animated: false,
+      });
+    } catch {
+      scrolledRef.current = false;
+    }
+  }, [ayahNumber]);
+
+  // Keep the currently-playing ayah in view (works across appended surahs).
+  useEffect(() => {
+    if (audioCurrentSurahNumber == null || audioCurrentAyahNumber == null) return;
+    const secIdx = sectionsRef.current.findIndex(
+      s => s.surah.number === audioCurrentSurahNumber,
+    );
+    if (secIdx < 0) return;
+    const itemIdx = sectionsRef.current[secIdx].data.findIndex(
+      a => a.numberInSurah === audioCurrentAyahNumber,
+    );
+    if (itemIdx < 0) return;
+    try {
+      listRef.current?.scrollToLocation({
+        sectionIndex: secIdx,
+        itemIndex: itemIdx,
+        viewPosition: 0.3,
+        animated: true,
+      });
+    } catch {
+      /* transient scroll target; ignore */
+    }
+  }, [audioCurrentSurahNumber, audioCurrentAyahNumber]);
+
+  const renderItem = useCallback(
+    ({ item, section }: { item: AyahReaderRow; section: ReaderSection }) => {
+      const sNum = section.surah.number;
       const active = isActiveAyah(
-        surahNumber,
+        sNum,
         item.numberInSurah,
         audioCurrentSurahNumber,
         audioCurrentAyahNumber,
@@ -313,7 +407,7 @@ export function SurahReaderScreen() {
           item={item}
           palette={palette}
           showTranslation={showTranslation}
-          bookmarked={isBookmarked(surahNumber, item.numberInSurah)}
+          bookmarked={isBookmarked(sNum, item.numberInSurah)}
           liveScale={liveScale}
           audio={{
             isActive: active,
@@ -321,21 +415,21 @@ export function SurahReaderScreen() {
             isLoading: active && audioIsLoading,
             hasAudio: !!item.audioUrl,
           }}
-          onPlay={() => playAyah(item)}
+          onPlay={() => playAyah(item, section)}
           onTafsir={() =>
-            navigation.navigate('Tafsir', { surahNumber, ayahNumber: item.numberInSurah })
+            navigation.navigate('Tafsir', { surahNumber: sNum, ayahNumber: item.numberInSurah })
           }
           onToggleBookmark={() =>
-            isBookmarked(surahNumber, item.numberInSurah)
-              ? removeBookmark(surahNumber, item.numberInSurah)
-              : addBookmark(surahNumber, item.numberInSurah)
+            isBookmarked(sNum, item.numberInSurah)
+              ? removeBookmark(sNum, item.numberInSurah)
+              : addBookmark(sNum, item.numberInSurah)
           }
           onShare={() =>
             setVerseToShare({
               arabic: item.arabic,
               translation: item.translation,
-              surahEnglishName: data!.surah.englishName,
-              surahNumber,
+              surahEnglishName: section.surah.englishName,
+              surahNumber: sNum,
               ayahNumber: item.numberInSurah,
             })
           }
@@ -348,7 +442,6 @@ export function SurahReaderScreen() {
       audioCurrentSurahNumber,
       audioIsLoading,
       audioIsPlaying,
-      data,
       isBookmarked,
       liveScale,
       navigation,
@@ -356,22 +449,46 @@ export function SurahReaderScreen() {
       playAyah,
       removeBookmark,
       showTranslation,
-      surahNumber,
     ],
   );
 
-  // Scroll sync to active ayah during playback.
-  useEffect(() => {
-    if (!data?.ayahs.length) return;
-    if (audioCurrentSurahNumber !== surahNumber) return;
-    const ayahNum = audioCurrentAyahNumber;
-    if (!ayahNum) return;
-    const idx = data.ayahs.findIndex(a => a.numberInSurah === ayahNum);
-    if (idx < 0) return;
-    requestAnimationFrame(() => {
-      listRef.current?.scrollToIndex({ index: idx, animated: true, viewPosition: 0.2 });
-    });
-  }, [audioCurrentAyahNumber, audioCurrentSurahNumber, data?.ayahs, surahNumber]);
+  const renderSectionHeader = useCallback(
+    ({ section }: { section: ReaderSection }) => {
+      const isFirst = section.surah.number === sectionsRef.current[0]?.surah.number;
+      const header = (
+        <>
+          <SurahOpeningHeader
+            palette={palette}
+            arabicName={section.surah.name}
+            englishName={section.surah.englishName}
+            translation={section.surah.englishNameTranslation}
+            ayahCount={section.surah.numberOfAyahs}
+            revelationType={section.surah.revelationType}
+          />
+          {shouldShowBismillah(section.surah.number) ? (
+            <BismillahReveal reduceMotion={reduceMotion} color={palette.accent} />
+          ) : null}
+        </>
+      );
+      if (isFirst) return <View>{header}</View>;
+      return (
+        <Animated.View
+          entering={FadeInDown.duration(
+            durationFor(motionPresets.enter.duration, reduceMotion),
+          )}>
+          {header}
+        </Animated.View>
+      );
+    },
+    [palette, reduceMotion],
+  );
+
+  const renderSectionFooter = useCallback(
+    ({ section }: { section: ReaderSection }) => (
+      <SurahTransition palette={palette} englishName={section.surah.englishName} />
+    ),
+    [palette],
+  );
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -435,49 +552,34 @@ export function SurahReaderScreen() {
         >
           <GestureDetector gesture={pinch}>
             <Animated.View style={{ flex: 1 }}>
-              <FlatList
+              <SectionList
                 ref={listRef}
-                data={data!.ayahs}
-                keyExtractor={a => String(a.numberInSurah)}
-                renderItem={renderAyah}
-                ListHeaderComponent={
-                  data ? (
-                    <>
-                      <SurahOpeningHeader
-                        palette={palette}
-                        arabicName={data.surah.name}
-                        englishName={data.surah.englishName}
-                        translation={data.surah.englishNameTranslation}
-                        ayahCount={data.surah.numberOfAyahs}
-                        revelationType={data.surah.revelationType}
-                      />
-                      {shouldShowBismillah(surahNumber) ? (
-                        <BismillahReveal reduceMotion={reduceMotion} color={palette.accent} />
-                      ) : null}
-                    </>
-                  ) : null
-                }
+                sections={sections}
+                keyExtractor={(a, i) => `${a.numberInSurah}-${i}`}
+                renderItem={renderItem}
+                renderSectionHeader={renderSectionHeader}
+                renderSectionFooter={renderSectionFooter}
+                stickySectionHeadersEnabled={false}
                 extraData={{
                   showTranslation,
                   surahReaderTheme,
+                  audioCurrentSurahNumber,
+                  audioCurrentAyahNumber,
+                  audioIsPlaying,
                 }}
                 showsVerticalScrollIndicator={false}
                 initialNumToRender={12}
                 maxToRenderPerBatch={14}
                 windowSize={8}
                 removeClippedSubviews
-                onContentSizeChange={() => tryInitialScroll()}
                 onViewableItemsChanged={onViewableItemsChanged}
                 viewabilityConfig={VIEW_CFG}
-                onScrollToIndexFailed={info => {
+                onContentSizeChange={() => tryInitialScroll()}
+                onEndReached={() => void appendNext()}
+                onEndReachedThreshold={0.6}
+                onScrollToIndexFailed={() => {
                   scrolledRef.current = false;
-                  setTimeout(() => {
-                    listRef.current?.scrollToIndex({
-                      index: info.index,
-                      animated: false,
-                      viewPosition: 0.15,
-                    });
-                  }, 300);
+                  setTimeout(() => tryInitialScroll(), 300);
                 }}
                 // Reserve space for the in-screen mini player (when active).
                 contentContainerStyle={[
@@ -489,6 +591,11 @@ export function SurahReaderScreen() {
               />
             </Animated.View>
           </GestureDetector>
+          <StickySurahBar
+            palette={palette}
+            englishName={currentSurahName}
+            reduceMotion={reduceMotion}
+          />
           <ReaderAudioPlayerSheet tabBarHeight={tabBarHeight} containerHeight={containerH} />
           {toastText ? (
             <Animated.View

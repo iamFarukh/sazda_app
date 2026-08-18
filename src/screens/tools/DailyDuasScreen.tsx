@@ -1,10 +1,13 @@
 import { memo, useCallback, useMemo, useRef, useState } from 'react';
-import { FlatList, Platform, Pressable, StyleSheet, Switch, View } from 'react-native';
+import { FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SazdaSwitch } from '../../components/atoms/SazdaSwitch/SazdaSwitch';
 import { TrueSheet } from '@lodev09/react-native-true-sheet';
-import { BookOpenText, Languages, Settings, X } from 'lucide-react-native';
+import { BookOpenText, Languages, Settings, Sparkles, X } from 'lucide-react-native';
 import { IconButton } from '../../components/atoms/IconButton/IconButton';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { AppLottie } from '../../components/atoms/AppLottie/AppLottie';
+import { BreathingView } from '../../components/atoms/BreathingView/BreathingView';
 import { ToolsSubheader } from '../../components/molecules/ToolsSubheader/ToolsSubheader';
 import type { DailyDua } from '../../data/dailyDuas';
 import { DAILY_DUAS } from '../../data/dailyDuas';
@@ -15,11 +18,105 @@ import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
 import { useThemePalette } from '../../theme/useThemePalette';
 
-/** Matches `SurahReaderScreen` list padding and ayah separators for visual consistency. */
-function createDuasStyles(c: AppPalette, _scheme: ResolvedScheme, sheetBottomInset: number) {
+const SPARKLE = require('../../assets/lottie/sparkle.json');
+const RAYS = require('../../assets/lottie/prayer/rays.json');
+
+function createDuasStyles(c: AppPalette, scheme: ResolvedScheme, sheetBottomInset: number) {
+  const ambient = scheme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(6, 78, 59, 0.08)';
+  const ghost = scheme === 'dark' ? 'rgba(142,207,178,0.14)' : 'rgba(0, 53, 39, 0.07)';
+  const goldTint = scheme === 'dark' ? 'rgba(233,200,74,0.14)' : 'rgba(254, 214, 91, 0.3)';
+  const arabicBg = scheme === 'dark' ? 'rgba(146,226,200,0.06)' : 'rgba(0, 53, 39, 0.04)';
   return StyleSheet.create({
     safe: { flex: 1, backgroundColor: c.surface },
     body: { flex: 1 },
+    // ---- Featured "dua of the day" hero ----
+    featured: {
+      backgroundColor: c.surfaceContainerLowest,
+      borderRadius: radius.md + 8,
+      padding: spacing.lg,
+      marginBottom: spacing.lg,
+      borderWidth: 1,
+      borderColor: goldTint,
+      overflow: 'hidden',
+      position: 'relative',
+      shadowColor: ambient,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 1,
+      shadowRadius: 20,
+      elevation: 4,
+    },
+    featuredGlow: {
+      position: 'absolute',
+      top: -70,
+      right: -50,
+      width: 200,
+      height: 200,
+      opacity: 0.5,
+    },
+    featuredKicker: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.xs,
+      marginBottom: spacing.sm,
+    },
+    featuredKickerText: {
+      fontSize: 11,
+      fontWeight: '800',
+      letterSpacing: 1.5,
+    },
+    sparkle: { position: 'absolute', top: -8, right: -6, width: 52, height: 52 },
+    sectionLabel: {
+      fontSize: 11,
+      fontWeight: '800',
+      letterSpacing: 1.6,
+      opacity: 0.6,
+      marginBottom: spacing.sm,
+      marginLeft: spacing.xs,
+    },
+    // ---- Dua card ----
+    card: {
+      backgroundColor: c.surfaceContainerLowest,
+      borderRadius: radius.md + 6,
+      padding: spacing.lg,
+      marginBottom: spacing.md,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: ghost,
+      gap: spacing.sm,
+      shadowColor: ambient,
+      shadowOffset: { width: 0, height: 5 },
+      shadowOpacity: 0.8,
+      shadowRadius: 14,
+      elevation: 2,
+    },
+    cardHead: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: spacing.sm,
+    },
+    numBadge: {
+      width: 30,
+      height: 30,
+      borderRadius: 15,
+      backgroundColor: goldTint,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    numBadgeText: { fontSize: 12, fontWeight: '900' },
+    cardTitle: { flex: 1, fontWeight: '800', fontSize: 15 },
+    arabicBlock: {
+      backgroundColor: arabicBg,
+      borderRadius: radius.md,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.md,
+    },
+    revealLabel: {
+      marginTop: spacing.sm,
+      opacity: 0.7,
+      fontSize: 10,
+      fontWeight: '800',
+      letterSpacing: 1.2,
+      textTransform: 'uppercase',
+    },
     sheet: {
       paddingHorizontal: spacing.lg,
       paddingTop: spacing.md,
@@ -71,16 +168,7 @@ function createDuasStyles(c: AppPalette, _scheme: ResolvedScheme, sheetBottomIns
     listContent: {
       paddingHorizontal: spacing.lg,
       paddingBottom: spacing.x3xl + 72,
-      paddingTop: spacing.xs,
-    },
-    duaRow: {
-      paddingVertical: spacing.lg,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: 'rgba(191, 201, 195, 0.35)',
-      gap: spacing.sm,
-    },
-    title: {
-      marginBottom: spacing.xs,
+      paddingTop: spacing.sm,
     },
     /** Slightly larger than `SurahReaderScreen` ayah (22) — duas are short blocks. */
     arabic: {
@@ -91,12 +179,6 @@ function createDuasStyles(c: AppPalette, _scheme: ResolvedScheme, sheetBottomIns
       marginTop: spacing.xs,
       lineHeight: 24,
       fontSize: 15,
-    },
-    hindiLabel: {
-      marginTop: spacing.sm,
-      opacity: 0.75,
-      fontSize: 10,
-      letterSpacing: 1,
     },
     fabWrap: {
       position: 'absolute',
@@ -110,23 +192,24 @@ type DuasStyles = ReturnType<typeof createDuasStyles>;
 
 type RowProps = {
   item: DailyDua;
+  number: number;
   showTransliteration: boolean;
   showMeaning: boolean;
   styles: DuasStyles;
+  secondary: string;
 };
 
-const DuaRow = memo(function DuaRow({ item, showTransliteration, showMeaning, styles: s }: RowProps) {
+function DuaReveals({
+  item,
+  showTransliteration,
+  showMeaning,
+  styles: s,
+}: Omit<RowProps, 'number' | 'secondary'>) {
   return (
-    <View style={s.duaRow}>
-      <SazdaText variant="titleSm" color="primary" style={s.title}>
-        {item.title}
-      </SazdaText>
-      <SazdaText variant="verse" color="primary" align="right" rtl style={s.arabic}>
-        {item.arabic}
-      </SazdaText>
+    <>
       {showTransliteration ? (
         <>
-          <SazdaText variant="label" color="onSurfaceVariant" style={s.hindiLabel}>
+          <SazdaText variant="label" color="secondary" style={s.revealLabel}>
             Transliteration (Hindi)
           </SazdaText>
           <SazdaText variant="bodyMedium" color="onSurfaceVariant" style={s.hindiBlock}>
@@ -136,7 +219,7 @@ const DuaRow = memo(function DuaRow({ item, showTransliteration, showMeaning, st
       ) : null}
       {showMeaning ? (
         <>
-          <SazdaText variant="label" color="onSurfaceVariant" style={s.hindiLabel}>
+          <SazdaText variant="label" color="secondary" style={s.revealLabel}>
             Meaning (Hindi)
           </SazdaText>
           <SazdaText variant="bodyMedium" color="onSurface" style={s.hindiBlock}>
@@ -144,9 +227,82 @@ const DuaRow = memo(function DuaRow({ item, showTransliteration, showMeaning, st
           </SazdaText>
         </>
       ) : null}
+    </>
+  );
+}
+
+const DuaRow = memo(function DuaRow({
+  item,
+  number,
+  showTransliteration,
+  showMeaning,
+  styles: s,
+}: Omit<RowProps, 'secondary'>) {
+  return (
+    <View style={s.card}>
+      <View style={s.cardHead}>
+        <View style={s.numBadge}>
+          <SazdaText variant="label" color="secondary" style={s.numBadgeText}>
+            {number}
+          </SazdaText>
+        </View>
+        <SazdaText variant="titleSm" color="primary" style={s.cardTitle} numberOfLines={2}>
+          {item.title}
+        </SazdaText>
+      </View>
+      <View style={s.arabicBlock}>
+        <SazdaText variant="verse" color="primary" align="right" rtl style={s.arabic}>
+          {item.arabic}
+        </SazdaText>
+      </View>
+      <DuaReveals
+        item={item}
+        showTransliteration={showTransliteration}
+        showMeaning={showMeaning}
+        styles={s}
+      />
     </View>
   );
 });
+
+function FeaturedDua({
+  item,
+  showTransliteration,
+  showMeaning,
+  styles: s,
+  secondary,
+}: Omit<RowProps, 'number'>) {
+  return (
+    <View style={s.featured}>
+      <View style={s.featuredGlow} pointerEvents="none">
+        <AppLottie source={RAYS} size={200} autoPlay loop />
+      </View>
+      <BreathingView style={s.sparkle} pointerEventsNone>
+        <AppLottie source={SPARKLE} size={52} autoPlay loop />
+      </BreathingView>
+      <View style={s.featuredKicker}>
+        <Sparkles size={14} color={secondary} strokeWidth={2.4} />
+        <SazdaText variant="label" color="secondary" style={s.featuredKickerText}>
+          DUA OF THE DAY
+        </SazdaText>
+      </View>
+      <SazdaText variant="headlineMedium" color="primary" style={s.cardTitle}>
+        {item.title}
+      </SazdaText>
+      <View style={[s.arabicBlock, { marginTop: spacing.sm }]}>
+        <SazdaText variant="verse" color="primary" align="right" rtl style={s.arabic}>
+          {item.arabic}
+        </SazdaText>
+      </View>
+      <DuaReveals
+        item={item}
+        showTransliteration={showTransliteration}
+        showMeaning={showMeaning}
+        styles={s}
+      />
+    </View>
+  );
+}
 
 export function DailyDuasScreen() {
   const { colors: c, scheme } = useThemePalette();
@@ -157,10 +313,24 @@ export function DailyDuasScreen() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const sheetRef = useRef<TrueSheet>(null);
 
+  // Deterministic "dua of the day" — same for everyone on a given calendar day.
+  const featuredIndex = useMemo(() => {
+    if (!DAILY_DUAS.length) return 0;
+    const d = new Date();
+    const seed = d.getFullYear() * 372 + d.getMonth() * 31 + d.getDate();
+    return seed % DAILY_DUAS.length;
+  }, []);
+  const featured = DAILY_DUAS[featuredIndex];
+  const rest = useMemo(
+    () => DAILY_DUAS.filter((_, i) => i !== featuredIndex),
+    [featuredIndex],
+  );
+
   const renderItem = useCallback(
-    ({ item }: { item: DailyDua }) => (
+    ({ item, index }: { item: DailyDua; index: number }) => (
       <DuaRow
         item={item}
+        number={index + 1}
         showTransliteration={showTransliteration}
         showMeaning={showMeaning}
         styles={styles}
@@ -171,6 +341,26 @@ export function DailyDuasScreen() {
 
   const keyExtractor = useCallback((item: DailyDua) => item.id, []);
 
+  const listHeader = useMemo(
+    () => (
+      <>
+        {featured ? (
+          <FeaturedDua
+            item={featured}
+            showTransliteration={showTransliteration}
+            showMeaning={showMeaning}
+            styles={styles}
+            secondary={c.secondary}
+          />
+        ) : null}
+        <SazdaText variant="label" color="onSurfaceVariant" style={styles.sectionLabel}>
+          ALL SUPPLICATIONS
+        </SazdaText>
+      </>
+    ),
+    [featured, showTransliteration, showMeaning, styles, c.secondary],
+  );
+
   const onDidDismiss = useTrueSheetOpenSync(sheetRef, settingsOpen, () => setSettingsOpen(false));
 
   return (
@@ -179,9 +369,10 @@ export function DailyDuasScreen() {
         <ToolsSubheader title="Daily duas" subtitle="Essential supplications · same reading style as Quran" />
       </View>
       <FlatList
-        data={DAILY_DUAS}
+        data={rest}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
+        ListHeaderComponent={listHeader}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
         initialNumToRender={8}
@@ -242,7 +433,7 @@ export function DailyDuasScreen() {
                 </SazdaText>
               </View>
             </View>
-            <Switch
+            <SazdaSwitch
               value={showTransliteration}
               onValueChange={setShowTransliteration}
               trackColor={{ false: c.outlineVariant, true: c.primaryContainer }}
@@ -265,7 +456,7 @@ export function DailyDuasScreen() {
                 </SazdaText>
               </View>
             </View>
-            <Switch
+            <SazdaSwitch
               value={showMeaning}
               onValueChange={setShowMeaning}
               trackColor={{ false: c.outlineVariant, true: c.primaryContainer }}

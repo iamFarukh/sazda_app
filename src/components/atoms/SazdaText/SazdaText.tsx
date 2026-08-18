@@ -9,9 +9,12 @@ type TextVariant =
   | 'displayLg'
   | 'headlineLarge'
   | 'headlineMedium'
+  | 'titleLarge'
   | 'titleSm'
   | 'body'
   | 'bodyMedium'
+  | 'bodySmall'
+  | 'subtitle'
   | 'caption'
   | 'label'
   | 'verse';
@@ -27,6 +30,10 @@ type Props = {
   numberOfLines?: number;
   style?: StyleProp<TextStyle>;
   rtl?: boolean;
+  /** Respect the OS Dynamic Type setting (default true). */
+  allowFontScaling?: boolean;
+  /** Cap runaway scaling so layouts don't break at the largest accessibility sizes. */
+  maxFontSizeMultiplier?: number;
 };
 
 function resolveColor(color: keyof AppPalette | string | undefined, palette: AppPalette): string {
@@ -47,6 +54,8 @@ export function SazdaText({
   numberOfLines,
   rtl,
   style,
+  allowFontScaling = true,
+  maxFontSizeMultiplier = 1.4,
 }: Props) {
   const { colors: palette } = useThemePalette();
   const baseStyle = typography[variant];
@@ -54,6 +63,8 @@ export function SazdaText({
 
   return (
     <Text
+      allowFontScaling={allowFontScaling}
+      maxFontSizeMultiplier={maxFontSizeMultiplier}
       style={[
         baseStyle,
         styles.text,

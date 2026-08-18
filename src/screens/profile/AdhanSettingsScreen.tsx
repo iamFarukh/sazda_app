@@ -1,4 +1,5 @@
-import { ScrollView, StyleSheet, Switch, Text, View, Pressable } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { SazdaSwitch } from '../../components/atoms/SazdaSwitch/SazdaSwitch';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
@@ -81,7 +82,7 @@ export function AdhanSettingsScreen() {
         showsVerticalScrollIndicator={false}>
         <Animated.View entering={FadeInDown.duration(400).delay(100)} style={styles.headerBox}>
           <Text style={[styles.leadLine, { color: c.onSurfaceVariant }]}>
-            Adhan after prayer time begins; follow-ups use the system sound.
+            Prayer alerts use your system default sound unless you choose an Adhan below. Follow-up reminders always use the system sound.
           </Text>
         </Animated.View>
 
@@ -96,7 +97,7 @@ export function AdhanSettingsScreen() {
                 <Text style={[styles.rowTitle, { color: c.primary }]}>Enable Adhan</Text>
                 <Text style={[styles.rowSub, { color: c.onSurfaceVariant }]}>Global prayer alerts</Text>
               </View>
-              <Switch
+              <SazdaSwitch
                 value={masterEnabled}
                 onValueChange={setMasterEnabled}
                 trackColor={{ false: c.surfaceContainerHighest, true: c.primaryContainer }}
@@ -108,7 +109,7 @@ export function AdhanSettingsScreen() {
 
         {/* Prayer List */}
         <Animated.View entering={FadeInDown.duration(400).delay(200)} style={styles.section}>
-          <Text style={[styles.sectionLabel, { color: c.primary }]}>Prayer sounds</Text>
+          <Text style={[styles.sectionLabel, { color: c.primary }]}>Prayer alert sound</Text>
           {FIVE_DAILY_PRAYERS.map((prayer, index) => {
             const currentSet = byPrayer[prayer];
             const isOn = currentSet.volumeMode !== 'SILENT';
@@ -139,7 +140,7 @@ export function AdhanSettingsScreen() {
                     </View>
                   </View>
                 </View>
-                <Switch
+                <SazdaSwitch
                   value={isOn}
                   onValueChange={(val) => setPrayerVolumeMode(prayer, val ? 'LOUD' : 'SILENT')}
                   trackColor={{ false: c.surfaceContainerHighest, true: c.primary }}
@@ -260,7 +261,7 @@ export function AdhanSettingsScreen() {
                     </Text>
                   </View>
                 </View>
-                <Switch
+                <SazdaSwitch
                   value={followUpByPrayer[prayer]}
                   onValueChange={v => setFollowUpEnabled(prayer, v)}
                   trackColor={{ false: c.surfaceContainerHighest, true: c.primary }}
@@ -278,7 +279,7 @@ export function AdhanSettingsScreen() {
                 <Text style={[styles.rowSub, { color: c.onSurfaceVariant }]}>Haptic feedback on alerts</Text>
               </View>
             </View>
-            <Switch
+            <SazdaSwitch
               value={vibrationEnabled}
               onValueChange={setVibrationEnabled}
               trackColor={{ false: c.surfaceContainerHighest, true: c.primary }}

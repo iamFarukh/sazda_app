@@ -248,7 +248,7 @@ export const QuranAudioPlayerOverlay = memo(function QuranAudioPlayerOverlay() {
           </View>
 
           <View style={[styles.fullFooter, { paddingBottom: insets.bottom + spacing.xl }]}>
-            <View style={[styles.track, { backgroundColor: c.surfaceContainerHigh }]}>
+            <View style={[styles.track, { backgroundColor: c.surfaceContainerHighest }]}>
               <View style={[styles.fill, { width: `${pct * 100}%`, backgroundColor: c.primary }]} />
             </View>
             <View style={styles.timeRow}>

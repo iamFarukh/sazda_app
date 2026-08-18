@@ -15,6 +15,8 @@ import type { RouteProp } from '@react-navigation/native';
 import { ArrowLeft, Bookmark, CheckCircle2, CloudDownload, Search } from 'lucide-react-native';
 import { TextInput } from '../../components/atoms/TextInput/TextInput';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
+import { EmptyState } from '../../components/molecules/EmptyState/EmptyState';
 import { JUZ_START } from '../../data/juzBoundaries';
 import type { QuranStackParamList } from '../../navigation/types';
 import { fetchAllSurahs, type QuranApiSurah } from '../../services/quranApi';
@@ -25,6 +27,7 @@ import {
 } from '../../store/offlineQuranDownloadStore';
 import { useQuranProgressStore } from '../../store/quranProgressStore';
 import { radius } from '../../theme/radius';
+import { elevation } from '../../theme/elevation';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
 import { useThemePalette } from '../../theme/useThemePalette';
@@ -207,7 +210,18 @@ export function SurahListScreen() {
       {tab === 'surah' && (
         <>
           {isPending ? (
-            <ActivityIndicator style={styles.loader} color={c.primary} />
+            <View style={styles.listContent}>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <View key={i} style={styles.surahCard}>
+                  <Skeleton width={48} height={48} radius={12} />
+                  <View style={styles.skeletonMid}>
+                    <Skeleton width="58%" height={18} />
+                    <Skeleton width="40%" height={11} />
+                  </View>
+                  <Skeleton width={36} height={24} />
+                </View>
+              ))}
+            </View>
           ) : isError ? (
             <Pressable onPress={() => refetch()} style={styles.errorBox}>
               <SazdaText variant="bodyMedium" color="error" align="center">
@@ -224,7 +238,16 @@ export function SurahListScreen() {
               initialNumToRender={14}
               maxToRenderPerBatch={12}
               windowSize={7}
+              removeClippedSubviews
               extraData={{ manifest, odJob, odCurrent, odQueue }}
+              ListEmptyComponent={
+                <EmptyState
+                  compact
+                  icon={<Search size={32} color={c.primary} strokeWidth={2} />}
+                  title="No matches"
+                  message={`Nothing matched "${query.trim()}". Try a different surah name or number.`}
+                />
+              }
               ListHeaderComponent={
                 showOfflinePrep ? (
                   <View style={styles.offlineBanner}>
@@ -294,9 +317,13 @@ export function SurahListScreen() {
       {tab === 'bookmarks' && (
         <ScrollView contentContainerStyle={styles.bookmarksContent}>
           {bookmarks.length === 0 ? (
-            <SazdaText variant="bodyMedium" color="onSurfaceVariant" align="center" style={styles.empty}>
-              No bookmarks yet. Open a surah and tap the bookmark icon on a verse.
-            </SazdaText>
+            <EmptyState
+              icon={<Bookmark size={34} color={c.primary} strokeWidth={2} />}
+              title="No bookmarks yet"
+              message="Open any surah and tap the bookmark icon on a verse to save it here."
+              actionLabel="Browse Surahs"
+              onAction={() => setTab('surah')}
+            />
           ) : (
             bookmarks.map(b => {
               const s = surahByNumber.get(b.surahNumber);
@@ -390,15 +417,11 @@ function createSurahListStyles(c: AppPalette, scheme: ResolvedScheme) {
   },
   tabOn: {
     backgroundColor: c.primaryContainer,
-    shadowColor: 'rgba(0,0,0,0.1)',
-    shadowOpacity: 1,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 1 },
-    elevation: 2,
+    ...elevation('sm', scheme),
   },
   tabText: { fontWeight: '700', fontSize: 12 },
-  loader: { marginTop: spacing.xl },
   errorBox: { padding: spacing.xl },
+  skeletonMid: { flex: 1, gap: spacing.xs },
   listContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.x3xl, gap: spacing.md },
   surahCard: {
     flexDirection: 'row',
@@ -407,11 +430,7 @@ function createSurahListStyles(c: AppPalette, scheme: ResolvedScheme) {
     backgroundColor: c.surfaceContainerLowest,
     borderRadius: radius.md,
     gap: spacing.lg,
-    shadowColor: 'rgba(6, 78, 59, 0.06)',
-    shadowOpacity: 1,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
+    ...elevation('sm', scheme),
   },
   diamondWrap: {
     width: 48,
@@ -508,7 +527,6 @@ function createSurahListStyles(c: AppPalette, scheme: ResolvedScheme) {
     padding: spacing.md,
   },
   bookmarksContent: { paddingHorizontal: spacing.lg, paddingBottom: spacing.x3xl, gap: spacing.md },
-  empty: { marginTop: spacing.xl, paddingHorizontal: spacing.lg },
 });
 }
 

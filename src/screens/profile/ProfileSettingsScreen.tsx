@@ -1,13 +1,18 @@
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { SazdaSwitch } from '../../components/atoms/SazdaSwitch/SazdaSwitch';
+import { PressableScale } from '../../components/atoms/PressableScale/PressableScale';
+import { hapticSelection } from '../../utils/appHaptics';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ChevronLeft } from 'lucide-react-native';
@@ -21,6 +26,7 @@ import { radius } from '../../theme/radius';
 import { spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
 import { hapticMedium } from '../../utils/appHaptics';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../../constants/legal';
 
 import DeviceInfo from 'react-native-device-info';
 
@@ -40,15 +46,20 @@ function ThemeChip({
   colors: ReturnType<typeof useThemePalette>['colors'];
 }) {
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => [
+    <PressableScale
+      onPress={() => {
+        hapticSelection();
+        onPress();
+      }}
+      accessibilityRole="radio"
+      accessibilityState={{ selected }}
+      accessibilityLabel={label}
+      style={[
         styles.chip,
         {
           backgroundColor: selected ? c.primaryContainer : c.surfaceContainerLow,
           borderColor: selected ? c.primary : c.outlineVariant,
         },
-        pressed && { opacity: 0.88 },
       ]}>
       <Text
         style={[
@@ -57,7 +68,7 @@ function ThemeChip({
         ]}>
         {label}
       </Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -70,6 +81,8 @@ export function ProfileSettingsScreen() {
   const showTranslation = useQuranProgressStore(s => s.showTranslation);
   const setShowTranslation = useQuranProgressStore(s => s.setShowTranslation);
   const signOut = useAuthStore(s => s.signOut);
+  const deleteAccount = useAuthStore(s => s.deleteAccount);
+  const [deleting, setDeleting] = useState(false);
 
   const setTheme = useCallback(
     (p: ThemePreference) => {
@@ -86,6 +99,38 @@ export function ProfileSettingsScreen() {
     },
     [setShowTranslation],
   );
+
+  const openUrl = useCallback((url: string) => {
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Could not open link', url);
+    });
+  }, []);
+
+  const onDeleteAccount = useCallback(() => {
+    if (deleting) return;
+    Alert.alert(
+      'Delete account',
+      'This permanently deletes your Sazda account and all synced data (bookmarks, Zakat records, prayer tracker, and profile). This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            setDeleting(true);
+            const r = await deleteAccount();
+            setDeleting(false);
+            if (r.ok) {
+              goTab('HomeTab');
+              navigation.goBack();
+            } else {
+              Alert.alert('Could not delete account', r.message);
+            }
+          },
+        },
+      ],
+    );
+  }, [deleting, deleteAccount, goTab, navigation]);
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: c.surface }]} edges={['top']}>
@@ -139,7 +184,7 @@ export function ProfileSettingsScreen() {
                 English under Arabic in the reader.
               </Text>
             </View>
-            <Switch
+            <SazdaSwitch
               value={showTranslation}
               onValueChange={onTranslationChange}
               trackColor={{ false: c.outlineVariant, true: c.primaryContainer }}
@@ -212,6 +257,55 @@ export function ProfileSettingsScreen() {
           <Text style={[styles.rowTitle, { color: c.error }]}>Sign out</Text>
           <Text style={[styles.rowHint, { color: c.onSurfaceVariant }]}>
             Ends Google or guest session on this device.
+          </Text>
+        </Pressable>
+
+        <Pressable
+          onPress={onDeleteAccount}
+          disabled={deleting}
+          style={({ pressed }) => [
+            styles.card,
+            styles.dangerCard,
+            { borderColor: c.error },
+            pressed && { opacity: 0.9 },
+            deleting && { opacity: 0.6 },
+          ]}>
+          <View style={styles.deleteRow}>
+            <View style={styles.switchTextCol}>
+              <Text style={[styles.rowTitle, { color: c.error }]}>Delete account</Text>
+              <Text style={[styles.rowHint, { color: c.onSurfaceVariant }]}>
+                Permanently removes your account and all cloud data. This cannot be undone.
+              </Text>
+            </View>
+            {deleting ? <ActivityIndicator color={c.error} /> : null}
+          </View>
+        </Pressable>
+
+        <Text style={[styles.sectionLabel, { color: c.onSurfaceVariant }]}>Legal</Text>
+        <Pressable
+          onPress={() => openUrl(PRIVACY_POLICY_URL)}
+          style={({ pressed }) => [
+            styles.card,
+            styles.linkCard,
+            { backgroundColor: c.surfaceContainerLow },
+            pressed && { opacity: 0.92 },
+          ]}>
+          <Text style={[styles.rowTitle, { color: c.onSurface }]}>Privacy Policy</Text>
+          <Text style={[styles.rowHint, { color: c.onSurfaceVariant }]}>
+            How Sazda handles your data.
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => openUrl(TERMS_OF_SERVICE_URL)}
+          style={({ pressed }) => [
+            styles.card,
+            styles.linkCard,
+            { backgroundColor: c.surfaceContainerLow },
+            pressed && { opacity: 0.92 },
+          ]}>
+          <Text style={[styles.rowTitle, { color: c.onSurface }]}>Terms of Service</Text>
+          <Text style={[styles.rowHint, { color: c.onSurfaceVariant }]}>
+            The terms you agree to when using Sazda.
           </Text>
         </Pressable>
 
@@ -297,6 +391,12 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   switchTextCol: { flex: 1 },
+  deleteRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.md,
+  },
   dangerCard: {
     borderWidth: StyleSheet.hairlineWidth,
     backgroundColor: 'rgba(186, 26, 26, 0.08)',

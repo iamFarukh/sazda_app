@@ -1,13 +1,9 @@
 import { createNavigationContainerRef } from '@react-navigation/native';
-import type { MainDrawerParamList } from './types';
+import type { MainTabParamList } from './types';
 
-export const navigationRef = createNavigationContainerRef<MainDrawerParamList>();
+export const navigationRef = createNavigationContainerRef<MainTabParamList>();
 
 export function openQuranAudioPlayer() {
   if (!navigationRef.isReady()) return;
-  navigationRef.navigate('MainTabs', {
-    screen: 'QuranTab',
-    params: { screen: 'QuranAudioPlayer' as never },
-  } as never);
+  navigationRef.navigate('QuranTab', { screen: 'QuranAudioPlayer' });
 }
-

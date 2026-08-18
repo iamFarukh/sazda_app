@@ -9,6 +9,7 @@ import Animated, {
   useAnimatedRef,
   useAnimatedScrollHandler,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withTiming,
 } from 'react-native-reanimated';
@@ -298,8 +299,10 @@ function OnboardingPage({
   palettePrimary: string;
 }) {
   const { colors: c } = useThemePalette();
+  const reduced = useReducedMotion();
 
   const heroStyle = useAnimatedStyle(() => {
+    if (reduced) return { transform: [{ translateX: 0 }, { scale: 1 }], opacity: 1 };
     const p = x.value / W;
     const d = p - index;
     const tx = interpolate(d, [-1, 0, 1], [38, 0, -38], Extrapolation.CLAMP);
@@ -309,6 +312,7 @@ function OnboardingPage({
   });
 
   const textStyle = useAnimatedStyle(() => {
+    if (reduced) return { transform: [{ translateY: 0 }], opacity: 1 };
     const p = x.value / W;
     const d = p - index;
     const ty = interpolate(d, [-1, 0, 1], [18, 0, 18], Extrapolation.CLAMP);

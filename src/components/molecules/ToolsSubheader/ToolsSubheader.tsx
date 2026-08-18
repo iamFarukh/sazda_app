@@ -1,9 +1,11 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ChevronLeft } from 'lucide-react-native';
 import { SazdaText } from '../../atoms/SazdaText/SazdaText';
+import { PressableScale } from '../../atoms/PressableScale/PressableScale';
 import { spacing } from '../../../theme/spacing';
 import { useThemePalette } from '../../../theme/useThemePalette';
+import { hapticMedium } from '../../../utils/appHaptics';
 
 type Props = {
   title: string;
@@ -16,13 +18,16 @@ export function ToolsSubheader({ title, subtitle }: Props) {
 
   return (
     <View style={styles.row}>
-      <Pressable
-        onPress={() => navigation.goBack()}
-        style={({ pressed }) => [styles.iconHit, pressed && styles.pressed]}
+      <PressableScale
+        onPress={() => {
+          hapticMedium();
+          navigation.goBack();
+        }}
+        style={styles.iconHit}
         accessibilityRole="button"
         accessibilityLabel="Go back">
         <ChevronLeft size={26} color={c.primary} strokeWidth={2.25} />
-      </Pressable>
+      </PressableScale>
       <View style={styles.titles}>
         <SazdaText variant="headlineMedium" color="primary" numberOfLines={1}>
           {title}
@@ -52,7 +57,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pressed: { opacity: 0.85 },
   titles: {
     flex: 1,
     minWidth: 0,

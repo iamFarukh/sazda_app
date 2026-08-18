@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { radius } from '../../../theme/radius';
 import { useThemePalette } from '../../../theme/useThemePalette';
 import { hapticMedium } from '../../../utils/appHaptics';
+import { PressableScale } from '../PressableScale/PressableScale';
 
 export type IconButtonVariant = 'ghost' | 'soft' | 'solid';
 export type IconButtonSize = 'sm' | 'md' | 'lg';
@@ -42,7 +43,7 @@ export function IconButton({
         : { backgroundColor: 'transparent' };
 
   return (
-    <Pressable
+    <PressableScale
       disabled={isDisabled}
       onPress={
         isDisabled
@@ -54,15 +55,12 @@ export function IconButton({
       }
       accessibilityRole="button"
       accessibilityLabel={accessibilityLabel}
-      style={({ pressed }) => [
-        styles.base,
-        variantBg,
-        sizeStyle,
-        isDisabled ? styles.disabled : null,
-        pressed && !isDisabled ? styles.pressed : null,
-      ]}>
+      accessibilityState={{ disabled: isDisabled }}
+      hitSlop={8}
+      to={0.92}
+      style={[styles.base, variantBg, sizeStyle, isDisabled ? styles.disabled : null]}>
       <View>{icon}</View>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -76,5 +74,4 @@ const styles = StyleSheet.create({
   sizeMd: { width: 40, height: 40 },
   sizeLg: { width: 48, height: 48 },
   disabled: { opacity: 0.55 },
-  pressed: { opacity: 0.85 },
 });

@@ -13,14 +13,20 @@ const Stack = createNativeStackNavigator<QuranStackParamList>();
 export function QuranStackNavigator() {
   const screenOptions = useThemedStackScreenOptions();
   return (
-    <Stack.Navigator screenOptions={screenOptions}>
+    <Stack.Navigator screenOptions={{ ...screenOptions, freezeOnBlur: false }}>
       <Stack.Screen name="QuranHome" component={QuranHomeScreen} />
       <Stack.Screen name="SurahList" component={SurahListScreen} />
       <Stack.Screen name="SurahReader" component={SurahReaderScreen} />
       <Stack.Screen
         name="QuranAudioPlayer"
         component={QuranAudioPlayerScreen}
-        options={{ headerShown: false, animation: 'slide_from_bottom' }}
+        options={{
+          headerShown: false,
+          animation: 'slide_from_bottom',
+          // Sheet-like: swipe down to dismiss instead of a horizontal pop.
+          gestureDirection: 'vertical',
+          fullScreenGestureEnabled: false,
+        }}
       />
       <Stack.Screen
         name="MushafReader"
@@ -28,7 +34,9 @@ export function QuranStackNavigator() {
         options={{
           headerShown: false,
           headerBackVisible: false,
-          animation: 'fade',
+          animation: 'slide_from_right',
+          // Page-flip reader owns horizontal pans; keep pop on the edge only.
+          fullScreenGestureEnabled: false,
         }}
       />
       <Stack.Screen name="Tafsir" component={TafsirScreen} />

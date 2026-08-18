@@ -1,6 +1,6 @@
 import { memo, useMemo } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
-import Animated, { useAnimatedStyle } from 'react-native-reanimated';
+import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reanimated';
 import { useQuery } from '@tanstack/react-query';
 import { loadMushafPagePayload } from '../../../services/mushaf/mushafPageContent';
 import type { MushafThemePalette } from '../../../services/mushaf/mushafTheme';
@@ -15,7 +15,7 @@ type Props = {
   paddingTop: number;
   paddingBottom: number;
   palette: MushafThemePalette;
-  liveScale: Animated.SharedValue<number>;
+  liveScale: SharedValue<number>;
   showTranslation: boolean;
 };
 
@@ -23,7 +23,7 @@ type LineProps = {
   line: { arabic: string; translation?: string | null; ref: { surah: number; ayah: number } };
   idx: number;
   palette: MushafThemePalette;
-  liveScale: Animated.SharedValue<number>;
+  liveScale: SharedValue<number>;
   showTranslation: boolean;
 };
 
@@ -94,11 +94,21 @@ export const MushafPageSlide = memo(function MushafPageSlide({
   return (
     <View style={[styles.pageRoot, { width, height, backgroundColor: palette.background }]}>
       {isPending ? (
-        <ActivityIndicator size="large" color={palette.accent} />
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color={palette.accent} />
+        </View>
       ) : isError ? (
-        <Pressable onPress={() => refetch()}>
-          <Text style={{ color: palette.text }}>Could not load page. Tap to retry.</Text>
-        </Pressable>
+        <View style={styles.centered}>
+          <Pressable onPress={() => refetch()}>
+            <Text style={{ color: palette.text }}>Could not load page. Tap to retry.</Text>
+          </Pressable>
+        </View>
+      ) : !body ? (
+        <View style={styles.centered}>
+          <Pressable onPress={() => refetch()}>
+            <Text style={{ color: palette.text }}>Page is empty. Tap to retry.</Text>
+          </Pressable>
+        </View>
       ) : (
         <ScrollView
           style={styles.scroll}
@@ -124,6 +134,12 @@ export const MushafPageSlide = memo(function MushafPageSlide({
 const styles = StyleSheet.create({
   pageRoot: {
     overflow: 'hidden',
+  },
+  centered: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: spacing.lg,
   },
   scroll: {
     flex: 1,

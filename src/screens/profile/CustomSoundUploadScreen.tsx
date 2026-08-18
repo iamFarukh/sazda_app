@@ -1,28 +1,63 @@
-import { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
+import { useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import DocumentPicker from 'react-native-document-picker';
 import RNFS from 'react-native-fs';
 import { ChevronLeft, CloudUpload, Info, Music, Trash2, LibraryBig } from 'lucide-react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 import { useThemePalette } from '../../theme/useThemePalette';
 import { radius } from '../../theme/radius';
 import { spacing } from '../../theme/spacing';
-import { fontFamilies } from '../../theme/typography';
+import { elevation } from '../../theme/elevation';
+import { motionDurations, motionEasing } from '../../theme/motion';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
+import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { PressableScale } from '../../components/atoms/PressableScale/PressableScale';
+import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
+import { EmptyState } from '../../components/molecules/EmptyState/EmptyState';
+import { hapticLight, hapticMedium, hapticSuccess } from '../../utils/appHaptics';
 import { useAdhanSettingsStore } from '../../store/adhanSettingsStore';
-import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
 
 export function CustomSoundUploadScreen() {
   const navigation = useNavigation();
-  const { colors: c } = useThemePalette();
-  
+  const { colors: c, scheme } = useThemePalette();
+  const reduceMotion = useReduceMotion();
+
   const customSounds = useAdhanSettingsStore(s => s.customSounds);
   const addCustomSound = useAdhanSettingsStore(s => s.addCustomSound);
   const removeCustomSound = useAdhanSettingsStore(s => s.removeCustomSound);
   const byPrayer = useAdhanSettingsStore(s => s.byPrayer);
 
   const [isUploading, setIsUploading] = useState(false);
+
+  const dyn = useMemo(
+    () => ({
+      uploadCard: {
+        backgroundColor: c.surfaceContainerLowest,
+        borderColor: c.outlineVariant,
+        ...elevation('sm', scheme),
+      },
+      cloudIcon: {
+        backgroundColor: c.primaryContainer,
+        ...elevation('md', scheme),
+      },
+      noteBox: { backgroundColor: c.surfaceContainer },
+      soundItem: {
+        backgroundColor: c.surfaceContainerLow,
+        ...elevation('sm', scheme),
+      },
+      musicIcon: { backgroundColor: c.secondaryContainer },
+      deleteBtn: { backgroundColor: c.error + '14' },
+    }),
+    [c, scheme],
+  );
+
+  const enter = (delay: number) =>
+    reduceMotion
+      ? undefined
+      : FadeInDown.duration(motionDurations.slow).delay(delay).easing(motionEasing.standardOut);
 
   const handlePickFile = async () => {
     try {
@@ -32,7 +67,7 @@ export function CustomSoundUploadScreen() {
       });
 
       if (!res.uri || !res.name) return;
-      
+
       if (res.size && res.size > 5 * 1024 * 1024) {
         AppAlert.show('File too large', 'Please select an audio file smaller than 5MB.', undefined, { variant: 'info' });
         return;
@@ -40,18 +75,19 @@ export function CustomSoundUploadScreen() {
 
       // We generate a unique id for the new sound
       const uniqueId = 'custom_' + Date.now().toString(36);
-      
+
       // Construct local destination path
       const destPath = `${RNFS.DocumentDirectoryPath}/${uniqueId}_${res.name.replace(/[^a-zA-Z0-9.\-_]/g, '')}`;
-      
+
       // Copy the file from temporary to app's Document directory
       await RNFS.copyFile(res.uri, destPath);
-      
+
       addCustomSound({
         id: uniqueId,
         name: res.name,
         uri: 'file://' + destPath,
       });
+      hapticSuccess();
 
     } catch (err) {
       if (!DocumentPicker.isCancel(err)) {
@@ -65,15 +101,15 @@ export function CustomSoundUploadScreen() {
 
   const handleDelete = async (id: string, uri: string) => {
     // Check if the sound is currenly in use by any prayer
-    const inUseBy = Object.entries(byPrayer).filter(([prayer, settings]) => settings.soundId === id);
+    const inUseBy = Object.entries(byPrayer).filter(([, settings]) => settings.soundId === id);
     if (inUseBy.length > 0) {
       AppAlert.show(
         'Sound in Use',
         `This sound is currently active for ${inUseBy.map(x => x[0]).join(', ')}. Removing it will reset them to default. Continue?`,
         [
           { text: 'Cancel', style: 'cancel' },
-          { 
-            text: 'Remove', 
+          {
+            text: 'Remove',
             style: 'destructive',
             onPress: () => performDelete(id, uri)
           }
@@ -102,96 +138,139 @@ export function CustomSoundUploadScreen() {
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: c.surface }]} edges={['top']}>
       <View style={styles.topBar}>
-        <Pressable
-          onPress={() => navigation.goBack()}
-          style={({ pressed }) => [styles.iconBtn, pressed && { opacity: 0.7 }]}>
+        <PressableScale
+          onPress={() => {
+            hapticLight();
+            navigation.goBack();
+          }}
+          accessibilityRole="button"
+          accessibilityLabel="Go back"
+          hitSlop={8}
+          style={styles.iconBtn}>
           <ChevronLeft size={28} color={c.primary} strokeWidth={2.25} />
-        </Pressable>
-        <Text style={[styles.title, { color: c.primary }]}></Text>
+        </PressableScale>
+        <SazdaText variant="headlineMedium" color="primary">
+          Custom Sounds
+        </SazdaText>
         <View style={styles.iconBtn} />
       </View>
 
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        
+
         {/* Header Section */}
-        <Animated.View entering={FadeInDown.duration(400).delay(100)} style={styles.headerBox}>
-          <Text style={[styles.heading, { color: c.primary }]}>Upload Custom Sound</Text>
-          <Text style={[styles.subheading, { color: c.onSurfaceVariant }]}>
+        <Animated.View entering={enter(60)} style={styles.headerBox}>
+          <SazdaText variant="headlineLarge" color="primary" style={styles.heading}>
+            Upload Custom Sound
+          </SazdaText>
+          <SazdaText variant="bodyMedium" color="onSurfaceVariant">
             Personalize your spiritual atmosphere with unique audio.
-          </Text>
+          </SazdaText>
         </Animated.View>
 
         {/* Upload Area */}
-        <Animated.View entering={FadeInDown.duration(400).delay(150)}>
-          <Pressable 
-            onPress={handlePickFile}
+        <Animated.View entering={enter(140)}>
+          <PressableScale
+            onPress={() => {
+              hapticMedium();
+              handlePickFile();
+            }}
             disabled={isUploading}
-            style={({ pressed }) => [
-              styles.uploadBox,
-              { 
-                backgroundColor: c.surfaceContainerLowest, 
-                borderColor: pressed ? c.primaryContainer : c.outlineVariant,
-                opacity: isUploading ? 0.7 : 1
-              }
-            ]}
-          >
-            <View style={[styles.cloudIcon, { backgroundColor: c.primaryContainer }]}>
-              <CloudUpload size={40} color={c.onPrimary} />
+            accessibilityRole="button"
+            accessibilityLabel={isUploading ? 'Importing audio file' : 'Select an audio file to upload'}
+            accessibilityState={{ disabled: isUploading, busy: isUploading }}
+            to={0.98}
+            pressedOpacity={0.9}
+            style={[styles.uploadBox, dyn.uploadCard, isUploading && styles.uploadBoxBusy]}>
+            <View style={[styles.cloudIcon, dyn.cloudIcon]}>
+              <CloudUpload size={36} color={c.onPrimaryContainer} />
             </View>
-            <Text style={[styles.uploadTitle, { color: c.primary }]}>
-              {isUploading ? 'Importing Audio...' : 'Select Audio File'}
-            </Text>
-            <Text style={[styles.uploadSub, { color: c.onSurfaceVariant }]}>
-              Click to browse your device for audio files
-            </Text>
-          </Pressable>
+            <SazdaText variant="headlineMedium" color="primary" align="center" style={styles.uploadTitle}>
+              {isUploading ? 'Importing Audio…' : 'Select Audio File'}
+            </SazdaText>
+            <SazdaText variant="bodySmall" color="onSurfaceVariant" align="center" style={styles.uploadSub}>
+              Tap to browse your device for audio files
+            </SazdaText>
+          </PressableScale>
 
-          <View style={[styles.noteBox, { backgroundColor: c.surfaceContainerHighest }]}>
-            <Info size={20} color={c.primary} style={{ marginTop: 2 }} />
-            <Text style={[styles.noteText, { color: c.onSurfaceVariant }]}>
-              <Text style={{ fontWeight: '700', color: c.primary }}>Note: </Text>
-              Sound should be short and clear. Recommended formats: MP3, WAV, or M4A (Max 5MB).
-            </Text>
+          <View style={[styles.noteBox, dyn.noteBox]}>
+            <Info size={18} color={c.primary} style={styles.noteIcon} />
+            <SazdaText variant="caption" color="onSurfaceVariant" style={styles.noteText}>
+              Keep it short and clear. Recommended formats: MP3, WAV, or M4A (max 5MB).
+            </SazdaText>
           </View>
         </Animated.View>
 
         {/* Library Section */}
-        <Animated.View entering={FadeInUp.duration(400).delay(200)} style={styles.librarySection}>
+        <Animated.View entering={enter(220)} style={styles.librarySection}>
           <View style={styles.libraryHeader}>
-            <Text style={[styles.libraryTitle, { color: c.primary }]}>Your Library</Text>
-            <Text style={[styles.libraryCount, { color: c.primary }]}>{customSounds.length} {customSounds.length === 1 ? 'FILE' : 'FILES'} UPLOADED</Text>
+            <SazdaText variant="titleLarge" color="primary">
+              Your Library
+            </SazdaText>
+            <SazdaText variant="label" color="onSurfaceVariant">
+              {customSounds.length} {customSounds.length === 1 ? 'file' : 'files'}
+            </SazdaText>
           </View>
 
           <View style={styles.list}>
-            {customSounds.map((sound) => (
-              <View key={sound.id} style={[styles.soundItem, { backgroundColor: c.surfaceContainerLowest }]}>
+            {isUploading && (
+              <View style={[styles.soundItem, dyn.soundItem]}>
                 <View style={styles.soundItemLeft}>
-                  <View style={[styles.musicIcon, { backgroundColor: c.secondaryContainer }]}>
-                    <Music size={20} color={c.primary} />
-                  </View>
-                  <View style={{ flex: 1 }}>
-                    <Text style={[styles.soundName, { color: c.primary }]} numberOfLines={1}>
-                      {sound.name}
-                    </Text>
-                    <Text style={[styles.soundSub, { color: c.onSurfaceVariant }]}>Custom Audio</Text>
+                  <Skeleton circle width={48} height={48} />
+                  <View style={styles.skeletonLines}>
+                    <Skeleton width="70%" height={14} />
+                    <Skeleton width="40%" height={10} />
                   </View>
                 </View>
-                <Pressable
-                  onPress={() => handleDelete(sound.id, sound.uri)}
-                  style={({ pressed }) => [styles.deleteBtn, { backgroundColor: pressed ? 'rgba(186, 26, 26, 0.15)' : 'rgba(186, 26, 26, 0.05)' }]}
-                >
-                  <Trash2 size={20} color={c.error} />
-                </Pressable>
               </View>
+            )}
+
+            {customSounds.map((sound, index) => (
+              <Animated.View key={sound.id} entering={enter(260 + Math.min(index, 6) * 50)}>
+                <View
+                  style={[styles.soundItem, dyn.soundItem]}
+                  accessible
+                  accessibilityLabel={`${sound.name}, custom audio`}>
+                  <View style={styles.soundItemLeft}>
+                    <View style={[styles.musicIcon, dyn.musicIcon]}>
+                      <Music size={20} color={c.onSecondaryContainer} />
+                    </View>
+                    <View style={styles.soundItemText}>
+                      <SazdaText variant="titleLarge" color="primary" numberOfLines={1}>
+                        {sound.name}
+                      </SazdaText>
+                      <SazdaText variant="label" color="onSurfaceVariant" style={styles.soundSub}>
+                        Custom Audio
+                      </SazdaText>
+                    </View>
+                  </View>
+                  <PressableScale
+                    onPress={() => {
+                      hapticMedium();
+                      handleDelete(sound.id, sound.uri);
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Delete ${sound.name}`}
+                    hitSlop={8}
+                    to={0.92}
+                    style={[styles.deleteBtn, dyn.deleteBtn]}>
+                    <Trash2 size={20} color={c.error} />
+                  </PressableScale>
+                </View>
+              </Animated.View>
             ))}
 
-            {customSounds.length === 0 && (
-              <View style={[styles.emptyState, { backgroundColor: c.primary + '0D', borderColor: c.primary + '1A' }]}>
-                <LibraryBig size={32} color={c.primary} style={{ opacity: 0.6, marginBottom: spacing.sm }} />
-                <Text style={[styles.emptyText, { color: c.primary }]}>
-                  Upload your own voice or custom audio for a truly personal sanctuary experience
-                </Text>
-              </View>
+            {customSounds.length === 0 && !isUploading && (
+              <EmptyState
+                compact
+                icon={<LibraryBig size={36} color={c.onSurfaceVariant} />}
+                title="No custom sounds yet"
+                message="Upload your own voice or a favorite recitation for a truly personal alert."
+                actionLabel="Upload a sound"
+                onAction={() => {
+                  hapticMedium();
+                  handlePickFile();
+                }}
+              />
             )}
           </View>
         </Animated.View>
@@ -211,11 +290,6 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   iconBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  title: {
-    fontFamily: fontFamilies.headline,
-    fontSize: 18,
-    fontWeight: '800',
-  },
   scroll: {
     paddingHorizontal: spacing.lg,
     paddingBottom: spacing.x3xl,
@@ -223,18 +297,10 @@ const styles = StyleSheet.create({
   headerBox: {
     marginBottom: spacing.xl,
     marginTop: spacing.md,
+    gap: spacing.xs,
   },
   heading: {
-    fontFamily: fontFamilies.headline,
-    fontSize: 32,
-    fontWeight: '800',
-    letterSpacing: -0.5,
-    marginBottom: spacing.xs,
-  },
-  subheading: {
-    fontFamily: fontFamilies.body,
-    fontSize: 15,
-    fontWeight: '500',
+    marginBottom: 0,
   },
   uploadBox: {
     borderWidth: 2,
@@ -243,37 +309,23 @@ const styles = StyleSheet.create({
     padding: spacing.xxl,
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: spacing.xl,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
+    marginBottom: spacing.lg,
+  },
+  uploadBoxBusy: {
+    opacity: 0.7,
   },
   cloudIcon: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 72,
+    height: 72,
+    borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: spacing.lg,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 10,
   },
   uploadTitle: {
-    fontFamily: fontFamilies.headline,
-    fontSize: 20,
-    fontWeight: '800',
-    marginBottom: spacing.xs,
-    textAlign: 'center',
+    marginBottom: spacing.xxs,
   },
   uploadSub: {
-    fontFamily: fontFamilies.body,
-    fontSize: 13,
-    textAlign: 'center',
     maxWidth: 240,
   },
   noteBox: {
@@ -284,10 +336,10 @@ const styles = StyleSheet.create({
     borderRadius: radius.sm,
     marginBottom: spacing.xxl,
   },
+  noteIcon: {
+    marginTop: 1,
+  },
   noteText: {
-    fontFamily: fontFamilies.body,
-    fontSize: 13,
-    lineHeight: 18,
     flex: 1,
   },
   librarySection: {
@@ -297,33 +349,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.lg,
-  },
-  libraryTitle: {
-    fontFamily: fontFamilies.headline,
-    fontSize: 20,
-    fontWeight: '800',
-  },
-  libraryCount: {
-    fontFamily: fontFamilies.body,
-    fontSize: 11,
-    fontWeight: '700',
-    opacity: 0.5,
+    marginBottom: spacing.md,
   },
   list: {
-    gap: spacing.md,
+    gap: spacing.sm,
   },
   soundItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: spacing.lg,
+    padding: spacing.md,
     borderRadius: radius.md,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 6,
   },
   soundItemLeft: {
     flexDirection: 'row',
@@ -331,44 +367,29 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     flex: 1,
   },
+  soundItemText: {
+    flex: 1,
+    paddingRight: spacing.sm,
+  },
+  skeletonLines: {
+    flex: 1,
+    gap: spacing.xs,
+  },
   musicIcon: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  soundName: {
-    fontFamily: fontFamilies.headline,
-    fontSize: 16,
-    fontWeight: '800',
-    marginBottom: 2,
-  },
   soundSub: {
-    fontFamily: fontFamilies.body,
-    fontSize: 13,
-    fontWeight: '500',
+    marginTop: 2,
   },
   deleteBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
+    borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  emptyState: {
-    borderWidth: 1,
-    borderRadius: radius.md,
-    padding: spacing.xxl,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderStyle: 'dashed',
-  },
-  emptyText: {
-    fontFamily: fontFamilies.body,
-    fontSize: 13,
-    fontStyle: 'italic',
-    textAlign: 'center',
-    opacity: 0.8,
-  }
 });

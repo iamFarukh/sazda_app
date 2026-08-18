@@ -8,7 +8,13 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 
 export function AuthStackNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator
+      screenOptions={{
+        headerShown: false,
+        // Auth is a ceremony, not a drill-down: soft crossfades instead of pushes.
+        animation: 'fade',
+        animationDuration: 280,
+      }}>
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="SignIn" component={SignInScreen} />
       <Stack.Screen name="SignInSuccess" component={SignInSuccessScreen} />

@@ -1,20 +1,31 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  Linking,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, {
+  Easing,
+  FadeInUp,
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withRepeat,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 import dayjs from 'dayjs';
 import { useFocusEffect } from '@react-navigation/native';
-import { Bell, CalendarDays, Check, ChevronRight, Flame, ListChecks, X } from 'lucide-react-native';
+import { CalendarDays, Check, ChevronRight, Flame, ListChecks, X } from 'lucide-react-native';
 import { MonthCalendarModal } from '../../components/molecules/MonthCalendarModal/MonthCalendarModal';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { NoorRing } from '../../components/atoms/NoorRing/NoorRing';
+import { LottieBurst } from '../../components/molecules/LottieBurst/LottieBurst';
+import { AnimatedCounter } from '../../components/atoms/AnimatedCounter/AnimatedCounter';
+import { PressableScale } from '../../components/atoms/PressableScale/PressableScale';
 import { ToolsSubheader } from '../../components/molecules/ToolsSubheader/ToolsSubheader';
 import { usePrayerTimesHome } from '../../hooks/usePrayerTimesHome';
 import {
@@ -27,7 +38,6 @@ import { useAuthStore } from '../../store/authStore';
 import { pullAndMergePrayer, setPrayerSyncUser } from '../../services/prayerTrackerCloudSync';
 import {
   cancelAllAdhanReminders,
-  requestNotificationPermission,
   rescheduleAdhanReminders,
 } from '../../services/prayerReminders';
 import { useAdhanSettingsStore } from '../../store/adhanSettingsStore';
@@ -50,6 +60,8 @@ import { getNextSalahFromTodayTimings, getSuggestedLogPrayer } from '../../utils
 import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
 import { hapticLight, hapticSuccess } from '../../utils/appHaptics';
 
+const CELEBRATE = require('../../assets/lottie/celebrate.json');
+
 const DISPLAY_NAMES: Record<FiveDailyPrayer, string> = {
   Fajr: 'Fajr',
   Dhuhr: 'Zohar',
@@ -64,12 +76,38 @@ export function PrayerTrackerScreen() {
   const { colors: c, scheme } = useThemePalette();
   const styles = useMemo(() => createPrayerTrackerStyles(c, scheme), [c, scheme]);
   const heroOnFill = scheme === 'dark' ? c.onPrimaryContainer : c.onPrimary;
+  const reduceMotion = useReducedMotion();
+  // Flashes a soft gold wash over the day summary when all five prayers are completed.
+  const perfectGlow = useSharedValue(0);
+  const perfectGlowStyle = useAnimatedStyle(() => ({ opacity: perfectGlow.value }));
+
+  // Living streak flame: a gentle continuous flicker (scale + tilt + warmth).
+  const flame = useSharedValue(0);
+  useEffect(() => {
+    if (reduceMotion) return;
+    flame.value = withRepeat(
+      withTiming(1, { duration: 1300, easing: Easing.inOut(Easing.sin) }),
+      -1,
+      true,
+    );
+  }, [reduceMotion, flame]);
+  const flameStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: 1 + flame.value * 0.14 },
+      { rotate: `${(flame.value - 0.5) * 6}deg` },
+    ],
+  }));
+  const flameGlowStyle = useAnimatedStyle(() => ({ opacity: 0.35 + flame.value * 0.4 }));
 
   const todayKey = dayjs().format('YYYY-MM-DD');
   const minHistoryKey = dayjs(todayKey).subtract(400, 'day').format('YYYY-MM-DD');
 
   const [selectedKey, setSelectedKey] = useState(todayKey);
   const [calendarOpen, setCalendarOpen] = useState(false);
+  /** Bumped each time a prayer is freshly marked prayed → replays the Noor burst. */
+  const [noorKey, setNoorKey] = useState(0);
+  /** Bumped when a mark completes all five prayers → plays the celebration burst. */
+  const [perfectKey, setPerfectKey] = useState(0);
 
   useEffect(() => {
     if (selectedKey > todayKey) setSelectedKey(todayKey);
@@ -83,7 +121,7 @@ export function PrayerTrackerScreen() {
 
   const masterEnabled = useAdhanSettingsStore(s => s.masterEnabled);
 
-  const { todayTimings, coords, prayerLoading } = usePrayerTimesHome();
+  const { todayTimings, coords } = usePrayerTimesHome();
 
   const selectedLog = byDay[selectedKey];
   const progress = countTodayProgress(selectedLog);
@@ -170,11 +208,30 @@ export function PrayerTrackerScreen() {
       hapticLight();
       markPrayer(selectedKey, prayer, 'clear');
     } else {
-      if (status === 'prayed') hapticSuccess();
-      else hapticLight();
+      if (status === 'prayed') {
+        hapticSuccess();
+        setNoorKey(k => k + 1);
+        // Perfect-day celebration: this mark completes all five for the day.
+        const prayedAfter = FIVE_DAILY_PRAYERS.reduce(
+          (n, p) =>
+            n + ((p === prayer ? 'prayed' : selectedLog?.[p]) === 'prayed' ? 1 : 0),
+          0,
+        );
+        if (prayedAfter === PRAYERS_PER_DAY) {
+          setPerfectKey(k => k + 1);
+          if (!reduceMotion) {
+            perfectGlow.value = withSequence(
+              withTiming(1, { duration: 280 }),
+              withTiming(0, { duration: 1100 }),
+            );
+          }
+        }
+      } else hapticLight();
       markPrayer(selectedKey, prayer, status);
     }
   };
+
+  const isPerfectDay = progress.prayed === PRAYERS_PER_DAY;
 
   const onResetDay = () => {
     const label = dayjs(selectedKey).format('MMM D');
@@ -193,30 +250,6 @@ export function PrayerTrackerScreen() {
     );
   };
 
-  const onMasterToggle = async (value: boolean) => {
-    if (value) {
-      const ok = await requestNotificationPermission();
-      if (!ok) {
-        AppAlert.show(
-          'Notifications off',
-          'Allow notifications for Sazda in system settings to get salah reminders.',
-          [
-            { text: 'Not now', style: 'cancel' },
-            {
-              text: 'Open settings',
-              onPress: () => Linking.openSettings(),
-            },
-          ],
-          { variant: 'info' }
-        );
-        return;
-      }
-    }
-    if (!value) {
-      await cancelAllAdhanReminders();
-    }
-  };
-
   const yesterdayKey = dayjs(todayKey).subtract(1, 'day').format('YYYY-MM-DD');
   const sectionTitle =
     selectedKey === todayKey
@@ -227,6 +260,13 @@ export function PrayerTrackerScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
+      {noorKey > 0 ? (
+        <View pointerEvents="none" style={styles.noorOverlay}>
+          <NoorRing key={noorKey} playKey={noorKey} size={220} />
+        </View>
+      ) : null}
+      <LottieBurst trigger={perfectKey} source={CELEBRATE} size={300} />
+
       <View style={styles.pad}>
         <ToolsSubheader title="Prayer tracker" subtitle="Log · streaks · reminders · history" />
 
@@ -239,8 +279,9 @@ export function PrayerTrackerScreen() {
             const sel = key === selectedKey;
             const isToday = key === todayKey;
             return (
-              <Pressable
+              <PressableScale
                 key={key}
+                to={0.93}
                 onPress={() => setSelectedKey(key)}
                 style={[styles.dayChip, sel && styles.dayChipSel]}
                 accessibilityRole="button"
@@ -260,7 +301,7 @@ export function PrayerTrackerScreen() {
                     Now
                   </SazdaText>
                 ) : null}
-              </Pressable>
+              </PressableScale>
             );
           })}
         </ScrollView>
@@ -290,13 +331,24 @@ export function PrayerTrackerScreen() {
           style={styles.scroll}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}>
-          <View style={styles.heroCard}>
+          <Animated.View entering={reduceMotion ? undefined : FadeInUp.duration(420)} style={styles.heroCard}>
+            <View style={styles.heroWatermark} pointerEvents="none">
+              <Flame size={150} color={heroOnFill} strokeWidth={1} />
+            </View>
             <View style={styles.heroTop}>
               <View style={styles.streakBlock}>
-                <Flame size={28} color={c.secondaryContainer} />
-                <SazdaText variant="displayLg" color={heroOnFill} style={styles.streakNum}>
-                  {streak}
-                </SazdaText>
+                <View style={styles.flameWrap}>
+                  <Animated.View style={[styles.flameGlow, flameGlowStyle]} pointerEvents="none" />
+                  <Animated.View style={flameStyle}>
+                    <Flame size={30} color={c.secondaryContainer} fill={c.secondaryContainer} />
+                  </Animated.View>
+                </View>
+                <AnimatedCounter
+                  value={streak}
+                  durationMs={700}
+                  color={heroOnFill}
+                  style={styles.streakNum}
+                />
                 <SazdaText variant="label" color={heroOnFill} style={styles.streakLabel}>
                   day streak
                 </SazdaText>
@@ -310,7 +362,7 @@ export function PrayerTrackerScreen() {
             <SazdaText variant="caption" color={heroOnFill} style={styles.heroFoot}>
               Streak uses real today ({dayjs(todayKey).format('MMM D')}) — 5/5 prayed = perfect day.
             </SazdaText>
-          </View>
+          </Animated.View>
 
           {selectedKey === todayKey && todayTimings ? (
             <View style={styles.nextCard}>
@@ -375,46 +427,51 @@ export function PrayerTrackerScreen() {
                       {suggest ? ' · now' : ''}
                     </SazdaText>
                     <View style={styles.rowActions}>
-                      <Pressable
+                      <PressableScale
+                        to={0.86}
                         onPress={() => onMark(prayer, 'prayed')}
-                        style={({ pressed }) => [
-                          styles.markBtn,
-                          status === 'prayed' && styles.markBtnPrayed,
-                          pressed && styles.pressed,
-                        ]}
+                        style={[styles.markBtn, status === 'prayed' && styles.markBtnPrayed]}
                         accessibilityRole="button"
+                        accessibilityState={{ selected: status === 'prayed' }}
                         accessibilityLabel={`${DISPLAY_NAMES[prayer]} prayed`}>
                         <Check
                           size={20}
                           color={status === 'prayed' ? c.onSecondaryContainer : c.primary}
-                          strokeWidth={2.5}
+                          strokeWidth={2.75}
                         />
-                      </Pressable>
-                      <Pressable
+                      </PressableScale>
+                      <PressableScale
+                        to={0.86}
                         onPress={() => onMark(prayer, 'missed')}
-                        style={({ pressed }) => [
-                          styles.markBtn,
-                          status === 'missed' && styles.markBtnMissed,
-                          pressed && styles.pressed,
-                        ]}
+                        style={[styles.markBtn, status === 'missed' && styles.markBtnMissed]}
                         accessibilityRole="button"
+                        accessibilityState={{ selected: status === 'missed' }}
                         accessibilityLabel={`${DISPLAY_NAMES[prayer]} missed`}>
                         <X
                           size={20}
                           color={status === 'missed' ? c.onPrimary : c.onSurfaceVariant}
-                          strokeWidth={2.5}
+                          strokeWidth={2.75}
                         />
-                      </Pressable>
+                      </PressableScale>
                     </View>
                   </View>
                 );
               })}
               <View style={styles.todaySummary}>
+                <Animated.View
+                  pointerEvents="none"
+                  style={[styles.perfectGlowFill, perfectGlowStyle]}
+                />
                 <SazdaText variant="bodyMedium" color="onSurfaceVariant">
                   {progress.prayed}/{PRAYERS_PER_DAY} prayed
                   {progress.missed > 0 ? ` · ${progress.missed} missed` : ''}
                   {progress.pending > 0 ? ` · ${progress.pending} pending` : ''}
                 </SazdaText>
+                {isPerfectDay ? (
+                  <SazdaText variant="caption" color="secondary" style={styles.perfectLabel}>
+                    Perfect day — all five prayed
+                  </SazdaText>
+                ) : null}
               </View>
               <Pressable onPress={onResetDay} style={styles.resetLink} accessibilityRole="button">
                 <SazdaText variant="caption" color="secondary" style={styles.resetLinkText}>
@@ -497,6 +554,12 @@ function createPrayerTrackerStyles(c: AppPalette, scheme: ResolvedScheme) {
 
   return StyleSheet.create({
   safe: { flex: 1, backgroundColor: c.surface },
+  noorOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 50,
+  },
   pad: { flex: 1, paddingHorizontal: spacing.lg },
   chipBar: { maxHeight: 88, marginBottom: spacing.sm },
   chipScroll: {
@@ -538,11 +601,19 @@ function createPrayerTrackerStyles(c: AppPalette, scheme: ResolvedScheme) {
     borderRadius: radius.md + 10,
     padding: spacing.xl,
     gap: spacing.md,
-    shadowColor: scheme === 'dark' ? 'rgba(0,0,0,0.35)' : 'rgba(0, 53, 39, 0.2)',
+    position: 'relative',
+    overflow: 'hidden',
+    shadowColor: scheme === 'dark' ? 'rgba(0,0,0,0.45)' : 'rgba(0, 53, 39, 0.28)',
     shadowOffset: { width: 0, height: 12 },
     shadowOpacity: 1,
     shadowRadius: 28,
     elevation: 8,
+  },
+  heroWatermark: {
+    position: 'absolute',
+    right: -26,
+    bottom: -30,
+    opacity: 0.08,
   },
   heroTop: {
     flexDirection: 'row',
@@ -551,13 +622,28 @@ function createPrayerTrackerStyles(c: AppPalette, scheme: ResolvedScheme) {
   },
   streakBlock: {
     alignItems: 'center',
-    minWidth: 72,
+    minWidth: 80,
+  },
+  flameWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 44,
+    height: 40,
+  },
+  flameGlow: {
+    position: 'absolute',
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: c.secondaryContainer,
   },
   streakNum: {
-    fontSize: 44,
-    lineHeight: 48,
+    fontSize: 46,
+    lineHeight: 52,
     fontWeight: '900',
     marginTop: spacing.xs,
+    textAlign: 'center',
+    letterSpacing: -1,
   },
   streakLabel: {
     opacity: 0.85,
@@ -638,9 +724,9 @@ function createPrayerTrackerStyles(c: AppPalette, scheme: ResolvedScheme) {
   prayerName: { fontWeight: '700', flex: 1 },
   rowActions: { flexDirection: 'row', gap: spacing.sm },
   markBtn: {
-    width: 44,
-    height: 44,
-    borderRadius: radius.md,
+    width: 46,
+    height: 46,
+    borderRadius: radius.md + 2,
     backgroundColor: c.surfaceContainerHighest,
     alignItems: 'center',
     justifyContent: 'center',
@@ -649,7 +735,12 @@ function createPrayerTrackerStyles(c: AppPalette, scheme: ResolvedScheme) {
   },
   markBtnPrayed: {
     backgroundColor: c.secondaryContainer,
-    borderColor: 'rgba(115, 92, 0, 0.25)',
+    borderColor: 'rgba(115, 92, 0, 0.3)',
+    shadowColor: c.secondary,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: scheme === 'dark' ? 0.5 : 0.35,
+    shadowRadius: 8,
+    elevation: 3,
   },
   markBtnMissed: {
     backgroundColor: c.error,
@@ -659,6 +750,17 @@ function createPrayerTrackerStyles(c: AppPalette, scheme: ResolvedScheme) {
   todaySummary: {
     padding: spacing.lg,
     paddingTop: spacing.md,
+    overflow: 'hidden',
+  },
+  perfectGlowFill: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: c.secondaryContainer,
+    opacity: 0,
+  },
+  perfectLabel: {
+    fontWeight: '800',
+    letterSpacing: 0.3,
+    marginTop: 4,
   },
   resetLink: {
     paddingHorizontal: spacing.lg,

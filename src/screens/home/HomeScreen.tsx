@@ -10,9 +10,12 @@ import {
   Pressable,
   RefreshControl,
   ScrollView,
+  StatusBar,
   StyleSheet,
+  useWindowDimensions,
   View,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -21,7 +24,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import {
   BookOpen,
@@ -38,6 +41,7 @@ import { TabLandingHeader } from '../../components/organisms/TabLandingHeader';
 import { Card } from '../../components/atoms/Card/Card';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
 import { radius } from '../../theme/radius';
+import { elevation } from '../../theme/elevation';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
 import { useThemePalette } from '../../theme/useThemePalette';
@@ -52,11 +56,16 @@ import { HomeLocationBar } from '../../components/molecules/HomeLocationBar/Home
 import { LocationSettingsSheet } from '../../components/molecules/LocationSettingsSheet/LocationSettingsSheet';
 import { fetchGregorianToHijri } from '../../services/hijriCalendarApi';
 import { dayjs } from '../../utils/dayjs';
-import type { DailyPrayerName } from '../../utils/prayerSchedule';
+import type {
+  DailyPrayerName,
+  PrayerHeroPeriod,
+} from '../../utils/prayerSchedule';
 import {
-  createDualHeroStyles,
-  HomePrayerHeroAnimated,
+  createPrayerContentStyles,
+  PrayerHeroContent,
 } from './HomePrayerHeroAnimated';
+import { HomeImmersiveHero } from './HomeImmersiveHero';
+import { resolvePrayerAtmosphere } from '../../theme/prayerAtmosphere';
 import { HomePrayerTimesList } from './HomePrayerTimesList';
 import { useProfileStore } from '../../store/profileStore';
 import { motionDurations } from '../../theme/motion';
@@ -186,6 +195,20 @@ export function HomeScreen() {
   const greetingName = useProfileStore(s => s.displayName.trim() || 'Guest');
   const { colors: c, scheme } = useThemePalette();
   const styles = useMemo(() => createHomeStyles(c, scheme), [c, scheme]);
+  const insets = useSafeAreaInsets();
+  const { height: windowHeight } = useWindowDimensions();
+  const heroHeight = Math.round(windowHeight * 0.58);
+
+  // Light status-bar icons over the dark immersive hero; restore on blur for other tabs.
+  useFocusEffect(
+    useCallback(() => {
+      StatusBar.setBarStyle('light-content');
+      return () =>
+        StatusBar.setBarStyle(
+          scheme === 'dark' ? 'light-content' : 'dark-content',
+        );
+    }, [scheme]),
+  );
   const moodMuted =
     scheme === 'dark' ? 'rgba(142,207,178,0.38)' : 'rgba(0, 53, 39, 0.38)';
   const moodIconColor = useCallback(
@@ -209,7 +232,6 @@ export function HomeScreen() {
     prayerLoading,
     prayerError,
     refetchPrayers,
-    hero,
     countdownLabel,
     currentPrayerLabel,
     currentPrayerTimeLabel,
@@ -224,6 +246,7 @@ export function HomeScreen() {
     tomorrowTimings,
     yesterdayTimings,
     nowBeforeFajr,
+    hero,
   } = usePrayerTimesHome();
 
   const prayerWidgetSnapshot = usePrayerWidgetSnapshot(
@@ -244,12 +267,14 @@ export function HomeScreen() {
     }
   }, [requestLocation]);
 
-  const dualHeroStyles = useMemo(
-    () =>
-      createDualHeroStyles(c, scheme, {
-        betweenPrayers: hero?.currentPeriod === 'BetweenFajrDhuhr',
-      }),
-    [c, scheme, hero?.currentPeriod],
+  const prayerContentStyles = useMemo(() => createPrayerContentStyles(), []);
+
+  /** The sky shown by the immersive hero — real period when loaded, else time-of-day guess. */
+  const heroPeriod: PrayerHeroPeriod =
+    hero?.currentPeriod ?? guessPeriodFromHour();
+  const heroHighlight = useMemo(
+    () => resolvePrayerAtmosphere(heroPeriod).highlight,
+    [heroPeriod],
   );
 
   const { data: hijriToday } = useQuery({
@@ -304,7 +329,7 @@ export function HomeScreen() {
   }, [refetchPrayers]);
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <View style={styles.safe}>
       <ScrollView
         style={styles.scroll}
         contentContainerStyle={styles.scrollContent}
@@ -318,70 +343,74 @@ export function HomeScreen() {
           />
         }
       >
-        <View style={styles.homeTopCluster}>
-          <TabLandingHeader denseBottom />
-          <HomeLocationBar
-            cityLabel={locationCityLabel}
-            onPress={() => setLocationSheetOpen(true)}
-          />
-        </View>
-
-        <View style={styles.prayerHeaderBlock}>
-          <SazdaText
-            variant="headlineLarge"
-            color="primary"
-            style={styles.prayerPageTitle}
+        {/* Immersive prayer hero — full-bleed atmosphere behind nav chrome + content */}
+        <View style={styles.heroBleed}>
+          <HomeImmersiveHero
+            period={heroPeriod}
+            height={heroHeight}
+            topInset={insets.top}
+            streakCount={prayerStreak}
+            highlight={heroHighlight}
+            header={
+              <>
+                <TabLandingHeader denseBottom onDark />
+                <HomeLocationBar
+                  onDark
+                  cityLabel={locationCityLabel}
+                  onPress={() => setLocationSheetOpen(true)}
+                />
+                <View style={styles.heroTitleBlock}>
+                  <SazdaText
+                    variant="headlineLarge"
+                    color="#ffffff"
+                    style={styles.prayerPageTitle}
+                  >
+                    Prayer times
+                  </SazdaText>
+                  <SazdaText
+                    variant="bodyMedium"
+                    color="rgba(255,255,255,0.82)"
+                    style={styles.greetingCompact}
+                  >
+                    Assalamu Alaikum, {greetingName}
+                  </SazdaText>
+                  <View style={styles.dateRow}>
+                    <SazdaText
+                      variant="bodyMedium"
+                      color="rgba(255,255,255,0.72)"
+                      style={styles.dateRowText}
+                    >
+                      {gregorianDateLine}
+                    </SazdaText>
+                    <View style={styles.heroDateDot} />
+                    <SazdaText
+                      variant="bodyMedium"
+                      color="rgba(255,255,255,0.72)"
+                      style={styles.dateRowText}
+                    >
+                      {hijriDateLine ?? '…'}
+                    </SazdaText>
+                  </View>
+                </View>
+              </>
+            }
           >
-            Prayer times
-          </SazdaText>
-          <SazdaText
-            variant="bodyMedium"
-            color="onSurfaceVariant"
-            style={styles.greetingCompact}
-          >
-            Assalamu Alaikum, {greetingName}
-          </SazdaText>
-          <View style={styles.dateRow}>
-            <SazdaText
-              variant="bodyMedium"
-              color="onSurfaceVariant"
-              style={styles.dateRowText}
-            >
-              {gregorianDateLine}
-            </SazdaText>
-            <View style={styles.dateDot} />
-            <SazdaText
-              variant="bodyMedium"
-              color="onSurfaceVariant"
-              style={styles.dateRowText}
-            >
-              {hijriDateLine ?? '…'}
-            </SazdaText>
-          </View>
-        </View>
-
-        {/* Current prayer — live countdown every second; times from Aladhan */}
-        <View style={styles.prayerWrap}>
-          {hero ? (
-            <HomePrayerHeroAnimated
-              hero={hero}
-              prayerKicker={prayerKicker}
-              currentPrayerLabel={currentPrayerLabel}
-              currentPrayerTimeLabel={currentPrayerTimeLabel}
-              nextPrayerLabel={nextPrayerLabel}
-              countdownLabel={countdownLabel}
-              prayerPeriodNote={prayerPeriodNote}
-              methodNote={methodNote}
-              locationLine={locationLine}
-              streakCount={prayerStreak}
-              palette={c}
-              scheme={scheme}
-              styles={dualHeroStyles}
-            />
-          ) : (
-            <>
-              <View style={styles.prayerGlow} pointerEvents="none" />
-              <View style={styles.prayerCard}>
+            {hero ? (
+              <PrayerHeroContent
+                hero={hero}
+                prayerKicker={prayerKicker}
+                currentPrayerLabel={currentPrayerLabel}
+                currentPrayerTimeLabel={currentPrayerTimeLabel}
+                nextPrayerLabel={nextPrayerLabel}
+                countdownLabel={countdownLabel}
+                prayerPeriodNote={prayerPeriodNote}
+                methodNote={methodNote}
+                locationLine={locationLine}
+                highlight={heroHighlight}
+                styles={prayerContentStyles}
+              />
+            ) : (
+              <View style={styles.heroFallback}>
                 <SazdaText
                   variant="label"
                   color={heroOnFill}
@@ -495,8 +524,8 @@ export function HomeScreen() {
                   </View>
                 ) : null}
               </View>
-            </>
-          )}
+            )}
+          </HomeImmersiveHero>
         </View>
 
         {todayTimings &&
@@ -534,7 +563,7 @@ export function HomeScreen() {
         onUseCurrentLocation={() => void runGpsFromSheet()}
         onRefreshLocation={() => void runGpsFromSheet()}
       />
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -654,12 +683,19 @@ function MoodChip({
   );
 }
 
-function createHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
-  const heroFill = scheme === 'dark' ? c.primaryContainer : c.primary;
-  const heroOn = scheme === 'dark' ? c.onPrimaryContainer : c.onPrimary;
-  const cardShadow =
-    scheme === 'dark' ? 'rgba(0,0,0,0.35)' : 'rgba(6, 78, 59, 0.25)';
+/** Rough time-of-day → period so the hero sky looks contextual before times load. */
+function guessPeriodFromHour(): PrayerHeroPeriod {
+  const h = new Date().getHours();
+  if (h < 5) return 'Night';
+  if (h < 7) return 'Fajr';
+  if (h < 12) return 'BetweenFajrDhuhr';
+  if (h < 15) return 'Dhuhr';
+  if (h < 17) return 'Asr';
+  if (h < 19) return 'Maghrib';
+  return 'Isha';
+}
 
+function createHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
   return StyleSheet.create({
     safe: {
       flex: 1,
@@ -671,19 +707,9 @@ function createHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
       paddingBottom: spacing.x3xl + spacing.lg,
       gap: spacing.md,
     },
-    /** Header + location read as one unit; avoids large scroll `gap` between them. */
-    homeTopCluster: {
-      gap: 2,
-      marginBottom: 0,
-    },
     pressed: { opacity: 0.85 },
     section: {
       gap: spacing.xs,
-    },
-    prayerHeaderBlock: {
-      gap: spacing.xs,
-      marginTop: 0,
-      marginBottom: spacing.sm,
     },
     prayerPageTitle: {
       ...getFontConfig(fontFamilies.headline, '800'),
@@ -712,33 +738,29 @@ function createHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
       borderRadius: 2,
       backgroundColor: c.outlineVariant,
     },
-    prayerWrap: {
-      position: 'relative',
-      marginBottom: spacing.lg,
+    /** Full-bleed: cancel the ScrollView horizontal padding so the hero spans edge-to-edge. */
+    heroBleed: {
+      marginHorizontal: -spacing.lg,
+      marginTop: 0,
     },
-    prayerGlow: {
-      position: 'absolute',
-      left: -4,
-      right: -4,
-      top: 4,
-      bottom: -8,
-      backgroundColor: c.secondaryContainer,
-      opacity: 0.12,
-      borderRadius: radius.md + 8,
+    heroTitleBlock: {
+      marginTop: spacing.md,
+      gap: spacing.xs,
     },
-    prayerCard: {
-      backgroundColor: heroFill,
-      borderRadius: radius.md + 8,
-      padding: spacing.xl,
-      alignItems: 'center',
-      shadowColor: cardShadow,
-      shadowOpacity: 1,
-      shadowRadius: 40,
-      shadowOffset: { width: 0, height: 12 },
-      elevation: 10,
+    heroDateDot: {
+      width: 4,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: 'rgba(255,255,255,0.45)',
+    },
+    /** Loading / permission / error content inside the hero (atmosphere stays behind). */
+    heroFallback: {
+      alignItems: 'flex-start',
+      gap: spacing.md,
+      width: '100%',
     },
     prayerKicker: {
-      color: heroOn,
+      color: '#ffffff',
       opacity: 0.85,
       marginBottom: spacing.md,
       letterSpacing: 2,
@@ -848,12 +870,7 @@ function createHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
       backgroundColor: c.surfaceContainerLowest,
       alignItems: 'center',
       justifyContent: 'center',
-      shadowColor:
-        scheme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(6, 78, 59, 0.08)',
-      shadowOpacity: 1,
-      shadowRadius: 8,
-      shadowOffset: { width: 0, height: 2 },
-      elevation: 2,
+      ...elevation('sm', scheme),
     },
     moodCircleActive: {
       backgroundColor: c.secondaryContainer,

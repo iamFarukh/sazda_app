@@ -3,7 +3,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { selectAppUnlocked, useAuthStore } from '../store/authStore';
 import { useAppStore } from '../store/appStore';
 import { AuthStackNavigator } from './AuthStackNavigator';
-import { MainDrawer } from './MainDrawer';
+import { MainShell } from './MainShell';
 import { OnboardingScreen } from '../screens/onboarding/OnboardingScreen';
 import { useAppNavigationTheme } from './useAppNavigationTheme';
 import { useThemePalette } from '../theme/useThemePalette';
@@ -25,7 +25,7 @@ export function RootNavigator() {
           <ActivityIndicator size="large" color={c.primary} />
         </View>
       ) : appUnlocked ? (
-        <MainDrawer />
+        <MainShell />
       ) : (
         <AuthStackNavigator />
       )}

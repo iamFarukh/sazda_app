@@ -1,14 +1,25 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { ActivityIndicator, FlatList, ListRenderItem, Pressable, StyleSheet, Text, View } from 'react-native';
+import { FlatList, ListRenderItem, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Svg, { Circle } from 'react-native-svg';
+import Animated, {
+  cancelAnimation,
+  FadeIn,
+  FadeInDown,
+  useAnimatedProps,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
+} from 'react-native-reanimated';
 import {
   CheckCircle2,
   ChevronLeft,
   CloudDownload,
+  CloudOff,
   Database,
   Pause,
   Play,
@@ -28,10 +39,23 @@ import { useOfflineQuranDownloadStore } from '../../store/offlineQuranDownloadSt
 import { useThemePalette } from '../../theme/useThemePalette';
 import { radius } from '../../theme/radius';
 import { spacing } from '../../theme/spacing';
-import { fontFamilies } from '../../theme/typography';
+import { elevation } from '../../theme/elevation';
+import { motionDurations, motionEasing } from '../../theme/motion';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
+import { hapticLight, hapticMedium } from '../../utils/appHaptics';
+import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { PressableScale } from '../../components/atoms/PressableScale/PressableScale';
+import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
+import { EmptyState } from '../../components/molecules/EmptyState/EmptyState';
 import { AppAlert } from '../../components/organisms/AppAlert/AppAlert';
 
 type Nav = NativeStackNavigationProp<ProfileStackParamList, 'OfflineQuran'>;
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+function clamp01(n: number): number {
+  return Math.min(1, Math.max(0, n));
+}
 
 function formatBytes(n: number): string {
   if (!Number.isFinite(n) || n <= 0) return '0 MB';
@@ -47,47 +71,122 @@ type Row =
   | { kind: 'completed'; key: string; surah: QuranApiSurah; sizeLabel: string }
   | { kind: 'pending'; key: string; surah: QuranApiSurah; estLabel: string };
 
+function RowSeparator() {
+  return <View style={styles.rowSeparator} />;
+}
+
+/** Circular overall-progress indicator with a smooth, reduce-motion-aware sweep. */
 function ProgressRing({
   size,
   strokeWidth,
   progress,
   color,
   trackColor,
+  reduced,
 }: {
   size: number;
   strokeWidth: number;
   progress: number;
   color: string;
   trackColor: string;
+  reduced: boolean;
 }) {
   const r = (size - strokeWidth) / 2;
   const cx = size / 2;
   const cy = size / 2;
-  const c = 2 * Math.PI * r;
-  const p = Math.min(1, Math.max(0, progress));
-  const dash = c * p;
+  const circumference = 2 * Math.PI * r;
+  const p = useSharedValue(clamp01(progress));
+
+  useEffect(() => {
+    const next = clamp01(progress);
+    p.value = reduced
+      ? next
+      : withTiming(next, { duration: motionDurations.slow, easing: motionEasing.standardOut });
+  }, [progress, reduced, p]);
+
+  const animatedProps = useAnimatedProps(() => ({
+    strokeDashoffset: circumference * (1 - p.value),
+  }));
+
   return (
     <View style={{ width: size, height: size }}>
-      <Svg width={size} height={size} style={{ transform: [{ rotate: '-90deg' }] }}>
+      <Svg width={size} height={size} style={styles.ringRotate}>
         <Circle cx={cx} cy={cy} r={r} stroke={trackColor} strokeWidth={strokeWidth} fill="none" />
-        <Circle
+        <AnimatedCircle
           cx={cx}
           cy={cy}
           r={r}
           stroke={color}
           strokeWidth={strokeWidth}
           fill="none"
-          strokeDasharray={`${dash} ${c}`}
+          strokeDasharray={`${circumference} ${circumference}`}
           strokeLinecap="round"
+          animatedProps={animatedProps}
         />
       </Svg>
     </View>
   );
 }
 
+/** Linear download progress with a smooth width animation (reduce-motion aware). */
+function AnimatedProgressBar({
+  progress,
+  trackColor,
+  fillColor,
+  reduced,
+}: {
+  progress: number;
+  trackColor: string;
+  fillColor: string;
+  reduced: boolean;
+}) {
+  const p = useSharedValue(clamp01(progress));
+
+  useEffect(() => {
+    const next = clamp01(progress);
+    p.value = reduced
+      ? next
+      : withTiming(next, { duration: motionDurations.base, easing: motionEasing.standardOut });
+  }, [progress, reduced, p]);
+
+  const fillStyle = useAnimatedStyle(() => ({ width: `${p.value * 100}%` }));
+
+  return (
+    <View style={[styles.barTrack, { backgroundColor: trackColor }]}>
+      <Animated.View style={[styles.barFill, { backgroundColor: fillColor }, fillStyle]} />
+    </View>
+  );
+}
+
+/** Calm breathing dot marking the live download section (static under Reduce Motion). */
+function PulseDot({ color, reduced }: { color: string; reduced: boolean }) {
+  const pulse = useSharedValue(1);
+
+  useEffect(() => {
+    if (reduced) {
+      pulse.value = 1;
+      return;
+    }
+    pulse.value = withRepeat(
+      withTiming(0.35, {
+        duration: motionDurations.skeletonPulseMs,
+        easing: motionEasing.inOutSine,
+      }),
+      -1,
+      true,
+    );
+    return () => cancelAnimation(pulse);
+  }, [reduced, pulse]);
+
+  const style = useAnimatedStyle(() => ({ opacity: pulse.value }));
+
+  return <Animated.View style={[styles.pulseDot, { backgroundColor: color }, style]} />;
+}
+
 export function OfflineQuranManagerScreen() {
   const navigation = useNavigation<Nav>();
-  const { colors: c } = useThemePalette();
+  const { colors: c, scheme } = useThemePalette();
+  const reduced = useReduceMotion();
   const qc = useQueryClient();
 
   const queue = useOfflineQuranDownloadStore(s => s.queue);
@@ -117,11 +216,23 @@ export function OfflineQuranManagerScreen() {
     staleTime: 3_000,
   });
 
-  const { data: surahList } = useQuery({
+  const {
+    data: surahList,
+    isError: surahListError,
+    refetch: refetchSurahs,
+  } = useQuery({
     queryKey: ['quran', 'surahs'],
     queryFn: fetchAllSurahs,
     staleTime: 1000 * 60 * 60 * 24,
   });
+
+  const shadow = useMemo(
+    () => ({
+      hero: elevation('md', scheme),
+      card: elevation('sm', scheme),
+    }),
+    [scheme],
+  );
 
   const byNum = useMemo(() => {
     const m = new Map<number, QuranApiSurah>();
@@ -144,7 +255,7 @@ export function OfflineQuranManagerScreen() {
     }
   }, [job, qc, refetchManifest]);
 
-  const globalPctSurahs = Math.round(Math.min(1, Math.max(0, progress01)) * 100);
+  const globalPctSurahs = Math.round(clamp01(progress01) * 100);
   const bytesProgress = Math.min(1, storageBytes / ESTIMATED_FULL_OFFLINE_BYTES);
   const ringProgress = Math.max(bytesProgress, surahsCompleted > 0 ? progress01 : 0);
   const canResume =
@@ -169,7 +280,7 @@ export function OfflineQuranManagerScreen() {
         kind: 'section',
         key: 'h-downloading',
         title: 'Downloading',
-        badge: '1 active',
+        badge: job === 'running' ? '1 active' : 'Paused',
         pulse: job === 'running',
       });
       out.push({
@@ -253,6 +364,7 @@ export function OfflineQuranManagerScreen() {
   ]);
 
   const confirmDelete = () => {
+    hapticMedium();
     if (runnerBusy || job === 'running') {
       AppAlert.show('Download active', 'Pause the download, then try deleting again.', undefined, { variant: 'info' });
       return;
@@ -277,6 +389,7 @@ export function OfflineQuranManagerScreen() {
   };
 
   const onQueueAllMissing = () => {
+    hapticMedium();
     void (async () => {
       const health = await getOfflineQuranHealth();
       if (health.needsUpdate) {
@@ -309,63 +422,102 @@ export function OfflineQuranManagerScreen() {
         <View style={styles.sectionHead}>
           <View style={styles.sectionTitleRow}>
             {item.pulse ? (
-              <View style={[styles.pulseDot, { backgroundColor: c.secondary }]} />
+              <PulseDot color={c.secondary} reduced={reduced} />
             ) : (
-              <View style={{ width: 8 }} />
+              <View style={styles.pulseSpacer} />
             )}
-            <Text style={[styles.sectionTitle, { color: c.primary }]}>{item.title}</Text>
+            <SazdaText variant="titleLarge" color="primary">
+              {item.title}
+            </SazdaText>
           </View>
-          <Text style={[styles.sectionBadge, { color: c.secondary }]}>{item.badge}</Text>
+          <SazdaText variant="label" color="secondary">
+            {item.badge}
+          </SazdaText>
         </View>
       );
     }
 
     if (item.kind === 'active') {
-      const pct = Math.round(Math.min(1, Math.max(0, item.progress01)) * 100);
+      const pct = Math.round(clamp01(item.progress01) * 100);
       return (
-        <View style={[styles.activeCard, { backgroundColor: c.primaryContainer }]}>
+        <Animated.View
+          entering={reduced ? undefined : FadeIn.duration(motionDurations.base)}
+          accessible
+          accessibilityRole="progressbar"
+          accessibilityLabel={`Downloading ${item.surah.englishName}`}
+          accessibilityValue={{ min: 0, max: 100, now: pct, text: `${pct} percent complete` }}
+          style={[styles.activeCard, { backgroundColor: c.primaryContainer }, shadow.hero]}>
           <View style={[styles.numBox, { backgroundColor: c.primary }]}>
-            <Text style={[styles.numText, { color: c.onPrimary }]}>{item.surah.number}</Text>
+            <SazdaText variant="titleLarge" color="onPrimary">
+              {item.surah.number}
+            </SazdaText>
           </View>
           <View style={styles.cardMid}>
             <View style={styles.cardTitleRow}>
-              <Text style={[styles.surahName, { color: c.onPrimary }]} numberOfLines={1}>
+              <SazdaText
+                variant="titleLarge"
+                color="onPrimaryContainer"
+                numberOfLines={1}
+                style={styles.surahNameFlex}>
                 {item.surah.englishName}
-              </Text>
-              <Text style={[styles.pctSmall, { color: c.secondaryContainer }]}>{pct}%</Text>
+              </SazdaText>
+              <SazdaText variant="label" color="onPrimaryContainer">
+                {pct}%
+              </SazdaText>
             </View>
-            <View style={[styles.barTrack, { backgroundColor: 'rgba(255,255,255,0.25)' }]}>
-              <View style={[styles.barFill, { width: `${pct}%`, backgroundColor: c.onPrimary }]} />
-            </View>
+            <AnimatedProgressBar
+              progress={item.progress01}
+              trackColor={`${c.onPrimaryContainer}2E`}
+              fillColor={c.onPrimaryContainer}
+              reduced={reduced}
+            />
           </View>
-          <Pressable
-            onPress={cancelActiveSurah}
+          <PressableScale
+            onPress={() => {
+              hapticLight();
+              cancelActiveSurah();
+            }}
             hitSlop={12}
-            style={({ pressed }) => [styles.iconBtnSm, pressed && { opacity: 0.7 }]}>
-            <X size={22} color={c.onPrimary} strokeWidth={2.25} />
-          </Pressable>
-        </View>
+            to={0.88}
+            pressedOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`Cancel download of ${item.surah.englishName}`}
+            style={styles.iconBtnSm}>
+            <X size={22} color={c.onPrimaryContainer} strokeWidth={2.25} />
+          </PressableScale>
+        </Animated.View>
       );
     }
 
     if (item.kind === 'queued') {
       return (
-        <View style={[styles.doneCard, { backgroundColor: c.surfaceContainerLow }]}>
+        <View style={[styles.doneCard, { backgroundColor: c.surfaceContainerLow }, shadow.card]}>
           <View style={[styles.numBoxMuted, { backgroundColor: c.surfaceContainerHighest }]}>
-            <Text style={[styles.numText, { color: c.onSurfaceVariant }]}>{item.surah.number}</Text>
+            <SazdaText variant="titleLarge" color="onSurfaceVariant">
+              {item.surah.number}
+            </SazdaText>
           </View>
           <View style={styles.cardMid}>
-            <Text style={[styles.surahNameMuted, { color: c.onSurface }]} numberOfLines={1}>
+            <SazdaText variant="titleLarge" color="onSurface" numberOfLines={1}>
               {item.surah.englishName}
-            </Text>
-            <Text style={[styles.subMuted, { color: c.onSurfaceVariant }]}>Waiting in queue</Text>
+            </SazdaText>
+            <SazdaText variant="caption" color="onSurfaceVariant" style={styles.subLine}>
+              Waiting in queue
+            </SazdaText>
           </View>
-          <Pressable
-            onPress={() => removeQueuedSurah(item.surah.number)}
+          <PressableScale
+            onPress={() => {
+              hapticLight();
+              removeQueuedSurah(item.surah.number);
+            }}
             hitSlop={12}
-            style={({ pressed }) => [styles.iconBtnSm, pressed && { opacity: 0.7 }]}>
+            to={0.88}
+            pressedOpacity={0.7}
+            accessibilityRole="button"
+            accessibilityLabel={`Remove ${item.surah.englishName} from queue`}
+            style={styles.iconBtnSm}>
             <X size={20} color={c.onSurfaceVariant} strokeWidth={2} />
-          </Pressable>
+          </PressableScale>
         </View>
       );
     }
@@ -373,24 +525,28 @@ export function OfflineQuranManagerScreen() {
     if (item.kind === 'completed') {
       return (
         <View
+          accessible
+          accessibilityLabel={`${item.surah.englishName}, downloaded, ${item.sizeLabel}`}
           style={[
             styles.doneCard,
-            {
-              backgroundColor: c.surfaceContainerLowest,
-              borderColor: 'rgba(0,53,39,0.08)',
-              borderWidth: StyleSheet.hairlineWidth,
-            },
+            styles.completedBorder,
+            { backgroundColor: c.surfaceContainerLowest, borderColor: c.outlineVariant },
+            shadow.card,
           ]}>
           <View style={[styles.numBoxMuted, { backgroundColor: c.surfaceContainerLow }]}>
-            <Text style={[styles.numText, { color: c.primary }]}>{item.surah.number}</Text>
+            <SazdaText variant="titleLarge" color="primary">
+              {item.surah.number}
+            </SazdaText>
           </View>
           <View style={styles.cardMid}>
-            <Text style={[styles.surahNameMuted, { color: c.primary }]} numberOfLines={1}>
+            <SazdaText variant="titleLarge" color="primary" numberOfLines={1}>
               {item.surah.englishName}
-            </Text>
-            <Text style={[styles.subMuted, { color: c.onSurfaceVariant }]}>{item.sizeLabel}</Text>
+            </SazdaText>
+            <SazdaText variant="caption" color="onSurfaceVariant" style={styles.subLine}>
+              {item.sizeLabel}
+            </SazdaText>
           </View>
-          <CheckCircle2 size={24} color={c.primaryContainer} strokeWidth={2.25} />
+          <CheckCircle2 size={24} color={c.primary} strokeWidth={2.25} />
         </View>
       );
     }
@@ -401,52 +557,89 @@ export function OfflineQuranManagerScreen() {
           styles.pendingCard,
           {
             borderColor: c.outlineVariant,
-            backgroundColor: c.surfaceContainerLow + '99',
+            backgroundColor: `${c.surfaceContainerLow}99`,
           },
         ]}>
         <View style={[styles.numBoxMuted, { backgroundColor: c.surfaceContainerHighest }]}>
-          <Text style={[styles.numText, { color: c.onSurfaceVariant }]}>{item.surah.number}</Text>
+          <SazdaText variant="titleLarge" color="onSurfaceVariant">
+            {item.surah.number}
+          </SazdaText>
         </View>
         <View style={styles.cardMid}>
-          <Text style={[styles.surahNameFaint, { color: c.primary }]} numberOfLines={1}>
+          <SazdaText
+            variant="titleLarge"
+            color="primary"
+            numberOfLines={1}
+            style={styles.nameFaint}>
             {item.surah.englishName}
-          </Text>
-          <Text style={[styles.subFaint, { color: c.onSurfaceVariant }]}>{item.estLabel}</Text>
+          </SazdaText>
+          <SazdaText
+            variant="caption"
+            color="onSurfaceVariant"
+            style={[styles.subLine, styles.subFaint]}>
+            {item.estLabel}
+          </SazdaText>
         </View>
-        <Pressable
-          onPress={() => enqueueSurah(item.surah.number)}
+        <PressableScale
+          onPress={() => {
+            hapticLight();
+            enqueueSurah(item.surah.number);
+          }}
           hitSlop={12}
-          style={({ pressed }) => [styles.iconBtnSm, pressed && { opacity: 0.7 }]}>
+          to={0.88}
+          pressedOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`Download ${item.surah.englishName}`}
+          style={styles.iconBtnSm}>
           <CloudDownload size={22} color={c.primary} strokeWidth={2} />
-        </Pressable>
+        </PressableScale>
       </View>
     );
   };
 
   const listHeader = (
-    <View style={styles.headerBlock}>
-      <View style={[styles.heroCard, { backgroundColor: c.surfaceContainerLowest }]}>
+    <Animated.View
+      entering={reduced ? undefined : FadeInDown.duration(motionDurations.slow).easing(motionEasing.standardOut)}
+      style={styles.headerBlock}>
+      <View style={[styles.heroCard, { backgroundColor: c.surfaceContainerLowest }, shadow.hero]}>
         <View style={styles.heroTop}>
           <View style={styles.heroLeft}>
-            <Text style={[styles.globalLabel, { color: c.onSurfaceVariant }]}>Global progress</Text>
-            <Text style={[styles.globalPct, { color: c.primary }]}>
-              {globalPctSurahs}%{' '}
-              <Text style={[styles.globalPctSoft, { color: c.secondary }]}>saved</Text>
-            </Text>
+            <SazdaText variant="label" color="onSurfaceVariant">
+              Saved offline
+            </SazdaText>
+            <View style={styles.pctRow}>
+              <SazdaText variant="headlineLarge" color="primary">
+                {globalPctSurahs}%
+              </SazdaText>
+              <SazdaText variant="bodyMedium" color="secondary">
+                saved
+              </SazdaText>
+            </View>
             <View style={styles.storageRow}>
               <Database size={14} color={c.onSurfaceVariant} strokeWidth={2} />
-              <Text style={[styles.storageText, { color: c.onSurfaceVariant }]}>
+              <SazdaText variant="caption" color="onSurfaceVariant">
                 {formatBytes(storageBytes)} / {formatBytes(ESTIMATED_FULL_OFFLINE_BYTES)}
-              </Text>
+              </SazdaText>
             </View>
           </View>
-          <View style={styles.ringWrap}>
+          <View
+            style={styles.ringWrap}
+            accessible
+            accessibilityRole="progressbar"
+            accessibilityLabel="Overall offline library progress"
+            accessibilityValue={{
+              min: 0,
+              max: 100,
+              now: Math.round(clamp01(ringProgress) * 100),
+              text: `${Math.round(clamp01(ringProgress) * 100)} percent saved, ${formatBytes(storageBytes)} used`,
+            }}>
             <ProgressRing
               size={96}
               strokeWidth={6}
               progress={ringProgress}
               color={c.primary}
               trackColor={c.surfaceContainerHighest}
+              reduced={reduced}
             />
             <View style={styles.ringIcon}>
               <CloudDownload size={28} color={c.primary} strokeWidth={2} />
@@ -455,116 +648,179 @@ export function OfflineQuranManagerScreen() {
         </View>
 
         {lastError ? (
-          <Text style={[styles.errorBanner, { color: c.error }]}>{lastError}</Text>
+          <View accessible accessibilityRole="alert" accessibilityLabel={`Error: ${lastError}`}>
+            <SazdaText variant="bodySmall" color="error">
+              {lastError}
+            </SazdaText>
+          </View>
         ) : (
-          <Text style={[styles.statusHint, { color: c.onSurfaceVariant }]}>{statusLine}</Text>
+          <SazdaText variant="bodySmall" color="onSurfaceVariant">
+            {statusLine}
+          </SazdaText>
         )}
 
         <View style={styles.dualActions}>
-          <Pressable
-            onPress={pauseDownload}
-            disabled={job !== 'running'}
-            style={({ pressed }) => [
-              styles.pauseBtn,
-              { backgroundColor: c.primaryContainer },
-              (pressed && job === 'running') && { opacity: 0.9 },
-              job !== 'running' && { opacity: 0.45 },
-            ]}>
-            <Pause size={20} color={c.onPrimary} strokeWidth={2.25} />
-            <Text style={[styles.dualBtnText, { color: c.onPrimary }]}>Pause all</Text>
-          </Pressable>
-          <Pressable
+          <PressableScale
             onPress={() => {
+              hapticLight();
+              pauseDownload();
+            }}
+            disabled={job !== 'running'}
+            to={0.97}
+            pressedOpacity={0.9}
+            accessibilityRole="button"
+            accessibilityLabel="Pause all downloads"
+            accessibilityState={{ disabled: job !== 'running' }}
+            style={[
+              styles.dualBtn,
+              { backgroundColor: c.primaryContainer },
+              job !== 'running' && styles.disabledBtn,
+            ]}>
+            <Pause size={20} color={c.onPrimaryContainer} strokeWidth={2.25} />
+            <SazdaText variant="titleSm" color="onPrimaryContainer">
+              Pause all
+            </SazdaText>
+          </PressableScale>
+          <PressableScale
+            onPress={() => {
+              hapticMedium();
               if (job === 'error') retryAfterError();
               else resumeDownload();
             }}
             disabled={!canResume}
-            style={({ pressed }) => [
-              styles.resumeBtn,
+            to={0.97}
+            pressedOpacity={0.9}
+            accessibilityRole="button"
+            accessibilityLabel={job === 'error' ? 'Retry downloads' : 'Resume all downloads'}
+            accessibilityState={{ disabled: !canResume }}
+            style={[
+              styles.dualBtn,
               { backgroundColor: c.secondaryContainer },
-              pressed && { opacity: 0.9 },
-              !canResume && { opacity: 0.45 },
+              !canResume && styles.disabledBtn,
             ]}>
             <Play size={20} color={c.onSecondaryContainer} strokeWidth={2.25} />
-            <Text style={[styles.dualBtnText, { color: c.onSecondaryContainer }]}>Resume all</Text>
-          </Pressable>
+            <SazdaText variant="titleSm" color="onSecondaryContainer">
+              Resume all
+            </SazdaText>
+          </PressableScale>
         </View>
 
-        <Pressable
+        <PressableScale
           onPress={onQueueAllMissing}
           disabled={runnerBusy}
-          style={({ pressed }) => [
+          to={0.98}
+          pressedOpacity={0.88}
+          accessibilityRole="button"
+          accessibilityLabel="Queue all missing surahs for download"
+          accessibilityState={{ disabled: runnerBusy }}
+          style={[
             styles.queueAllBtn,
             { borderColor: c.outline },
-            pressed && { opacity: 0.88 },
-            runnerBusy && { opacity: 0.5 },
+            runnerBusy && styles.disabledQueueAll,
           ]}>
-          <Text style={[styles.queueAllText, { color: c.primary }]}>
+          <SazdaText variant="titleSm" color="primary">
             Queue all missing surahs (optional)
-          </Text>
-        </Pressable>
+          </SazdaText>
+        </PressableScale>
 
-        <Text style={[styles.cacheHint, { color: c.onSurfaceVariant }]}>
+        <SazdaText variant="caption" color="onSurfaceVariant">
           Cache v{OFFLINE_QURAN_VERSION} · Pick individual surahs below, or use the bulk queue.
-        </Text>
+        </SazdaText>
       </View>
-    </View>
+    </Animated.View>
   );
 
   const listFooter = (
     <View style={styles.footer}>
-      <Pressable
+      <PressableScale
         onPress={confirmDelete}
-        style={({ pressed }) => [
+        to={0.98}
+        pressedOpacity={0.92}
+        accessibilityRole="button"
+        accessibilityLabel="Delete all offline data"
+        accessibilityHint="Removes downloaded text, translation, audio URLs, and the download queue from this device"
+        style={[
           styles.dangerCard,
-          {
-            borderColor: c.outlineVariant,
-            backgroundColor: c.surfaceContainerLowest,
-          },
-          pressed && { opacity: 0.92 },
+          { borderColor: c.outlineVariant, backgroundColor: c.surfaceContainerLowest },
+          shadow.card,
         ]}>
         <Trash2 size={22} color={c.error} strokeWidth={2} />
-        <View style={{ flex: 1, minWidth: 0 }}>
-          <Text style={[styles.dangerTitle, { color: c.onSurface }]}>Delete all offline data</Text>
-          <Text style={[styles.dangerHint, { color: c.onSurfaceVariant }]}>
+        <View style={styles.dangerTextCol}>
+          <SazdaText variant="titleLarge" color="onSurface">
+            Delete all offline data
+          </SazdaText>
+          <SazdaText variant="bodySmall" color="onSurfaceVariant" style={styles.subLine}>
             Removes text, translation, audio URLs, and your download queue from this device.
-          </Text>
+          </SazdaText>
         </View>
-      </Pressable>
-      <Text style={[styles.footnote, { color: c.onSurfaceVariant }]}>
+      </PressableScale>
+      <SazdaText variant="caption" color="onSurfaceVariant" style={styles.footnote}>
         Downloads may pause if the system suspends the app; open this screen and tap Resume to
         continue. Saved surahs open instantly; audio streams when online.
-      </Text>
+      </SazdaText>
+    </View>
+  );
+
+  const topBar = (
+    <View style={styles.topBar}>
+      <PressableScale
+        onPress={() => navigation.goBack()}
+        to={0.9}
+        pressedOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Go back"
+        style={styles.topIcon}>
+        <ChevronLeft size={28} color={c.primary} strokeWidth={2.25} />
+      </PressableScale>
+      <SazdaText variant="headlineMedium" color="primary">
+        Offline Sanctuary
+      </SazdaText>
+      <View style={styles.topIcon} importantForAccessibility="no-hide-descendants">
+        <CloudDownload size={24} color={c.primary} strokeWidth={2.25} />
+      </View>
     </View>
   );
 
   if (!surahList?.length) {
     return (
       <SafeAreaView style={[styles.safe, { backgroundColor: c.surface }]} edges={['top']}>
-        <View style={styles.topBar}>
-          <Pressable onPress={() => navigation.goBack()} style={styles.topIcon}>
-            <ChevronLeft size={28} color={c.primary} strokeWidth={2.25} />
-          </Pressable>
-          <Text style={[styles.screenTitle, { color: c.primary }]}>Offline Sanctuary</Text>
-          <View style={styles.topIcon} />
-        </View>
-        <ActivityIndicator style={{ marginTop: spacing.x3xl }} color={c.primary} />
+        {topBar}
+        {surahListError ? (
+          <EmptyState
+            icon={<CloudOff size={40} color={c.onSurfaceVariant} strokeWidth={1.75} />}
+            title="Couldn't load the surah list"
+            message="Check your connection and try again — downloads need the surah index first."
+            actionLabel="Try again"
+            onAction={() => {
+              hapticLight();
+              void refetchSurahs();
+            }}
+          />
+        ) : (
+          <View style={styles.skeletonWrap}>
+            <View style={[styles.heroCard, { backgroundColor: c.surfaceContainerLowest }, shadow.hero]}>
+              <View style={styles.heroTop}>
+                <View style={styles.skeletonHeroLeft}>
+                  <Skeleton width={110} height={12} />
+                  <Skeleton width={96} height={30} />
+                  <Skeleton width={148} height={12} />
+                </View>
+                <Skeleton width={96} height={96} circle />
+              </View>
+              <Skeleton height={48} radius={radius.xl} />
+            </View>
+            {[0, 1, 2, 3].map(i => (
+              <Skeleton key={i} height={76} radius={radius.sm} style={styles.skeletonRow} />
+            ))}
+          </View>
+        )}
       </SafeAreaView>
     );
   }
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: c.surface }]} edges={['top']}>
-      <View style={styles.topBar}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.topIcon}>
-          <ChevronLeft size={28} color={c.primary} strokeWidth={2.25} />
-        </Pressable>
-        <Text style={[styles.screenTitle, { color: c.primary }]}>Offline Sanctuary</Text>
-        <View style={styles.topIcon}>
-          <CloudDownload size={24} color={c.primary} strokeWidth={2.25} />
-        </View>
-      </View>
-
+      {topBar}
       <FlatList
         data={rows}
         keyExtractor={r => r.key}
@@ -573,7 +829,7 @@ export function OfflineQuranManagerScreen() {
         ListFooterComponent={listFooter}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
-        ItemSeparatorComponent={() => <View style={{ height: spacing.sm }} />}
+        ItemSeparatorComponent={RowSeparator}
       />
     </SafeAreaView>
   );
@@ -586,47 +842,37 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
-    paddingBottom: spacing.sm,
+    paddingVertical: spacing.xs,
   },
   topIcon: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  screenTitle: {
-    fontFamily: fontFamilies.headline,
-    fontSize: 18,
-    fontWeight: '800',
-  },
   listContent: {
     paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xxs,
     paddingBottom: spacing.x3xl,
   },
+  rowSeparator: { height: spacing.sm },
   headerBlock: { marginBottom: spacing.lg },
   heroCard: {
     borderRadius: radius.md,
     padding: spacing.lg,
     gap: spacing.md,
-    shadowColor: '#003527',
-    shadowOpacity: 0.06,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 3,
   },
   heroTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
   heroLeft: { flex: 1, minWidth: 0, paddingRight: spacing.md },
-  globalLabel: {
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 1.2,
-    textTransform: 'uppercase',
+  pctRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    gap: spacing.xs,
+    marginTop: spacing.xxs,
   },
-  globalPct: {
-    fontFamily: fontFamilies.headline,
-    fontSize: 28,
-    fontWeight: '800',
-    marginTop: 4,
+  storageRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xxs + 2,
+    marginTop: spacing.sm,
   },
-  globalPctSoft: { fontSize: 16, fontWeight: '600' },
-  storageRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: spacing.sm },
-  storageText: { fontSize: 12, fontWeight: '600' },
   ringWrap: { width: 96, height: 96, position: 'relative' as const },
+  ringRotate: { transform: [{ rotate: '-90deg' }] },
   ringIcon: {
     position: 'absolute',
     left: 0,
@@ -636,28 +882,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  errorBanner: { fontSize: 14, fontWeight: '600' },
-  statusHint: { fontSize: 13, lineHeight: 18 },
   dualActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
-  pauseBtn: {
+  dualBtn: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 8,
+    gap: spacing.xs,
     minHeight: 48,
     borderRadius: radius.full,
   },
-  resumeBtn: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 8,
-    minHeight: 48,
-    borderRadius: radius.full,
-  },
-  dualBtnText: { fontSize: 15, fontWeight: '800' },
+  disabledBtn: { opacity: 0.45 },
   queueAllBtn: {
     marginTop: spacing.sm,
     paddingVertical: spacing.sm,
@@ -665,8 +900,7 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     alignItems: 'center',
   },
-  queueAllText: { fontSize: 14, fontWeight: '700' },
-  cacheHint: { fontSize: 11, lineHeight: 16 },
+  disabledQueueAll: { opacity: 0.5 },
   sectionHead: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -677,13 +911,7 @@ const styles = StyleSheet.create({
   },
   sectionTitleRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   pulseDot: { width: 8, height: 8, borderRadius: 4 },
-  sectionTitle: { fontFamily: fontFamilies.headline, fontSize: 17, fontWeight: '800' },
-  sectionBadge: {
-    fontSize: 10,
-    fontWeight: '800',
-    letterSpacing: 1.1,
-    textTransform: 'uppercase',
-  },
+  pulseSpacer: { width: 8 },
   activeCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -698,6 +926,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     borderRadius: radius.sm,
   },
+  completedBorder: { borderWidth: StyleSheet.hairlineWidth },
   pendingCard: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -721,7 +950,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  numText: { fontFamily: fontFamilies.headline, fontSize: 18, fontWeight: '800' },
   cardMid: { flex: 1, minWidth: 0 },
   cardTitleRow: {
     flexDirection: 'row',
@@ -729,14 +957,12 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     gap: spacing.sm,
   },
-  surahName: { fontSize: 16, fontWeight: '800', flex: 1 },
-  surahNameMuted: { fontSize: 16, fontWeight: '800' },
-  surahNameFaint: { fontSize: 16, fontWeight: '800', opacity: 0.65 },
-  pctSmall: { fontSize: 11, fontWeight: '800' },
-  barTrack: { height: 6, borderRadius: 3, marginTop: 8, overflow: 'hidden' },
+  surahNameFlex: { flex: 1 },
+  nameFaint: { opacity: 0.65 },
+  barTrack: { height: 6, borderRadius: 3, marginTop: spacing.xs, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 3 },
-  subMuted: { fontSize: 12, marginTop: 4 },
-  subFaint: { fontSize: 12, marginTop: 4, opacity: 0.7 },
+  subLine: { marginTop: spacing.xxs },
+  subFaint: { opacity: 0.7 },
   iconBtnSm: { padding: spacing.xs },
   footer: { marginTop: spacing.xl, gap: spacing.md },
   dangerCard: {
@@ -747,7 +973,12 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     borderWidth: StyleSheet.hairlineWidth,
   },
-  dangerTitle: { fontSize: 16, fontWeight: '800' },
-  dangerHint: { marginTop: 4, fontSize: 13, lineHeight: 18 },
-  footnote: { fontSize: 12, lineHeight: 18 },
+  dangerTextCol: { flex: 1, minWidth: 0 },
+  footnote: { lineHeight: 18 },
+  skeletonWrap: {
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.xxs,
+  },
+  skeletonHeroLeft: { flex: 1, gap: spacing.sm, paddingRight: spacing.md },
+  skeletonRow: { marginTop: spacing.sm },
 });

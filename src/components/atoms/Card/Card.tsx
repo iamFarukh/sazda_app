@@ -3,7 +3,8 @@ import { useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { radius } from '../../../theme/radius';
 import { spacing } from '../../../theme/spacing';
-import { cardGlassBackground, elevatedCardShadow } from '../../../theme/themeSurfaces';
+import { cardGlassBackground } from '../../../theme/themeSurfaces';
+import { elevation } from '../../../theme/elevation';
 import { useThemePalette } from '../../../theme/useThemePalette';
 
 export type CardVariant = 'flat' | 'elevated' | 'glass';
@@ -37,11 +38,7 @@ export function Card({
     if (variant === 'elevated') {
       return {
         backgroundColor: c.surfaceContainerLowest,
-        shadowColor: elevatedCardShadow(scheme),
-        shadowOpacity: scheme === 'dark' ? 0.5 : 1,
-        shadowRadius: 40,
-        shadowOffset: { width: 0, height: 12 },
-        elevation: scheme === 'dark' ? 8 : 6,
+        ...elevation('lg', scheme),
       };
     }
     if (variant === 'glass') {

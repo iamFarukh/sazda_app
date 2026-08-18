@@ -1,13 +1,10 @@
 import { useMemo, useState } from 'react';
 import {
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +12,8 @@ import { useNavigation, useRoute, type RouteProp } from '@react-navigation/nativ
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { TextInput } from '../../../components/atoms/TextInput/TextInput';
+import { PressableScale } from '../../../components/atoms/PressableScale/PressableScale';
+import { LottieBurst } from '../../../components/molecules/LottieBurst/LottieBurst';
 import {
   formatInrPaise,
   parseRupeesInput,
@@ -28,7 +27,10 @@ import { radius } from '../../../theme/radius';
 import { spacing } from '../../../theme/spacing';
 import { fontFamilies } from '../../../theme/typography';
 import { useThemePalette } from '../../../theme/useThemePalette';
+import { hapticSuccess } from '../../../utils/appHaptics';
 import { AppAlert } from '../../../components/organisms/AppAlert/AppAlert';
+
+const CELEBRATE = require('../../../assets/lottie/celebrate.json');
 
 type Nav = NativeStackNavigationProp<ToolsStackParamList, 'ZakatAddPayment'>;
 type R = RouteProp<ToolsStackParamList, 'ZakatAddPayment'>;
@@ -54,7 +56,11 @@ export function ZakatAddPaymentScreen() {
   const rupees = useMemo(() => parseRupeesInput(rawAmount), [rawAmount]);
   const paise = rupees != null ? rupeesToPaise(rupees) : null;
 
+  const [celebrateKey, setCelebrateKey] = useState(0);
+  const [saving, setSaving] = useState(false);
+
   const save = () => {
+    if (saving) return;
     if (!cycle) {
       AppAlert.show('No cycle', 'Select a zakat cycle first.', undefined, { variant: 'info' });
       return;
@@ -74,7 +80,11 @@ export function ZakatAddPaymentScreen() {
       AppAlert.show('Cannot save', res.error, undefined, { variant: 'destructive' });
       return;
     }
-    navigation.goBack();
+    // Celebrate the recorded payment, then return once the burst has played.
+    hapticSuccess();
+    setSaving(true);
+    setCelebrateKey(k => k + 1);
+    setTimeout(() => navigation.goBack(), 850);
   };
 
   return (
@@ -113,8 +123,9 @@ export function ZakatAddPaymentScreen() {
           <Text style={[styles.label, { color: c.onSurfaceVariant }]}>Category</Text>
           <View style={styles.catRow}>
             {PAYMENT_CATEGORIES.map(cat => (
-              <Pressable
+              <PressableScale
                 key={cat}
+                to={0.94}
                 onPress={() => setCategory(cat)}
                 style={[
                   styles.catChip,
@@ -131,7 +142,7 @@ export function ZakatAddPaymentScreen() {
                   ]}>
                   {PAYMENT_CATEGORY_LABEL[cat]}
                 </Text>
-              </Pressable>
+              </PressableScale>
             ))}
           </View>
 
@@ -154,19 +165,21 @@ export function ZakatAddPaymentScreen() {
           <View style={{ flex: 1 }} />
 
           <View style={[styles.footer, { backgroundColor: c.surface }]}>
-            <Pressable
+            <PressableScale
+              to={0.97}
               onPress={save}
-              disabled={!cycle}
-              style={({ pressed }) => [
+              disabled={!cycle || saving}
+              style={[
                 styles.saveBtn,
                 { backgroundColor: c.primaryContainer },
-                (!cycle || pressed) && { opacity: cycle ? 0.9 : 0.4 },
+                !cycle && styles.saveBtnDisabled,
               ]}>
               <Text style={[styles.saveBtnText, { color: c.onPrimary }]}>Save payment</Text>
-            </Pressable>
+            </PressableScale>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+      <LottieBurst trigger={celebrateKey} source={CELEBRATE} size={300} />
     </SafeAreaView>
   );
 }
@@ -195,10 +208,16 @@ const styles = StyleSheet.create({
     paddingBottom: spacing.lg,
   },
   saveBtn: {
-    minHeight: 50,
+    minHeight: 52,
     borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: 'rgba(0,53,39,0.3)',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 1,
+    shadowRadius: 14,
+    elevation: 5,
   },
+  saveBtnDisabled: { opacity: 0.4 },
   saveBtnText: { fontSize: 16, fontWeight: '800' },
 });

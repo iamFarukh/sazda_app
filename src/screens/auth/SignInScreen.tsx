@@ -3,9 +3,11 @@ import {
   ActivityIndicator,
   Dimensions,
   Image,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
+  Text,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -20,6 +22,7 @@ import { spacing } from '../../theme/spacing';
 import { fontFamilies } from '../../theme/typography';
 import { useAuthStore } from '../../store/authStore';
 import { useThemePalette } from '../../theme/useThemePalette';
+import { PRIVACY_POLICY_URL, TERMS_OF_SERVICE_URL } from '../../constants/legal';
 
 type Nav = NativeStackNavigationProp<AuthStackParamList, 'SignIn'>;
 
@@ -157,6 +160,20 @@ export function SignInScreen() {
         },
         pressed: { opacity: 0.92, transform: [{ scale: 0.98 }] },
         centerBlock: { flex: 1, justifyContent: 'center' },
+        legalWrap: {
+          marginTop: spacing.lg,
+          paddingHorizontal: spacing.lg,
+          alignItems: 'center',
+        },
+        legalText: {
+          textAlign: 'center',
+          lineHeight: 18,
+          opacity: 0.7,
+        },
+        legalLink: {
+          textDecorationLine: 'underline',
+          fontWeight: '700',
+        },
       }),
     [c, scheme],
   );
@@ -289,6 +306,30 @@ export function SignInScreen() {
                 </SazdaText>
               </Pressable>
             ) : null}
+
+            <View style={styles.legalWrap}>
+              <SazdaText
+                variant="caption"
+                color="onSurfaceVariant"
+                align="center"
+                style={styles.legalText}>
+                By continuing, you agree to our{' '}
+                <Text
+                  style={[styles.legalLink, { color: c.primary }]}
+                  onPress={() => Linking.openURL(PRIVACY_POLICY_URL)}
+                  accessibilityRole="link">
+                  Privacy Policy
+                </Text>{' '}
+                and{' '}
+                <Text
+                  style={[styles.legalLink, { color: c.primary }]}
+                  onPress={() => Linking.openURL(TERMS_OF_SERVICE_URL)}
+                  accessibilityRole="link">
+                  Terms of Service
+                </Text>
+                .
+              </SazdaText>
+            </View>
           </View>
         </View>
 

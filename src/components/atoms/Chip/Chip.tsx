@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { radius } from '../../../theme/radius';
 import { spacing } from '../../../theme/spacing';
 import { useThemePalette } from '../../../theme/useThemePalette';
 import { SazdaText } from '../SazdaText/SazdaText';
+import { PressableScale } from '../PressableScale/PressableScale';
 
 export type ChipVariant = 'filled' | 'outlined';
 
@@ -35,10 +36,13 @@ export function Chip({
   const textColor = isSelected ? c.onPrimaryContainer : c.onSurfaceVariant;
 
   return (
-    <Pressable
+    <PressableScale
       disabled={isDisabled}
       onPress={isDisabled ? undefined : onPress}
-      style={({ pressed }) => [
+      accessibilityRole="button"
+      accessibilityState={{ selected: isSelected, disabled: isDisabled }}
+      to={0.95}
+      style={[
         styles.base,
         {
           backgroundColor,
@@ -46,12 +50,11 @@ export function Chip({
           borderWidth: variant === 'outlined' ? 1 : 0,
         },
         isDisabled ? styles.disabled : null,
-        pressed && !isDisabled ? styles.pressed : null,
       ]}>
       <SazdaText variant="label" color={textColor} align="center">
         {label}
       </SazdaText>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -65,8 +68,5 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.55,
-  },
-  pressed: {
-    opacity: 0.9,
   },
 });

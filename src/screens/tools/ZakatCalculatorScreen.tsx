@@ -1,13 +1,10 @@
 import { useMemo, useState } from 'react';
 import {
-  Keyboard,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
-  TouchableWithoutFeedback,
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -16,6 +13,7 @@ import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { useHeaderHeight } from '@react-navigation/elements';
 import { TextInput } from '../../components/atoms/TextInput/TextInput';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { PressableScale } from '../../components/atoms/PressableScale/PressableScale';
 import {
   formatInrPaise,
   parseRupeesInput,
@@ -107,9 +105,16 @@ export function ZakatCalculatorScreen() {
           />
 
           <View style={styles.resultCard}>
-            <SazdaText variant="caption" color="onSurfaceVariant">
-              Estimated zakāt (2.5%)
-            </SazdaText>
+            <View style={styles.resultTop}>
+              <SazdaText variant="caption" color="onSurfaceVariant" style={styles.resultKicker}>
+                ESTIMATED ZAKĀT
+              </SazdaText>
+              <View style={styles.rateChip}>
+                <SazdaText variant="label" color="secondary" style={styles.rateChipText}>
+                  2.5% RATE
+                </SazdaText>
+              </View>
+            </View>
             <SazdaText variant="headlineLarge" color="primary" style={styles.resultMain}>
               {zakatPaise != null ? formatInrPaise(zakatPaise) : '—'}
             </SazdaText>
@@ -124,30 +129,28 @@ export function ZakatCalculatorScreen() {
             )}
           </View>
 
-          <View style={{ flex: 1 }} />
+          <View style={styles.spacer} />
 
           <View style={[styles.footer, { backgroundColor: c.surface }]}>
-            <Pressable
+            <PressableScale
+              to={0.97}
               onPress={applyToCycle}
-              style={({ pressed }) => [
-                styles.applyBtn,
-                { backgroundColor: c.primaryContainer },
-                pressed && { opacity: 0.9 },
-              ]}>
+              style={[styles.applyBtn, { backgroundColor: c.primaryContainer }]}>
               <Text style={[styles.applyBtnText, { color: c.onPrimary }]}>
                 Apply to active cycle
               </Text>
-            </Pressable>
+            </PressableScale>
 
-            <Pressable
+            <PressableScale
+              to={0.95}
               onPress={() => setRaw('')}
-              style={({ pressed }) => [styles.clearBtn, pressed && styles.pressed]}
+              style={styles.clearBtn}
               accessibilityRole="button"
               accessibilityLabel="Clear amount">
               <SazdaText variant="label" color="primary">
                 Clear
               </SazdaText>
-            </Pressable>
+            </PressableScale>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -183,18 +186,45 @@ function createZakatStyles(c: AppPalette, scheme: ResolvedScheme) {
       backgroundColor: c.surfaceContainerLow,
       borderRadius: radius.md + 6,
       padding: spacing.xl,
-      gap: spacing.sm,
+      gap: spacing.xs,
       borderWidth: 1,
       borderColor: border,
+      shadowColor: scheme === 'dark' ? 'rgba(0,0,0,0.4)' : 'rgba(0, 53, 39, 0.12)',
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 1,
+      shadowRadius: 18,
+      elevation: 3,
     },
+    resultTop: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    resultKicker: { fontSize: 11, fontWeight: '800', letterSpacing: 1.4, opacity: 0.75 },
+    rateChip: {
+      paddingHorizontal: spacing.sm,
+      paddingVertical: 3,
+      borderRadius: radius.full,
+      backgroundColor: scheme === 'dark' ? 'rgba(233,200,74,0.16)' : 'rgba(254, 214, 91, 0.3)',
+    },
+    rateChipText: { fontSize: 10, fontWeight: '900', letterSpacing: 0.8 },
     resultMain: {
       marginVertical: spacing.xs,
+      fontSize: 40,
+      fontWeight: '900',
+      letterSpacing: -1,
     },
+    spacer: { flex: 1 },
     applyBtn: {
-      minHeight: 48,
+      minHeight: 52,
       borderRadius: radius.full,
       alignItems: 'center',
       justifyContent: 'center',
+      shadowColor: 'rgba(0,53,39,0.3)',
+      shadowOffset: { width: 0, height: 6 },
+      shadowOpacity: 1,
+      shadowRadius: 14,
+      elevation: 5,
     },
     applyBtnText: { fontSize: 16, fontWeight: '800' },
     footer: {
@@ -210,6 +240,5 @@ function createZakatStyles(c: AppPalette, scheme: ResolvedScheme) {
       borderRadius: radius.full,
       backgroundColor: c.surfaceContainerHighest,
     },
-    pressed: { opacity: 0.88 },
   });
 }

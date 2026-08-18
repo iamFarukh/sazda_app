@@ -1,6 +1,5 @@
 import { useCallback, useMemo, useState } from 'react';
 import {
-  ActivityIndicator,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -22,6 +21,7 @@ import {
 import { TabLandingHeader } from '../../components/organisms/TabLandingHeader';
 import { TextInput } from '../../components/atoms/TextInput/TextInput';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { Skeleton } from '../../components/atoms/Skeleton/Skeleton';
 import { fetchAllSurahs, type QuranApiSurah } from '../../services/quranApi';
 import type { QuranStackParamList } from '../../navigation/types';
 import { useQuranProgressStore } from '../../store/quranProgressStore';
@@ -31,6 +31,7 @@ import {
 } from '../../store/offlineQuranDownloadStore';
 import { useMushafReaderStore } from '../../store/mushafReaderStore';
 import { radius } from '../../theme/radius';
+import { elevation } from '../../theme/elevation';
 import type { AppPalette } from '../../theme/useThemePalette';
 import type { ResolvedScheme } from '../../theme/useThemePalette';
 import { useThemePalette } from '../../theme/useThemePalette';
@@ -104,11 +105,12 @@ export function QuranHomeScreen() {
   const offlinePct = Math.round(Math.min(100, Math.max(0, odProgress * 100)));
 
   return (
-    <SafeAreaView style={styles.safe} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top']} collapsable={false}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled">
+        keyboardShouldPersistTaps="handled"
+        removeClippedSubviews={false}>
         <TabLandingHeader denseBottom />
 
         <View style={styles.searchWrap}>
@@ -142,9 +144,7 @@ export function QuranHomeScreen() {
           </View>
         ) : null}
 
-        {isPending ? (
-          <ActivityIndicator style={styles.loader} color={c.primary} />
-        ) : isError ? (
+        {isError ? (
           <Pressable onPress={() => refetch()} style={styles.errorBox}>
             <SazdaText variant="bodyMedium" color="error" align="center">
               Couldn&apos;t load Quran catalog. Tap to retry.
@@ -233,34 +233,58 @@ export function QuranHomeScreen() {
             Popular Surahs
           </SazdaText>
           <View style={styles.popularList}>
-            {filteredPopular.map(s => (
-              <Pressable
-                key={s.number}
-                onPress={() => openReader(s.number, 1)}
-                style={({ pressed }) => [styles.popularRow, pressed && styles.pressed]}>
-                <View style={styles.popularLeft}>
-                  <View style={styles.geoWrap}>
-                    <SazdaText variant="caption" color="outlineVariant" style={styles.geoGhost}>
-                      ◎
-                    </SazdaText>
-                    <SazdaText variant="caption" color="primary" style={styles.geoNum}>
-                      {s.number}
-                    </SazdaText>
+            {isPending ? (
+              [0, 1, 2, 3].map(i => (
+                <View key={i} style={styles.popularRow}>
+                  <View style={styles.popularLeft}>
+                    <Skeleton width={48} height={48} radius={12} />
+                    <View style={styles.popularSkeletonText}>
+                      <Skeleton width="45%" height={14} />
+                      <Skeleton width="70%" height={11} />
+                    </View>
                   </View>
-                  <View style={styles.popularText}>
-                    <SazdaText variant="titleSm" color="onSurface">
-                      {s.englishName}
-                    </SazdaText>
-                    <SazdaText variant="caption" color="onSurfaceVariant" style={styles.popularSub}>
-                      {s.englishNameTranslation.toUpperCase()} • {s.numberOfAyahs} Verses
-                    </SazdaText>
-                  </View>
+                  <Skeleton width={40} height={22} />
                 </View>
-                <SazdaText variant="headlineMedium" color="primary" style={styles.arSide} rtl numberOfLines={1}>
-                  {shortArabicTitle(s.name)}
+              ))
+            ) : filteredPopular.length === 0 ? (
+              <Pressable onPress={openList} style={styles.popularEmpty}>
+                <SazdaText variant="bodyMedium" color="onSurfaceVariant" align="center">
+                  No popular surah matches “{query.trim()}”.
+                </SazdaText>
+                <SazdaText variant="bodyMedium" color="secondary" align="center" style={styles.link}>
+                  Search all 114 surahs →
                 </SazdaText>
               </Pressable>
-            ))}
+            ) : (
+              filteredPopular.map(s => (
+                <Pressable
+                  key={s.number}
+                  onPress={() => openReader(s.number, 1)}
+                  style={({ pressed }) => [styles.popularRow, pressed && styles.pressed]}>
+                  <View style={styles.popularLeft}>
+                    <View style={styles.geoWrap}>
+                      <SazdaText variant="caption" color="outlineVariant" style={styles.geoGhost}>
+                        ◎
+                      </SazdaText>
+                      <SazdaText variant="caption" color="primary" style={styles.geoNum}>
+                        {s.number}
+                      </SazdaText>
+                    </View>
+                    <View style={styles.popularText}>
+                      <SazdaText variant="titleSm" color="onSurface">
+                        {s.englishName}
+                      </SazdaText>
+                      <SazdaText variant="caption" color="onSurfaceVariant" style={styles.popularSub}>
+                        {s.englishNameTranslation.toUpperCase()} • {s.numberOfAyahs} Verses
+                      </SazdaText>
+                    </View>
+                  </View>
+                  <SazdaText variant="headlineMedium" color="primary" style={styles.arSide} rtl numberOfLines={1}>
+                    {shortArabicTitle(s.name)}
+                  </SazdaText>
+                </Pressable>
+              ))
+            )}
           </View>
         </View>
 
@@ -381,8 +405,14 @@ function createQuranHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
     borderRadius: 2,
     backgroundColor: c.primary,
   },
-  loader: { marginVertical: spacing.lg },
   errorBox: { padding: spacing.lg },
+  popularSkeletonText: { flex: 1, gap: spacing.xs, minWidth: 0 },
+  popularEmpty: {
+    paddingVertical: spacing.xl,
+    paddingHorizontal: spacing.lg,
+    gap: spacing.xs,
+    alignItems: 'center',
+  },
   heroWrap: { position: 'relative' },
   heroGlow: {
     position: 'absolute',
@@ -399,11 +429,7 @@ function createQuranHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
     borderRadius: radius.xl,
     padding: spacing.xl,
     overflow: 'hidden',
-    shadowColor: 'rgba(0, 53, 39, 0.35)',
-    shadowOpacity: 1,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 12 },
-    elevation: 12,
+    ...elevation('lg', scheme),
   },
   heroKicker: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
   heroKickerText: { opacity: 0.9, letterSpacing: 2 },
@@ -418,11 +444,7 @@ function createQuranHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.lg,
     borderRadius: radius.full,
-    shadowColor: 'rgba(0,0,0,0.15)',
-    shadowOpacity: 1,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 4,
+    ...elevation('sm', scheme),
   },
   ctaText: { fontWeight: '700' },
   pressed: { opacity: 0.9 },
@@ -437,11 +459,7 @@ function createQuranHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
     padding: spacing.lg,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: recentBorder,
-    shadowColor: 'rgba(6, 78, 59, 0.06)',
-    shadowOpacity: 1,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 3,
+    ...elevation('sm', scheme),
   },
   recentNum: {
     width: 40,
@@ -520,11 +538,7 @@ function createQuranHomeStyles(c: AppPalette, scheme: ResolvedScheme) {
     padding: spacing.lg,
     borderWidth: 1,
     borderColor: scheme === 'dark' ? 'rgba(11,81,63,0.5)' : 'rgba(6,78,59,0.2)',
-    shadowColor: 'rgba(6, 78, 59, 0.2)',
-    shadowOpacity: 1,
-    shadowRadius: 20,
-    shadowOffset: { width: 0, height: 10 },
-    elevation: 6,
+    ...elevation('md', scheme),
   },
   mushafHeroGlow: {
     ...StyleSheet.absoluteFillObject,

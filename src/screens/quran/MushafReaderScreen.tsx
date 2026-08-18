@@ -15,6 +15,7 @@ import {
 } from 'react-native';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { hapticLight } from '../../utils/appHaptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import type { RouteProp } from '@react-navigation/native';
@@ -132,6 +133,7 @@ export function MushafReaderScreen() {
   const flashLimitToast = useCallback(
     (text: string) => {
       if (toastTextRef.current === text && toastText) return;
+      hapticLight();
       toastTextRef.current = text;
       setToastText(text);
       if (toastHideTimer.current) clearTimeout(toastHideTimer.current);

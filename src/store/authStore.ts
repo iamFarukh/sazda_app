@@ -1,5 +1,10 @@
 import type { User } from 'firebase/auth';
-import { onAuthStateChanged, signOut as firebaseSignOut } from 'firebase/auth';
+import {
+  onAuthStateChanged,
+  signOut as firebaseSignOut,
+  deleteUser,
+  reauthenticateWithCredential,
+} from 'firebase/auth';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GoogleAuthProvider, signInWithCredential } from 'firebase/auth';
 import { create } from 'zustand';
@@ -7,6 +12,7 @@ import { persist } from 'zustand/middleware';
 import { isFirebaseConfigured, isGoogleSignInConfigured } from '../config/firebasePublic';
 import { configureNativeGoogleSignIn } from '../services/configureNativeGoogleSignIn';
 import { getFirebaseApp, getFirebaseAuth } from '../services/firebase/client';
+import { deleteAllUserData } from '../services/firebase/deleteAccount';
 import { zustandStorage } from '../services/storage';
 import { useProfileStore } from './profileStore';
 
@@ -41,6 +47,8 @@ type AuthState = {
   setAuthFromFirebaseListener: (user: FirebaseUserSnapshot | null) => void;
   setAuthReady: (v: boolean) => void;
   signOut: () => Promise<void>;
+  /** Permanently delete the Firebase account + all cloud data (Play User Data policy). */
+  deleteAccount: () => Promise<{ ok: true } | { ok: false; message: string }>;
 };
 
 
@@ -129,6 +137,67 @@ export const useAuthStore = create<AuthState>()(
           needsCelebration: false,
           googleSignInError: null,
         });
+      },
+
+      deleteAccount: async () => {
+        if (!isFirebaseConfigured() || !getFirebaseApp()) {
+          return { ok: false, message: 'Firebase is not configured.' };
+        }
+        const auth = getFirebaseAuth();
+        const user = auth.currentUser;
+        if (!user) {
+          return { ok: false, message: 'You are not signed in.' };
+        }
+        const uid = user.uid;
+        try {
+          // 1. Re-authenticate — Firebase requires a recent login before deleteUser().
+          configureNativeGoogleSignIn();
+          await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+          const response = await GoogleSignin.signIn();
+          if (response.type !== 'success') {
+            return { ok: false, message: 'Account deletion was cancelled.' };
+          }
+          let idToken = response.data.idToken;
+          if (!idToken) {
+            idToken = (await GoogleSignin.getTokens()).idToken;
+          }
+          if (!idToken) {
+            return { ok: false, message: 'Could not verify your identity. Please try again.' };
+          }
+          const credential = GoogleAuthProvider.credential(idToken);
+          await reauthenticateWithCredential(user, credential);
+
+          // 2. Delete all cloud data while the auth token is still valid.
+          await deleteAllUserData(uid);
+
+          // 3. Delete the Firebase Auth account.
+          await deleteUser(user);
+
+          // 4. Revoke Google access + drop the native session.
+          try {
+            await GoogleSignin.revokeAccess();
+          } catch {
+            /* token may already be invalid */
+          }
+          try {
+            await GoogleSignin.signOut();
+          } catch {
+            /* ignore */
+          }
+        } catch (e: unknown) {
+          const msg = e instanceof Error ? e.message : 'Could not delete your account.';
+          return { ok: false, message: msg };
+        }
+
+        // 5. Reset local session/state.
+        useProfileStore.getState().resetToGuestDefaults();
+        set({
+          guestSession: false,
+          firebaseUser: null,
+          needsCelebration: false,
+          googleSignInError: null,
+        });
+        return { ok: true };
       },
     }),
     {

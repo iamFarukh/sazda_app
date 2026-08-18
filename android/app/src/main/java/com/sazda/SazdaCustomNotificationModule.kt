@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.Color
+import android.media.AudioAttributes
+import android.media.RingtoneManager
 import android.os.Build
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
@@ -95,12 +97,19 @@ class SazdaCustomNotificationModule(private val reactContext: ReactApplicationCo
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
     val nm = reactContext.getSystemService(NotificationManager::class.java) ?: return
     if (nm.getNotificationChannel(channelId) != null) return
-    // Fallback if JS channel was not created yet (should not happen in normal flow)
+    // Fallback if JS channel was not created yet — mirror Notifee `sound: 'default'`.
+    val defaultSound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+    val audioAttributes = AudioAttributes.Builder()
+      .setUsage(AudioAttributes.USAGE_NOTIFICATION)
+      .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+      .build()
     val ch = NotificationChannel(
       channelId,
       "Sazda",
       NotificationManager.IMPORTANCE_HIGH,
-    )
+    ).apply {
+      setSound(defaultSound, audioAttributes)
+    }
     nm.createNotificationChannel(ch)
   }
 }

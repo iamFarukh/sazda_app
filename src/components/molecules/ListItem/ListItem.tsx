@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { radius } from '../../../theme/radius';
 import { spacing } from '../../../theme/spacing';
 import { useThemePalette } from '../../../theme/useThemePalette';
 import { SazdaText } from '../../atoms/SazdaText/SazdaText';
+import { PressableScale } from '../../atoms/PressableScale/PressableScale';
 
 type Props = {
   title: string;
@@ -35,16 +36,15 @@ export function ListItem({
   const subtitleColor = selected ? c.onPrimaryContainer : c.onSurfaceVariant;
 
   return (
-    <Pressable
+    <PressableScale
       onPress={isDisabled ? undefined : onPress}
       disabled={isDisabled}
       accessibilityRole="button"
-      style={({ pressed }) => [
-        styles.base,
-        bgStyle,
-        pressed && !isDisabled ? styles.pressed : null,
-        isDisabled ? styles.disabled : null,
-      ]}>
+      accessibilityLabel={title}
+      accessibilityHint={subtitle}
+      accessibilityState={{ selected: !!selected, disabled: isDisabled }}
+      to={0.98}
+      style={[styles.base, bgStyle, isDisabled ? styles.disabled : null]}>
       <View style={styles.row}>
         {left ? <View style={styles.left}>{left}</View> : <View />}
         <View style={styles.texts}>
@@ -59,7 +59,7 @@ export function ListItem({
         </View>
         {right ? <View style={styles.right}>{right}</View> : <View />}
       </View>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -81,9 +81,6 @@ const styles = StyleSheet.create({
   },
   right: {
     marginLeft: spacing.sm,
-  },
-  pressed: {
-    opacity: 0.9,
   },
   disabled: {
     opacity: 0.55,

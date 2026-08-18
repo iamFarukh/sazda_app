@@ -45,7 +45,7 @@ export const QuranMiniPlayer = memo(function QuranMiniPlayer() {
           <Text style={[styles.title, { color: c.surface }]} numberOfLines={1}>
             {surahName ? `Surah ${surahName}` : 'Quran Audio'}
           </Text>
-          <Text style={[styles.sub, { color: c.primaryFixedDim }]} numberOfLines={1}>
+          <Text style={[styles.sub, { color: c.secondaryContainer }]} numberOfLines={1}>
             {ayah ? `Ayah ${ayah}` : 'Ready'}
           </Text>
         </View>

@@ -7,7 +7,6 @@ import { ToolsStackNavigator } from './ToolsStackNavigator';
 import type { MainTabParamList } from './types';
 import { SazdaBottomTabBar } from '../components/organisms/BottomTabBar/SazdaBottomTabBar';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
-import { Platform } from 'react-native';
 import { useThemePalette } from '../theme/useThemePalette';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -20,14 +19,13 @@ export function AppTabs() {
   return (
     <Tab.Navigator
       tabBar={renderTabBar}
-      // Detaching inactive native screens on Android often causes visible hitch when
-      // switching tabs; keep scenes attached for smoother tab changes (more memory).
-      detachInactiveScreens={Platform.OS !== 'android'}
+      // Keep tab scenes attached on both platforms — detaching + freezeOnBlur caused
+      // intermittent blank Quran (and other) tabs after switching back on iOS.
+      detachInactiveScreens={false}
       screenOptions={{
         headerShown: false,
-        // Suspend JS on unfocused tabs to cut background work.
-        freezeOnBlur: true,
-        // Explicit instant scene transition (library default is already 'none').
+        freezeOnBlur: false,
+        // Instant tab switches — fade left some scenes transparent on iOS.
         animation: 'none',
         // Avoid default white strip behind the custom dock (iOS especially).
         tabBarStyle: {
@@ -46,7 +44,7 @@ export function AppTabs() {
       <Tab.Screen
         name="QuranTab"
         component={QuranStackNavigator}
-        options={{ title: 'Quran' }}
+        options={{ title: 'Quran', lazy: false }}
       />
       <Tab.Screen
         name="ToolsTab"

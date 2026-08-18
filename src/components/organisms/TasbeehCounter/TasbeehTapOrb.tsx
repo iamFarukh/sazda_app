@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   useAnimatedStyle,
+  useReducedMotion,
   useSharedValue,
   withRepeat,
   withSequence,
@@ -86,6 +87,7 @@ export function TasbeehTapOrb({
 }: Props) {
   const gid = useId().replace(/:/g, '');
   const gradId = `tasbeehOrb-${gid}`;
+  const reduced = useReducedMotion();
 
   const orbScale = useSharedValue(1);
   const dropScale = useSharedValue(1);
@@ -103,6 +105,11 @@ export function TasbeehTapOrb({
   }, []);
 
   useEffect(() => {
+    if (reduced) {
+      outerPulse.value = 0.5;
+      midPulse.value = 0.7;
+      return;
+    }
     outerPulse.value = withRepeat(
       withSequence(
         withTiming(0.72, { duration: 2200, easing: Easing.inOut(Easing.sin) }),
@@ -117,17 +124,17 @@ export function TasbeehTapOrb({
       ),
       -1,
     );
-  }, [midPulse, outerPulse]);
+  }, [midPulse, outerPulse, reduced]);
 
   useEffect(() => {
-    if (tapTick <= 0) return;
+    if (tapTick <= 0 || reduced) return;
     dropScale.value = withSequence(
       withTiming(0.82, { duration: 55, easing: Easing.out(Easing.quad) }),
       withSpring(1.18, { damping: 8, stiffness: 320, mass: 0.45 }),
       withSpring(1, { damping: 14, stiffness: 220 }),
     );
     spawnRipple();
-  }, [tapTick, dropScale, spawnRipple]);
+  }, [tapTick, dropScale, spawnRipple, reduced]);
 
   const orbAnimStyle = useAnimatedStyle(() => ({
     transform: [{ scale: orbScale.value }],
@@ -193,6 +200,7 @@ export function TasbeehTapOrb({
         }}
         accessibilityRole="button"
         accessibilityLabel="Tap to count dhikr"
+        accessibilityHint="Increments your dhikr count by one each tap"
         style={styles.pressable}>
         <Animated.View
           style={[

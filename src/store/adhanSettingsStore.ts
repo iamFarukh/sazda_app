@@ -18,13 +18,14 @@ interface PrayerAdhanSettings {
 
 type ByPrayerAdhan = Record<FiveDailyPrayer, PrayerAdhanSettings>;
 
-const defaultByPrayerAdhan: ByPrayerAdhan = {
-  Fajr: { volumeMode: 'LOUD', soundId: 'fajar' },
-  Dhuhr: { volumeMode: 'LOUD', soundId: 'makkah' },
-  Asr: { volumeMode: 'LOUD', soundId: 'soft' },
-  Maghrib: { volumeMode: 'LOUD', soundId: 'adan_tune' },
-  Isha: { volumeMode: 'LOUD', soundId: 'adan_tune' },
-};
+/** New installs: system alert for every prayer; users can pick Adhan in settings. */
+const defaultByPrayerAdhan: ByPrayerAdhan = FIVE_DAILY_PRAYERS.reduce(
+  (acc, prayer) => {
+    acc[prayer] = { volumeMode: 'LOUD', soundId: 'default' };
+    return acc;
+  },
+  {} as ByPrayerAdhan,
+);
 
 /** Minutes after official prayer start before Adhan plays (never before prayer time). */
 export type AdhanDelayMinutes = 0 | 3 | 5;

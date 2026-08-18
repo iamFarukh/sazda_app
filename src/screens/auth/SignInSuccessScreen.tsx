@@ -1,16 +1,28 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withDelay,
+  withSpring,
+  withTiming,
+} from 'react-native-reanimated';
 import type { RouteProp } from '@react-navigation/native';
 import { useRoute } from '@react-navigation/native';
 import { CheckCircle2 } from 'lucide-react-native';
 import { SazdaText } from '../../components/atoms/SazdaText/SazdaText';
+import { AppLottie } from '../../components/atoms/AppLottie/AppLottie';
+import successRing from '../../assets/lottie/success-ring.json';
 import type { AuthStackParamList } from '../../navigation/types';
 import { getFirebaseAuth } from '../../services/firebase/client';
 import { syncAfterGoogleLogin } from '../../services/firebase/syncQuranProgress';
 import type { FirebaseUserSnapshot } from '../../store/authStore';
 import { useAuthStore } from '../../store/authStore';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
+import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
+import { motionDurations, springs } from '../../theme/motion';
 import { fontFamilies } from '../../theme/typography';
 
 type R = RouteProp<AuthStackParamList, 'SignInSuccess'>;
@@ -38,6 +50,22 @@ export function SignInSuccessScreen() {
   const completeGoogleCelebration = useAuthStore(s => s.completeGoogleCelebration);
   const [syncing, setSyncing] = useState(false);
   const doneRef = useRef(false);
+  const reduced = useReduceMotion();
+
+  // Calm celebratory entrance for the success mark.
+  const scale = useSharedValue(reduced ? 1 : 0.8);
+  const opacity = useSharedValue(reduced ? 1 : 0);
+
+  useEffect(() => {
+    if (reduced) return;
+    opacity.value = withTiming(1, { duration: motionDurations.base });
+    scale.value = withDelay(60, withSpring(1, springs.delight));
+  }, [reduced, opacity, scale]);
+
+  const haloAnimStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [{ scale: scale.value }],
+  }));
 
   const finish = useCallback(async () => {
     if (doneRef.current) return;
@@ -72,13 +100,26 @@ export function SignInSuccessScreen() {
       StyleSheet.create({
         safe: {
           flex: 1,
-          backgroundColor: '#003527',
+          // Fixed brand celebration surface (deep emerald) regardless of theme.
+          backgroundColor: colors.primary,
         },
         inner: {
           flex: 1,
           paddingHorizontal: spacing.lg,
           justifyContent: 'center',
           alignItems: 'center',
+        },
+        haloZone: {
+          width: 200,
+          height: 200,
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginBottom: spacing.x3xl,
+        },
+        lottieAbs: {
+          ...StyleSheet.absoluteFillObject,
+          alignItems: 'center',
+          justifyContent: 'center',
         },
         halo: {
           width: 120,
@@ -89,14 +130,13 @@ export function SignInSuccessScreen() {
           justifyContent: 'center',
           borderWidth: StyleSheet.hairlineWidth,
           borderColor: 'rgba(255,255,255,0.12)',
-          marginBottom: spacing.x3xl,
         },
         btn: {
           marginTop: spacing.x3xl,
           paddingVertical: spacing.md,
           paddingHorizontal: spacing.xxl,
           borderRadius: 999,
-          backgroundColor: 'rgba(254, 214, 91, 0.95)',
+          backgroundColor: colors.secondaryContainer,
           minWidth: 200,
           alignItems: 'center',
         },
@@ -108,12 +148,17 @@ export function SignInSuccessScreen() {
   return (
     <SafeAreaView style={styles.safe} edges={['top', 'bottom']}>
       <View style={styles.inner}>
-        <View style={styles.halo}>
-          <CheckCircle2 size={64} color="#FED65B" strokeWidth={1.75} />
+        <View style={styles.haloZone}>
+          <View style={styles.lottieAbs} pointerEvents="none">
+            <AppLottie source={successRing} size={200} loop={false} autoPlay />
+          </View>
+          <Animated.View style={[styles.halo, haloAnimStyle]}>
+            <CheckCircle2 size={64} color={colors.secondaryContainer} strokeWidth={1.75} />
+          </Animated.View>
         </View>
         <SazdaText
           variant="headlineLarge"
-          color="onPrimary"
+          color={colors.onPrimary}
           align="center"
           style={{
             fontFamily: fontFamilies.headline,
@@ -124,7 +169,7 @@ export function SignInSuccessScreen() {
           }}>
           Assalamu Alaikum, {displayName}!
         </SazdaText>
-        <SazdaText variant="bodyMedium" color="onPrimary" align="center" style={{ opacity: 0.88, maxWidth: 340 }}>
+        <SazdaText variant="bodyMedium" color={colors.onPrimary} align="center" style={{ opacity: 0.88, maxWidth: 340 }}>
           Your sanctuary is ready. Your Quran progress will stay on this device and sync to your account when
           online.
         </SazdaText>
@@ -133,7 +178,7 @@ export function SignInSuccessScreen() {
           onPress={finish}
           style={({ pressed }) => [styles.btn, pressed && styles.btnPressed, syncing && { opacity: 0.7 }]}
           disabled={syncing}>
-          <SazdaText variant="label" color="primary" style={{ fontWeight: '800' }}>
+          <SazdaText variant="label" color={colors.primary} style={{ fontWeight: '800' }}>
             {syncing ? 'Syncing…' : 'Continue'}
           </SazdaText>
         </Pressable>

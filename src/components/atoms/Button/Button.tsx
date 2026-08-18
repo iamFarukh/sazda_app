@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
-import { Pressable, StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text } from 'react-native';
 import { useThemePalette } from '../../../theme/useThemePalette';
 import { spacing } from '../../../theme/spacing';
 import { typography } from '../../../theme/typography';
 import { hapticMedium } from '../../../utils/appHaptics';
+import { PressableScale } from '../PressableScale/PressableScale';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary';
 export type ButtonSize = 'md' | 'lg';
@@ -45,7 +46,8 @@ export function Button({
     variant === 'tertiary' ? typography.titleSm : typography.bodyMedium;
 
   return (
-    <Pressable
+    <PressableScale
+      disabled={isDisabled}
       onPress={
         isDisabled
           ? undefined
@@ -55,7 +57,8 @@ export function Button({
             }
       }
       accessibilityRole="button"
-      style={({ pressed }) => [
+      accessibilityState={{ disabled: isDisabled }}
+      style={[
         styles.base,
         variant === 'primary'
           ? dynamic.primaryBg
@@ -64,7 +67,6 @@ export function Button({
             : styles.tertiary,
         sizeStyle,
         isDisabled ? styles.disabled : null,
-        pressed && !isDisabled ? styles.pressed : null,
       ]}>
       <Text
         style={[
@@ -77,7 +79,7 @@ export function Button({
         ]}>
         {title}
       </Text>
-    </Pressable>
+    </PressableScale>
   );
 }
 
@@ -107,8 +109,5 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
-  },
-  pressed: {
-    opacity: 0.85,
   },
 });

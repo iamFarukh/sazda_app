@@ -5,6 +5,12 @@
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
   <uses-permission android:name="android.permission.CAMERA" />
   <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS" />
+  <!-- Exact prayer-time alarms (adhan). USE_EXACT_ALARM is permitted because precisely-timed
+       prayer alerts are core functionality; SCHEDULE_EXACT_ALARM is the revocable fallback. -->
+  <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+  <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
+  <!-- Allow the LOUD adhan channel to sound through Do Not Disturb. -->
+  <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
   <application
     android:name=".MainApplication"

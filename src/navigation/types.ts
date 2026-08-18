@@ -65,7 +65,3 @@ export type MainTabParamList = {
   QiblaTab: NavigatorScreenParams<QiblaStackParamList>;
   ProfileTab: NavigatorScreenParams<ProfileStackParamList>;
 };
-
-export type MainDrawerParamList = {
-  MainTabs: NavigatorScreenParams<MainTabParamList>;
-};

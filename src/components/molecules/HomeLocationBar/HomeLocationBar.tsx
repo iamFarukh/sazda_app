@@ -13,11 +13,14 @@ type Props = {
   cityLabel: string;
   onPress: () => void;
   disabled?: boolean;
+  /** White treatment for placement over a dark/immersive background (e.g. Home hero). */
+  onDark?: boolean;
 };
 
-export function HomeLocationBar({ cityLabel, onPress, disabled }: Props) {
+export function HomeLocationBar({ cityLabel, onPress, disabled, onDark }: Props) {
   const { colors: c, scheme } = useThemePalette();
   const styles = useMemo(() => createStyles(c, scheme), [c, scheme]);
+  const ink = onDark ? '#ffffff' : c.primary;
 
   return (
     <Pressable
@@ -31,11 +34,15 @@ export function HomeLocationBar({ cityLabel, onPress, disabled }: Props) {
         pressed && !disabled && styles.pressed,
         disabled && styles.disabled,
       ]}>
-      <MapPin size={18} color={c.primary} strokeWidth={2.2} />
-      <SazdaText variant="titleSm" color="primary" style={styles.city} numberOfLines={1}>
+      <MapPin size={18} color={ink} strokeWidth={2.2} />
+      <SazdaText
+        variant="titleSm"
+        color={onDark ? '#ffffff' : 'primary'}
+        style={styles.city}
+        numberOfLines={1}>
         {cityLabel}
       </SazdaText>
-      <ChevronDown size={16} color={c.primary} strokeWidth={2} style={styles.chevron} />
+      <ChevronDown size={16} color={ink} strokeWidth={2} style={styles.chevron} />
     </Pressable>
   );
 }

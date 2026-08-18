@@ -1,19 +1,19 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Modal, View, Text, Pressable, StyleSheet, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import type { DrawerNavigationProp } from '@react-navigation/drawer';
+import { useNavigation, type NavigationProp } from '@react-navigation/native';
 import { useThemePalette } from '../../theme/useThemePalette';
 import { spacing } from '../../theme/spacing';
 import { typography } from '../../theme/typography';
 import { Button } from '../atoms/Button/Button';
+import { PressableScale } from '../atoms/PressableScale/PressableScale';
 import { useNotificationOnboardingStore } from '../../store/notificationOnboardingStore';
 import { useAdhanSettingsStore } from '../../store/adhanSettingsStore';
 import { usePrayerReminderStore } from '../../store/prayerReminderStore';
 import { requestNotificationPermission } from '../../services/prayerReminders';
-import type { MainDrawerParamList } from '../../navigation/types';
-import { hapticMedium } from '../../utils/appHaptics';
+import type { MainTabParamList } from '../../navigation/types';
+import { hapticLight, hapticMedium } from '../../utils/appHaptics';
 
-type DrawerNav = DrawerNavigationProp<MainDrawerParamList>;
+type TabsNav = NavigationProp<MainTabParamList>;
 
 const PREVIEW_ROWS: { title: string; body: string; meta: string }[] = [
   {
@@ -35,7 +35,7 @@ const PREVIEW_ROWS: { title: string; body: string; meta: string }[] = [
 
 export function NotificationOnboardingModal() {
   const { colors: c } = useThemePalette();
-  const navigation = useNavigation<DrawerNav>();
+  const navigation = useNavigation<TabsNav>();
   const hasSeen = useNotificationOnboardingStore(s => s.hasSeenNotificationPrompt);
   const complete = useNotificationOnboardingStore(s => s.completeNotificationPrompt);
   const setPendingWelcome = useNotificationOnboardingStore(s => s.setPendingWelcomeContextNotification);
@@ -70,14 +70,11 @@ export function NotificationOnboardingModal() {
   const onCustomize = useCallback(() => {
     hapticMedium();
     dismiss();
-    navigation.navigate('MainTabs', {
-      screen: 'ProfileTab',
-      params: { screen: 'AdhanSettings' },
-    });
+    navigation.navigate('ProfileTab', { screen: 'AdhanSettings' });
   }, [dismiss, navigation]);
 
   const onMaybeLater = useCallback(() => {
-    hapticMedium();
+    hapticLight();
     dismiss();
   }, [dismiss]);
 
@@ -118,9 +115,14 @@ export function NotificationOnboardingModal() {
             <Button title="Turn on notifications" variant="primary" size="lg" onPress={onEnable} />
             <View style={styles.gapSm} />
             <Button title="Customize in settings" variant="secondary" size="md" onPress={onCustomize} />
-            <Pressable onPress={onMaybeLater} style={styles.maybeLater} hitSlop={12}>
+            <PressableScale
+              onPress={onMaybeLater}
+              style={styles.maybeLater}
+              hitSlop={12}
+              accessibilityRole="button"
+              accessibilityLabel="Maybe later">
               <Text style={[typography.bodyMedium, { color: c.onSurfaceVariant }]}>Maybe later</Text>
-            </Pressable>
+            </PressableScale>
           </ScrollView>
         </Pressable>
       </View>

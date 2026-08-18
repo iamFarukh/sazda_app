@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
+import { getCrashlytics, log, recordError } from '@react-native-firebase/crashlytics';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -21,7 +22,16 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // We would log to Crashlytics here if needed
+    // Report the crash to Firebase Crashlytics (no-op if the native module is unavailable).
+    try {
+      const crashlytics = getCrashlytics();
+      if (errorInfo.componentStack) {
+        log(crashlytics, `componentStack: ${errorInfo.componentStack}`);
+      }
+      recordError(crashlytics, error);
+    } catch {
+      /* Crashlytics not available (e.g. Firebase not configured) */
+    }
     console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
